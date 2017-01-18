@@ -14,8 +14,7 @@ Mutex
     
     
  Critical section
-    A critical section cannot be handles by more than one process, Protection section. A network connection that does not
-    allow multiple concurrent accesses
+    A critical section cannot be handles by more than one process, Protection section. 
     
     
 Solve the concurrent access problem form ex1
