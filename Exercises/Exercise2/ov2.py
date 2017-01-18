@@ -1,15 +1,21 @@
 from threading import Thread
+import threading
 i = 0
-
+lock = threading.Lock()
 def threadFunction():
 	global i
-	for n in range(1000000):
+	for n in range(100000):
+		lock.acquire()
 		i = i + 1
+		lock.release()
+
 
 def threadFunctionTwo():
 	global i
-	for n in range(1000001):
+	for n in range(100001):
+		lock.acquire()
 		i = i - 1
+		lock.release()
 	
 def main():
 	someThread = Thread(target = threadFunction, args = (),)
