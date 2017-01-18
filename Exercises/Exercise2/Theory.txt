@@ -1,0 +1,21 @@
+Theory part:
+What is an atomic operation?
+    atomic operations completes in a single step relative to other threads. 
+    When doing an atomic operation on a global variable, no other threads can observe the modification half-complete
+    Atomic operations have a suceed or fail - definition, as seen 
+ 
+ Semaphore
+    Used to controll access to a common resource by multiple proccesses
+    Useful in preventing race conditions
+    
+Mutex
+    Used to control the queue when multiple threads wants access to the same variable. Only the thread which holds
+    the Mutex will have access to the variable at a time.
+    
+    
+ Critical section
+    A critical section cannot be handles by more than one process, Protection section. A network connection that does not
+    allow multiple concurrent accesses
+    
+    
+Solve the concurrent access problem form ex1
