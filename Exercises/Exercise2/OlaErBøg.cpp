@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 int main(){
 	std::cout << "Er Ola bøg?" << std::endl;
