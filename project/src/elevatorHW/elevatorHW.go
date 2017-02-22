@@ -34,25 +34,26 @@ func Init() {
 		fmt.Println("Initialization error")
 	}
 	SetMotor(DirectionDown)
+	InitLoop:
 	for {
 		floor := GetFloorSensorSignal()
 		switch floor {
 		case 1:
 			SetMotor(DirectionStop)
 			SetFloorIndicator(1)
-			break
+			break InitLoop
 		case 2:
 			SetMotor(DirectionStop)
 			SetFloorIndicator(2)
-			break
+			break InitLoop
 		case 3:
 			SetMotor(DirectionStop)
 			SetFloorIndicator(3)
-			break
+			break InitLoop
 		case 4:
 			SetMotor(DirectionStop)
 			SetFloorIndicator(4)
-			break
+			break InitLoop
 		}
 	}
 }
