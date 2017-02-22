@@ -1,5 +1,4 @@
 package io
-
 /*
 #cgo CFLAGS: -std=c11
 #cgo LDFLAGS: -lcomedi -lm

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"elevatorProject/io"
-	"elevatorProject/elevatorHW"
+	"./src/io"
+	"./src/elevatorHW"
 	"fmt"
 	"time"
 )

@@ -1,8 +1,6 @@
 package elevatorHW
 
-import(
-	"elevatorProject/io"
-)
+import "../io"
 
 const motorSpeed = 2800
 const NFloors	 = 4
