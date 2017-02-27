@@ -26,6 +26,18 @@ const (
 	ButtonCommand
 )
 
+var buttons [NFloors][NButtons]int = [NFloors][NButtons]int{
+	{buttonDown1, buttonUp1, buttonCommand1},
+	{buttonDown2, buttonUp2, buttonCommand2},
+	{buttonDown3, buttonUp3, buttonCommand3},
+	{buttonDown4, buttonUp4, buttonCommand4}}
+
+var lights [NFloors][NLights]int = [NFloors][NLights]int{
+	{lightDown1, lightUp1, lightCommand1},
+	{lightDown2, lightUp2, lightCommand2},
+	{lightDown3, lightUp3, lightCommand3},
+	{lightDown4, lightUp4, lightCommand4}}
+
 func Init() {
 	status := io.Init()
 	if status {
@@ -33,26 +45,38 @@ func Init() {
 	} else {
 		fmt.Println("Initialization error")
 	}
+	io.ClearBit(lightCommand2)
+
+	for floor := 0; floor < NFloors; floor++ {
+		for button := 0; button < NButtons; button++ {
+			io.ClearBit(lights[floor][button])
+		}
+	}
+
 	SetMotor(DirectionDown)
-	InitLoop:
+InitLoop:
 	for {
 		floor := GetFloorSensorSignal()
 		switch floor {
 		case 1:
 			SetMotor(DirectionStop)
 			SetFloorIndicator(1)
+			fmt.Println("Arrived at floor", floor)
 			break InitLoop
 		case 2:
 			SetMotor(DirectionStop)
 			SetFloorIndicator(2)
+			fmt.Println("Arrived at floor", floor)
 			break InitLoop
 		case 3:
 			SetMotor(DirectionStop)
 			SetFloorIndicator(3)
+			fmt.Println("Arrived at floor", floor)
 			break InitLoop
 		case 4:
 			SetMotor(DirectionStop)
 			SetFloorIndicator(4)
+			fmt.Println("Arrived at floor", floor)
 			break InitLoop
 		}
 	}

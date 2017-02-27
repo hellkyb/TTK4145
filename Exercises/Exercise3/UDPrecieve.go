@@ -1,4 +1,5 @@
 package main
+
 // This is a comment
 
 import (
@@ -6,10 +7,8 @@ import (
 	"net"
 )
 
-
-
-func main(){
-	addr, err := net.ResolveUDPAddr("udp4", ":30000	")
+func main() {
+	addr, err := net.ResolveUDPAddr("udp4", ":20001")
 	fmt.Println(err)
 	conn, err := net.ListenUDP("udp4", addr)
 	fmt.Println(err)

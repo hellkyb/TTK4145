@@ -10,9 +10,7 @@ import (
 
 func main() {
 
-	// Initiating, driving to first floor
 	elevatorHW.Init()
-	// First floor
 
 	//elevatorHW.SetMotor(elevatorHW.DirectionUp)
 	//time.Sleep(1 * time.Second)

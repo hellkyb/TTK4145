@@ -20,8 +20,8 @@ const port1ChannelOffset = 0
 
 //const port1Direction		= COMEDI_INPUT
 const buttonDown2 = (0x200 + 0)
-const ButtonUp3 = (0x200 + 1)
-const ButtonDown3 = (0x200 + 2)
+const buttonUp3 = (0x200 + 1)
+const buttonDown3 = (0x200 + 2)
 const buttonDown4 = (0x200 + 3)
 const sensorFloor1 = (0x200 + 4)
 const sensorFloor2 = (0x200 + 5)
