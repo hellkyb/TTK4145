@@ -7,6 +7,17 @@ import (
 	"time"
 )
 
+type elevatorState struct{
+	previousFloor int
+	direction elevatorHW.MotorDirection
+}
+
+func costFunc(elevatorStates []elevatorState){
+	distanceCost := 0
+	
+}
+
+
 func TestFunction() {
 
 	if io.ReadAnalog(elevatorHW.ButtonUp3) == 1 {
@@ -26,3 +37,5 @@ func TestFunction() {
 func StupidFunc() {
 	fmt.Println(io.ReadAnalog(elevatorHW.SensorFloor1))
 }
+
+
