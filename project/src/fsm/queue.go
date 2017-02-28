@@ -12,7 +12,6 @@ type queue struct{
 type orderStatus struct{
 	active bool
 	assignedElevator string 
-	timer *time.Timer
 }
 
 var localQueue queue 

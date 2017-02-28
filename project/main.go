@@ -2,15 +2,21 @@ package main
 
 import (
 	"./src/elevatorHW"
+	"fmt"
 	/*"./src/fsm"
 	"./src/io"
-	"fmt"
 	"time"
 	*/)
 
 func main() {
 
 	elevatorHW.Init()
+
+	go elevatorHW.GetFloorSensorSignal()
+	fmt.Println(currentfloor)
+
+	peers []string
+
 
 	//elevatorHW.SetMotor(elevatorHW.DirectionUp)
 	//time.Sleep(1 * time.Second)
