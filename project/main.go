@@ -11,8 +11,20 @@ import (
 )
 
 func main() {
-
+	i := 0
 	elevatorHW.Init()
+	fsm.CreateQueueSlice()
+	for {
+		if i%40000000 == 0 {
+			go fsm.PrintLocalQueue()
+			go fsm.PutOrderInLocalQueue()
+			go fsm.SetElevatorDirection()
+			go fsm.StopAtThisFloor()
+			fmt.Println(elevatorHW.GetElevatorDirection())
+		}
+
+		i++
+	}
 
 	/*go elevatorHW.GetFloorSensorSignal()
 	fmt.Println(currentfloor)

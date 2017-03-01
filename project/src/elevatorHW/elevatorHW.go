@@ -182,3 +182,7 @@ func SetDownLight(floor int) {
 	}
 
 }
+
+func GetElevatorDirection() int {
+	return io.ReadAnalog(motordir)
+}

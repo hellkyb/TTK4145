@@ -116,3 +116,18 @@ func DeleteOldestOrderInside() {
 		localQueue[0][i], localQueue[0][opp] = localQueue[0][opp], localQueue[0][i]
 	}
 }
+
+func IsLocalQueueEmpty() bool {
+	lengths := make([]int, 3)
+	for i := 0; i < 3; i++ {
+		lengths[i] = len(localQueue[i])
+		if lengths[i] < 1 {
+			return true
+		}
+	}
+	return false
+}
+
+func DeleteIndexLocalQueue(i int, j int) {
+	localQueue[i] = append(localQueue[i][:j], localQueue[i][j+1:]...)
+}
