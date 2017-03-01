@@ -4,9 +4,9 @@ import (
 	"../elevatorHW"
 	//"../io"
 	//"../network/peers"
-	"fmt"
+	//"fmt"
 	//"math"
-	//"time"
+	"time"
 )
 
 type elevatorState struct {
@@ -36,17 +36,17 @@ type order struct {
 
 }*/
 
-func timer() {
+func timer() bool {
 	start := time.Now()
-	elapsed := 0
-	for elapsed < 3*time.Second {
+	elapsed := time.Since(start)
+	for elapsed < 3 {
 		elapsed = time.Since(start)
 	}
 	return true
 }
 
 func ArrivedAtFloorSetDoorOpen(floor int) {
-	elevatorHW.SetMotor(DirectionStop)
+	elevatorHW.SetMotor(elevatorHW.DirectionStop)
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
 	for !timer() {

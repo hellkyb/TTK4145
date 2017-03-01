@@ -13,7 +13,9 @@ import (
 func main() {
 
 	elevatorHW.Init()
-
+	for {
+		fsm.ArrivedAtFloorSetDoorOpen(elevatorHW.GetFloorSensorSignal())
+	}
 	/*go elevatorHW.GetFloorSensorSignal()
 	fmt.Println(currentfloor)
 	*/
