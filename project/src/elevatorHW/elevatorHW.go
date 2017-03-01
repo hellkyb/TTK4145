@@ -132,3 +132,53 @@ func GetFloorSensorSignal() int {
 		return 0
 	}
 }
+
+func GetUpButton() int {
+	if io.ReadAnalog(buttonUp1) == 1 {
+		return 1
+	} else if io.ReadAnalog(buttonUp2) == 1 {
+		return 2
+	} else if io.ReadAnalog(buttonUp3) == 1 {
+		return 3
+	} else {
+		return 0
+	}
+}
+
+func GetDownButton() int {
+	if io.ReadAnalog(buttonDown2) == 1 {
+		return 2
+	} else if io.ReadAnalog(buttonDown3) == 1 {
+		return 3
+	} else if io.ReadAnalog(buttonDown4) == 1 {
+		return 4
+	} else {
+		return 0
+	}
+}
+
+func GetInsideElevatorButton() int {
+	if io.ReadAnalog(buttonCommand1) == 1 {
+		return 1
+	} else if io.ReadAnalog(buttonCommand2) == 1 {
+		return 2
+	} else if io.ReadAnalog(buttonCommand3) == 1 {
+		return 3
+	} else if io.ReadAnalog(buttonCommand4) == 1 {
+		return 4
+	} else {
+		return 0
+	}
+}
+
+func SetDownLight(floor int) {
+	switch floor {
+	case 2:
+		io.SetBit(lightDown2)
+	case 3:
+		io.SetBit(lightDown3)
+	case 4:
+		io.SetBit(lightDown4)
+	}
+
+}
