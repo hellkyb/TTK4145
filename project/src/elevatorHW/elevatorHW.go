@@ -80,6 +80,46 @@ InitLoop:
 			break InitLoop
 		}
 	}
+	io.ClearBit(lightStop)
+}
+
+func SecondInit() {
+	io.ClearBit(lightCommand2)
+
+	for floor := 0; floor < NFloors; floor++ {
+		for button := 0; button < NButtons; button++ {
+			io.ClearBit(lights[floor][button])
+		}
+	}
+
+	SetMotor(DirectionDown)
+InitLoop:
+	for {
+		floor := GetFloorSensorSignal()
+		switch floor {
+		case 1:
+			SetMotor(DirectionStop)
+			SetFloorIndicator(1)
+			fmt.Println("Arrived at floor", floor)
+			break InitLoop
+		case 2:
+			SetMotor(DirectionStop)
+			SetFloorIndicator(2)
+			fmt.Println("Arrived at floor", floor)
+			break InitLoop
+		case 3:
+			SetMotor(DirectionStop)
+			SetFloorIndicator(3)
+			fmt.Println("Arrived at floor", floor)
+			break InitLoop
+		case 4:
+			SetMotor(DirectionStop)
+			SetFloorIndicator(4)
+			fmt.Println("Arrived at floor", floor)
+			break InitLoop
+		}
+	}
+	io.ClearBit(lightStop)
 }
 
 func SetDoorLight(open bool) {
@@ -247,4 +287,20 @@ func GetElevatorDirection() int {
 
 func GetDoorLight() int {
 	return io.ReadAnalog(lightDoorOpen)
+}
+
+func GetStopButtonPressed() bool {
+	if io.ReadAnalog(stop) == 1 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func SetStopButton(onOff bool) {
+	if onOff {
+		io.SetBit(lightStop)
+	} else {
+		io.ClearBit(lightStop)
+	}
 }

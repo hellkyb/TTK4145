@@ -131,3 +131,18 @@ func IsLocalQueueEmpty() bool {
 func DeleteIndexLocalQueue(i int, j int) {
 	localQueue[i] = append(localQueue[i][:j], localQueue[i][j+1:]...)
 }
+
+func DeleteLocalQueue() {
+	lengthOne := len(localQueue[0])
+	lengthTwo := len(localQueue[1])
+	lengthThree := len(localQueue[2])
+	if lengthOne > 0 {
+		localQueue[0] = localQueue[0][:0]
+	}
+	if lengthTwo > 0 {
+		localQueue[1] = localQueue[1][:0]
+	}
+	if lengthThree > 0 {
+		localQueue[2] = localQueue[2][:0]
+	}
+}

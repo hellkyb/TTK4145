@@ -5,42 +5,12 @@ import (
 	//"../network/peers"
 	"fmt"
 	//"math"
-
 	"time"
 )
 
-type elevatorState struct {
-	previousFloor int
-	direction     elevatorHW.MotorDirection
-}
-type order struct {
-	direction elevatorHW.MotorDirection
-	fromFloor int
-}
-
-/*func costFunc(elevatorStates []elevatorState, newOrder order) {
-	distanceCost := 0
-	directionCost := 0
-	totalCost := 0
-
-	costs := [3]float64{math.Inf(1), math.Inf(1), math.Inf(1)}
-
-	for i := 0; i < len(elevatorStates); i++ {
-		distanceCost = math.Abs(elevatorStates[i].previousFloor - newOrder.fromFloor)
-		if (elevatorStates[i].previousFloor == newOrder.fromFLoor) && (elevatorStates[i].direction == DirectionStop){
-			distanceCost = 0
-		}
-			//NEED PLENTY MORE LOGIC HERE
-	}
-
-
-}*/
-
 var timeStamp int64
-
 var currentTime int64
 var timeStampPtr *int64
-var currentTimePtr *int64
 
 func ArrivedAtFloorSetDoorOpen(floor int) {
 	timeStampPtr = &timeStamp
@@ -69,7 +39,7 @@ func PutOrderInLocalQueue() {
 
 func SetElevatorDirection() {
 	currentTime := int64(time.Now().Unix())
-	if currentTime-timeStamp < 3 {
+	if currentTime-timeStamp < 4 {
 		return
 	}
 
@@ -120,7 +90,7 @@ func StopAtThisFloor() {
 	}
 }
 
-func PrintElevatorStatus() {
+func PrintElevatorStatus() { //For debbung Purposes
 	currentFloor := elevatorHW.GetFloorSensorSignal()
 	currentDirection := elevatorHW.GetElevatorDirection()
 	for i := 0; i < 5; i++ {
@@ -143,6 +113,21 @@ func TurnOfDoorLight() {
 	}
 }
 
+func StopButtonPressed() {
+	if !elevatorHW.GetStopButtonPressed() {
+		return
+	}
+	fmt.Println("Initiating emergency procedure")
+	elevatorHW.SetStopButton(true)
+
+	elevatorHW.SetMotor(elevatorHW.DirectionStop)
+	DeleteLocalQueue()
+	time.Sleep(2000 * time.Millisecond)
+	elevatorHW.SecondInit()
+	ArrivedAtFloorSetDoorOpen(elevatorHW.GetFloorSensorSignal())
+	fmt.Println("Operaing Normally")
+}
+
 func RunElevator() {
 	CreateQueueSlice()
 
@@ -153,6 +138,7 @@ func RunElevator() {
 		PutOrderInLocalQueue()
 		StopAtThisFloor()
 		TurnOfDoorLight()
+		StopButtonPressed()
 		if t%5000 == 0 {
 			PrintLocalQueue()
 		}
@@ -161,3 +147,31 @@ func RunElevator() {
 		}
 	}
 }
+
+// Un-used code below
+type elevatorState struct {
+	previousFloor int
+	direction     elevatorHW.MotorDirection
+}
+type order struct {
+	direction elevatorHW.MotorDirection
+	fromFloor int
+}
+
+/*func costFunc(elevatorStates []elevatorState, newOrder order) {
+	distanceCost := 0
+	directionCost := 0
+	totalCost := 0
+
+	costs := [3]float64{math.Inf(1), math.Inf(1), math.Inf(1)}
+
+	for i := 0; i < len(elevatorStates); i++ {
+		distanceCost = math.Abs(elevatorStates[i].previousFloor - newOrder.fromFloor)
+		if (elevatorStates[i].previousFloor == newOrder.fromFLoor) && (elevatorStates[i].direction == DirectionStop){
+			distanceCost = 0
+		}
+			//NEED PLENTY MORE LOGIC HERE
+	}
+
+
+}*/
