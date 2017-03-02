@@ -147,6 +147,10 @@ func RunElevator() {
 	}
 }
 
+func RunElevator() {
+	
+}
+
 // Un-used code below
 type elevatorState struct {
 	previousFloor int
