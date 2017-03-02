@@ -2,10 +2,10 @@ package fsm
 
 import (
 	"../elevatorHW"
-	//"../io"
 	//"../network/peers"
 	"fmt"
 	//"math"
+
 	"time"
 )
 
@@ -36,19 +36,15 @@ type order struct {
 
 }*/
 
-func timer() bool {
-	start := time.Now()
-	elapsed := time.Since(start)
-	for elapsed < 3 {
-		elapsed = time.Since(start)
-	}
-	return true
+func Timer() {
+	time.Sleep(1000 * time.Millisecond)
+
 }
 
 func ArrivedAtFloorSetDoorOpen(floor int) {
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
-	time.Sleep(3000 * time.Millisecond)
+	Timer()
 	elevatorHW.SetDoorLight(false)
 }
 
@@ -96,16 +92,13 @@ func SetElevatorDirection() {
 			}
 		}
 	}
-
 }
 
 func StopAtThisFloor() {
 	currentFloor := elevatorHW.GetFloorSensorSignal()
 
 	for i := 0; i < 3; i++ {
-		if len(localQueue[i]) < 0 {
-			continue
-		}
+
 		for j := range localQueue[i] {
 			if currentFloor == localQueue[i][j] {
 				elevatorHW.SetMotor(elevatorHW.DirectionStop)
@@ -114,14 +107,7 @@ func StopAtThisFloor() {
 				elevatorHW.SetUpLight(currentFloor, false)
 				elevatorHW.SetInsideLight(currentFloor, false)
 				elevatorHW.SetFloorIndicator(currentFloor)
-				switch i {
-				case 0:
-					DeleteOldestOrderInside()
-				case 1:
-					DeleteOldestOrderUp()
-				case 2:
-					DeleteOldestOrderDown()
-				}
+				DeleteIndexLocalQueue(i, j)
 				return
 			}
 		}
@@ -145,18 +131,18 @@ func PrintElevatorStatus() {
 }
 
 func RunElevator() {
-	printCounter := 0
 	CreateQueueSlice()
+	t := 0
 	for {
-		PutOrderInLocalQueue()
+		t++
 		SetElevatorDirection()
+		PutOrderInLocalQueue()
 		StopAtThisFloor()
-		printCounter++
-		if printCounter > 100000 {
-			printCounter = 0
+		if t%5000 == 0 {
+			PrintLocalQueue()
 		}
-		if printCounter%10000 == 0 {
-			PrintElevatorStatus()
+		if t > 100000 {
+			t = 0
 		}
 	}
 }
