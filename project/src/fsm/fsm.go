@@ -130,7 +130,6 @@ func StopButtonPressed() {
 
 func RunElevator() {
 	CreateQueueSlice()
-
 	t := 0
 	for {
 		t++
