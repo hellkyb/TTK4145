@@ -11,10 +11,11 @@ import (
 )
 
 func main() {
-	i := 0
+	fmt.Println("Starting system")
 	elevatorHW.Init()
-	fsm.CreateQueueSlice()
-	for {
+	fsm.RunElevator()
+
+	/*	for {
 		if i%40000000 == 0 {
 			go fsm.PrintLocalQueue()
 			go fsm.PutOrderInLocalQueue()
@@ -24,7 +25,7 @@ func main() {
 		}
 
 		i++
-	}
+	}*/
 
 	/*go elevatorHW.GetFloorSensorSignal()
 	fmt.Println(currentfloor)

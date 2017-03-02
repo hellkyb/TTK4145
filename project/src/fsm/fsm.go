@@ -4,7 +4,7 @@ import (
 	"../elevatorHW"
 	//"../io"
 	//"../network/peers"
-	//"fmt"
+	"fmt"
 	//"math"
 	"time"
 )
@@ -46,12 +46,9 @@ func timer() bool {
 }
 
 func ArrivedAtFloorSetDoorOpen(floor int) {
-	elevatorHW.SetMotor(elevatorHW.DirectionStop)
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
-	for !timer() {
-		continue
-	}
+	time.Sleep(3000 * time.Millisecond)
 	elevatorHW.SetDoorLight(false)
 }
 
@@ -61,37 +58,39 @@ func PutOrderInLocalQueue() {
 	insideOrder := elevatorHW.GetInsideElevatorButton()
 	if upOrder != 0 {
 		AppendUpOrder(upOrder)
+		elevatorHW.SetUpLight(upOrder, true)
 	}
 	if downOrder != 0 {
 		AppendDownOrder(downOrder)
+		elevatorHW.SetDownLight(downOrder, true)
 	}
 	if insideOrder != 0 {
 		AppendInsideOrder(insideOrder)
+		elevatorHW.SetInsideLight(insideOrder, true)
 	}
 }
 
 func SetElevatorDirection() {
-	/*if elevatorHW.GetElevatorDirection() == 1 && elevatorHW.GetFloorSensorSignal() == 1 {
-		elevatorHW.Init() // Run Init if elevator is stationary between floors
-	}*/
-	if elevatorHW.GetElevatorDirection() == 1 || elevatorHW.GetElevatorDirection() == 0 {
-		if elevatorHW.GetFloorSensorSignal() != 0 {
+	currentDirection := elevatorHW.GetElevatorDirection()
+	currentFloor := elevatorHW.GetFloorSensorSignal()
+	if currentDirection == 1 || currentDirection == 0 {
+		if currentFloor != 0 {
 			if len(localQueue[0]) > 0 {
-				if localQueue[0][0] < elevatorHW.GetFloorSensorSignal() {
+				if localQueue[0][0] < currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionDown)
-				} else if localQueue[0][0] > elevatorHW.GetFloorSensorSignal() {
+				} else if localQueue[0][0] > currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionUp)
 				}
 			} else if len(localQueue[1]) > 0 {
-				if localQueue[1][0] < elevatorHW.GetFloorSensorSignal() {
+				if localQueue[1][0] < currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionDown)
-				} else if localQueue[1][0] > elevatorHW.GetFloorSensorSignal() {
+				} else if localQueue[1][0] > currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionUp)
 				}
 			} else if len(localQueue[2]) > 0 {
-				if localQueue[2][0] < elevatorHW.GetFloorSensorSignal() {
+				if localQueue[2][0] < currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionDown)
-				} else if localQueue[2][0] > elevatorHW.GetFloorSensorSignal() {
+				} else if localQueue[2][0] > currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionUp)
 				}
 			}
@@ -102,14 +101,62 @@ func SetElevatorDirection() {
 
 func StopAtThisFloor() {
 	currentFloor := elevatorHW.GetFloorSensorSignal()
+
 	for i := 0; i < 3; i++ {
+		if len(localQueue[i]) < 0 {
+			continue
+		}
 		for j := range localQueue[i] {
 			if currentFloor == localQueue[i][j] {
 				elevatorHW.SetMotor(elevatorHW.DirectionStop)
-				DeleteIndexLocalQueue(i, j)
-				time.Sleep(100 * time.Millisecond)
+				ArrivedAtFloorSetDoorOpen(currentFloor)
+				elevatorHW.SetDownLight(currentFloor, false)
+				elevatorHW.SetUpLight(currentFloor, false)
+				elevatorHW.SetInsideLight(currentFloor, false)
+				elevatorHW.SetFloorIndicator(currentFloor)
+				switch i {
+				case 0:
+					DeleteOldestOrderInside()
+				case 1:
+					DeleteOldestOrderUp()
+				case 2:
+					DeleteOldestOrderDown()
+				}
+				return
 			}
 		}
 	}
+}
 
+func PrintElevatorStatus() {
+	currentFloor := elevatorHW.GetFloorSensorSignal()
+	currentDirection := elevatorHW.GetElevatorDirection()
+	for i := 0; i < 5; i++ {
+		fmt.Println(" ")
+	}
+	fmt.Println("------------------------------------")
+	fmt.Println("Elevator status")
+	fmt.Println("floor: ", currentFloor)
+	fmt.Println("Direction: ", currentDirection)
+	fmt.Println(" ")
+	fmt.Println("Queue: ")
+	PrintLocalQueue()
+
+}
+
+func RunElevator() {
+	printCounter := 0
+	CreateQueueSlice()
+	for {
+		PutOrderInLocalQueue()
+		SetElevatorDirection()
+		StopAtThisFloor()
+		printCounter++
+		if printCounter > 100000 {
+			printCounter = 0
+		}
+		if printCounter%10000 == 0 {
+			PrintElevatorStatus()
+		}
+	}
 }

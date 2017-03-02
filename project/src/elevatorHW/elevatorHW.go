@@ -171,16 +171,74 @@ func GetInsideElevatorButton() int {
 	}
 }
 
-func SetDownLight(floor int) {
-	switch floor {
-	case 2:
-		io.SetBit(lightDown2)
-	case 3:
-		io.SetBit(lightDown3)
-	case 4:
-		io.SetBit(lightDown4)
+func SetDownLight(floor int, onOff bool) {
+	if onOff {
+		switch floor {
+		case 2:
+			io.SetBit(lightDown2)
+		case 3:
+			io.SetBit(lightDown3)
+		case 4:
+			io.SetBit(lightDown4)
+		}
+	} else if !onOff {
+		switch floor {
+		case 2:
+			io.ClearBit(lightDown2)
+		case 3:
+			io.ClearBit(lightDown3)
+		case 4:
+			io.ClearBit(lightDown4)
+		}
 	}
+}
 
+func SetUpLight(floor int, onOff bool) {
+	if onOff {
+		switch floor {
+		case 1:
+			io.SetBit(lightUp1)
+		case 2:
+			io.SetBit(lightUp2)
+		case 3:
+			io.SetBit(lightUp3)
+		}
+	} else if !onOff {
+		switch floor {
+		case 1:
+			io.ClearBit(lightUp1)
+		case 2:
+			io.ClearBit(lightUp2)
+		case 3:
+			io.ClearBit(lightUp3)
+		}
+	}
+}
+
+func SetInsideLight(floor int, onOff bool) {
+	if onOff {
+		switch floor {
+		case 1:
+			io.SetBit(lightCommand1)
+		case 2:
+			io.SetBit(lightCommand2)
+		case 3:
+			io.SetBit(lightCommand3)
+		case 4:
+			io.SetBit(lightCommand4)
+		}
+	} else if !onOff {
+		switch floor {
+		case 1:
+			io.ClearBit(lightCommand1)
+		case 2:
+			io.ClearBit(lightCommand2)
+		case 3:
+			io.ClearBit(lightCommand3)
+		case 4:
+			io.ClearBit(lightCommand4)
+		}
+	}
 }
 
 func GetElevatorDirection() int {
