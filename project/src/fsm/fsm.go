@@ -36,16 +36,17 @@ type order struct {
 
 }*/
 
-func Timer() {
-	time.Sleep(1000 * time.Millisecond)
+var timeStamp int64
 
-}
+var currentTime int64
+var timeStampPtr *int64
+var currentTimePtr *int64
 
 func ArrivedAtFloorSetDoorOpen(floor int) {
+	timeStampPtr = &timeStamp
+	*timeStampPtr = time.Now().Unix()
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
-	Timer()
-	elevatorHW.SetDoorLight(false)
 }
 
 func PutOrderInLocalQueue() {
@@ -67,6 +68,11 @@ func PutOrderInLocalQueue() {
 }
 
 func SetElevatorDirection() {
+	currentTime := int64(time.Now().Unix())
+	if currentTime-timeStamp < 3 {
+		return
+	}
+
 	currentDirection := elevatorHW.GetElevatorDirection()
 	currentFloor := elevatorHW.GetFloorSensorSignal()
 	if currentDirection == 1 || currentDirection == 0 {
@@ -130,14 +136,23 @@ func PrintElevatorStatus() {
 
 }
 
+func TurnOfDoorLight() {
+	currentTime := int64(time.Now().Unix())
+	if currentTime-timeStamp > 3 {
+		elevatorHW.SetDoorLight(false)
+	}
+}
+
 func RunElevator() {
 	CreateQueueSlice()
+
 	t := 0
 	for {
 		t++
 		SetElevatorDirection()
 		PutOrderInLocalQueue()
 		StopAtThisFloor()
+		TurnOfDoorLight()
 		if t%5000 == 0 {
 			PrintLocalQueue()
 		}

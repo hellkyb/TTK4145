@@ -244,3 +244,7 @@ func SetInsideLight(floor int, onOff bool) {
 func GetElevatorDirection() int {
 	return io.ReadAnalog(motordir)
 }
+
+func GetDoorLight() int {
+	return io.ReadAnalog(lightDoorOpen)
+}
