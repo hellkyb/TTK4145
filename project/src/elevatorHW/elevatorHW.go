@@ -18,7 +18,7 @@ const (
 	DirectionDown
 )
 
-type ButtunType int
+type ButtonType int
 
 const (
 	ButtonCallDown = iota

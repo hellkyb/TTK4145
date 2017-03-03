@@ -1,9 +1,10 @@
-package main
+package network
 
 import (
-	"./network/bcast"
-	"./network/localip"
-	"./network/peers"
+	"./bcast"
+	"./localip"
+	"./peers"
+	"../elevatorHW"
 	"flag"
 	"fmt"
 	"os"
@@ -15,10 +16,15 @@ import (
 //  will be received as zero-values.
 type HelloMsg struct {
 	Message string
-	Iter    int
+	NewOrder orderToSend
+}
+type orderToSend struct{
+	FromFloor int 
+	Button elevatorHW.ButtonType
 }
 
-func main() {
+
+func Main() {
 	// Our id can be anything. Here we pass it on the command line, using
 	//  `go run main.go -id=our_id`
 	var id string
@@ -57,9 +63,8 @@ func main() {
 
 	// The example message. We just send one of these every second.
 	go func() {
-		helloMsg := HelloMsg{"Hello from " + id, 0}
+		helloMsg := HelloMsg{"Hello from " + id, orderToSend{4, elevatorHW.ButtonCallUp}}
 		for {
-			helloMsg.Iter++
 			helloTx <- helloMsg
 			time.Sleep(1 * time.Second)
 		}

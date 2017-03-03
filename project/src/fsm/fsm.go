@@ -40,7 +40,7 @@ func PutOrderInLocalQueue() {
 
 func SetElevatorDirection() {
 	currentTime := int64(time.Now().Unix())
-	if currentTime-timeStamp < 3 {
+	if currentTime-timeStamp < 4 {
 		return
 	}
 
@@ -79,11 +79,20 @@ func StopAtThisFloor() {
 
 		for j := range localQueue[i] {		
 			if currentFloor == localQueue[i][j] {
-				if !((j==0 || j==1) && currentDirection == 0) || ((j==0 || j==2) && currentDirection == 1) {
+				if ((i==0 || i==1) && (currentDirection == 0 || currentFloor == 1)){ 
+					elevatorHW.SetMotor(elevatorHW.DirectionStop)
+					ArrivedAtFloorSetDoorOpen(currentFloor)
+					//elevatorHW.SetDownLight(currentFloor, false)
+					elevatorHW.SetUpLight(currentFloor, false)
+					elevatorHW.SetInsideLight(currentFloor, false)
+					elevatorHW.SetFloorIndicator(currentFloor)
+					DeleteIndexLocalQueue(i, j)
+					return
+				} else if((i==0 || i==2) && (currentDirection == 1 || currentFloor == 4)){
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
 					ArrivedAtFloorSetDoorOpen(currentFloor)
 					elevatorHW.SetDownLight(currentFloor, false)
-					elevatorHW.SetUpLight(currentFloor, false)
+					//elevatorHW.SetUpLight(currentFloor, false)
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
 					DeleteIndexLocalQueue(i, j)
@@ -110,7 +119,7 @@ func PrintElevatorStatus() { //For debbung Purposes
 
 }
 
-func TurnOfDoorLight() {
+func TurnOffDoorLight() {
 	currentTime := int64(time.Now().Unix())
 	if currentTime-timeStamp > 3 {
 		elevatorHW.SetDoorLight(false)
@@ -133,16 +142,16 @@ func StopButtonPressed() {
 }
 
 func RunElevator() {
-	CreateQueueSlice()
+	//CreateQueueSlice()
 	t := 0
 	for {
 		t++
 		SetElevatorDirection()
 		PutOrderInLocalQueue()
 		StopAtThisFloor()
-		TurnOfDoorLight()
+		TurnOffDoorLight()
 		StopButtonPressed()
-		if t%5000 == 0 {
+		if t%20000 == 0 {
 			PrintLocalQueue()
 		}
 		if t > 100000 {

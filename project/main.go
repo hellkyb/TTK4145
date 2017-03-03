@@ -1,12 +1,12 @@
 package main
 
 import (
+	"./src/network"
 	"./src/elevatorHW"
 	"./src/fsm"
 	//"./src/io"
 	//"./network/peers"
 	"fmt"
-
 	//"time"
 )
 
@@ -14,8 +14,13 @@ func main() {
 	//start init
 	fmt.Println("Starting system")
 	elevatorHW.Init()
-	fsm.CreateQueueSlice()
 	//finished init
+	fsm.CreateQueueSlice()
 
-	fsm.RunElevator()
+	go fsm.RunElevator()
+	go network.Main()
+	for {
+		//fsm.PrintLocalQueue()
+		//time.Sleep(1*time.Second)
+	}
 }
