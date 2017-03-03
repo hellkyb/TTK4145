@@ -4,7 +4,7 @@ import (
 	"./bcast"
 	"./localip"
 	"./peers"
-	"../elevatorHW"
+	//"../elevatorHW"
 	"flag"
 	"fmt"
 	"os"
@@ -69,7 +69,7 @@ func Main() {
 	}()*/
 
 	go func() {
-		orderMsg := OrderMsg{"Hello from " + id, fsm.Order{elevatorHW.GetInsideElevatorButton() , 2}}
+		orderMsg := OrderMsg{"Hello from " + id, fsm.Order{1 , 2}}
 		for{
 			orderTx <- orderMsg
 			time.Sleep(1000 * time.Millisecond)
@@ -89,9 +89,6 @@ func Main() {
 			fmt.Printf("  Lost:     %q\n", p.Lost)
 
 		case a := <-orderRx:
-			/*if helloMsg.order.Floor != -1 {
-				fsm.PutOrderInLocalQueue(helloRx.NewOrder)
-			}*/
 			fmt.Printf("Received: %#v\n", a) 
 			var ReceivedOrder OrderMsg
 			ReceivedOrder = <- orderRx

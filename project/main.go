@@ -7,7 +7,7 @@ import (
 	//"./src/io"
 	//"./network/peers"
 	"fmt"
-	//"time"
+	"time"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 	go fsm.RunElevator()
 	go network.Main()
 	for {
-		//fsm.PrintLocalQueue()
-		//time.Sleep(1*time.Second)
+		fsm.PrintLocalQueue()
+		time.Sleep(1*time.Second)
 	}
 }

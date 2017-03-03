@@ -41,7 +41,7 @@ func PutOrderInLocalQueue(newOrder Order) {
 		AppendInsideOrder(insideOrder)
 		elevatorHW.SetInsideLight(insideOrder, true)
 	}
-	if newOrder.Floor != -1 {
+	if newOrder.Floor != 0 {
 		buttontype := newOrder.Button
 		switch buttontype {
 		case elevatorHW.ButtonCallDown:
@@ -171,12 +171,6 @@ func RunElevator() {
 		StopAtThisFloor()
 		TurnOffDoorLight()
 		StopButtonPressed()
-		if t%20000 == 0 {
-			PrintLocalQueue()
-		}
-		if t > 100000 {
-			t = 0
-		}
 	}
 }
 
