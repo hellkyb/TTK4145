@@ -13,6 +13,11 @@ var timeStamp int64
 var currentTime int64
 var timeStampPtr *int64
 
+type Order struct{
+	FromFloor int
+	Button elevatorHW.ButtonType
+}
+
 func ArrivedAtFloorSetDoorOpen(floor int) {
 	timeStampPtr = &timeStamp
 	*timeStampPtr = time.Now().Unix()
@@ -20,7 +25,7 @@ func ArrivedAtFloorSetDoorOpen(floor int) {
 	elevatorHW.SetDoorLight(true)
 }
 
-func PutOrderInLocalQueue() {
+func PutOrderInLocalQueue(newRemoteOrder Order) {
 	upOrder := elevatorHW.GetUpButton()
 	downOrder := elevatorHW.GetDownButton()
 	insideOrder := elevatorHW.GetInsideElevatorButton()
@@ -35,6 +40,20 @@ func PutOrderInLocalQueue() {
 	if insideOrder != 0 {
 		AppendInsideOrder(insideOrder)
 		elevatorHW.SetInsideLight(insideOrder, true)
+	}
+	if newRemoteOrder.FromFloor != -1 {
+		buttontype := newRemoteOrder.Button
+		switch buttontype {
+		case elevatorHW.ButtonCallDown:
+			AppendDownOrder(newRemoteOrder.FromFloor)
+			elevatorHW.SetDownLight(downOrder, true)
+		case elevatorHW.ButtonCallUp:
+			AppendUpOrder(newRemoteOrder.FromFloor)
+			elevatorHW.SetDownLight(downOrder, true)
+		case elevatorHW.ButtonCommand:
+			AppendInsideOrder(insideOrder)
+			elevatorHW.SetInsideLight(insideOrder, true)
+		}
 	}
 }
 
@@ -147,7 +166,7 @@ func RunElevator() {
 	for {
 		t++
 		SetElevatorDirection()
-		PutOrderInLocalQueue()
+		PutOrderInLocalQueue(Order {})
 		StopAtThisFloor()
 		TurnOffDoorLight()
 		StopButtonPressed()

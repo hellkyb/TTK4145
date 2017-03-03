@@ -9,20 +9,16 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"../fsm"
 )
 
 // We define some custom struct to send over the network.
 // Note that all members we want to transmit must be public. Any private members
 //  will be received as zero-values.
-type HelloMsg struct {
+type OrderMsg struct {
 	Message string
-	NewOrder orderToSend
+	NewOrder fsm.Order
 }
-type orderToSend struct{
-	FromFloor int 
-	Button elevatorHW.ButtonType
-}
-
 
 func Main() {
 	// Our id can be anything. Here we pass it on the command line, using
@@ -53,24 +49,37 @@ func Main() {
 	go peers.Receiver(15647, peerUpdateCh)
 
 	// We make channels for sending and receiving our custom data types
-	helloTx := make(chan HelloMsg)
-	helloRx := make(chan HelloMsg)
+	/*helloTx := make(chan HelloMsg)
+	helloRx := make(chan HelloMsg)*/
+	orderTx := make(chan OrderMsg)
+	orderRx := make(chan OrderMsg)
 	// ... and start the transmitter/receiver pair on some port
 	// These functions can take any number of channels! It is also possible to
 	//  start multiple transmitters/receivers on the same port.
-	go bcast.Transmitter(16569, helloTx)
-	go bcast.Receiver(16569, helloRx)
+	go bcast.Transmitter(16569, orderTx)
+	go bcast.Receiver(16569, orderRx)
 
 	// The example message. We just send one of these every second.
-	go func() {
-		helloMsg := HelloMsg{"Hello from " + id, orderToSend{4, elevatorHW.ButtonCallUp}}
+	/*go func() {
+		helloMsg := HelloMsg{"Hello from " + id, order{4, elevatorHW.ButtonCallUp}}
 		for {
 			helloTx <- helloMsg
 			time.Sleep(1 * time.Second)
 		}
+	}()*/
+
+	go func() {
+		orderMsg := OrderMsg{"Hello from " + id, fsm.Order{4, elevatorHW.ButtonCallUp}}
+		for{
+			orderTx <- orderMsg
+			time.Sleep(1000 * time.Millisecond)
+		}
 	}()
 
-	fmt.Println("Started")
+
+
+	fmt.Println("Started networking")
+
 	for {
 		select {
 		case p := <-peerUpdateCh:
@@ -79,8 +88,16 @@ func Main() {
 			fmt.Printf("  New:      %q\n", p.New)
 			fmt.Printf("  Lost:     %q\n", p.Lost)
 
-		case a := <-helloRx:
-			fmt.Printf("Received: %#v\n", a)
+		case a := <-orderRx:
+			/*if helloMsg.order.FromFloor != -1 {
+				fsm.PutOrderInLocalQueue(helloRx.NewOrder)
+			}*/
+			fmt.Printf("Received: %#v\n", a) 
+			var ReceivedOrder OrderMsg
+			ReceivedOrder = <- orderRx
+			if ReceivedOrder.NewOrder.FromFloor != -1 {
+				fsm.PutOrderInLocalQueue(ReceivedOrder.NewOrder)
+			}
 		}
 	}
 }
