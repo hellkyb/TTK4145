@@ -2,7 +2,7 @@ package fsm
 
 import (
 	"../elevatorHW"
-	//"../io"
+	"../io"
 	//"../network/peers"
 	"fmt"
 	//"math"
@@ -73,22 +73,23 @@ func SetElevatorDirection() {
 
 func StopAtThisFloor() {
 	currentFloor := elevatorHW.GetFloorSensorSignal()
-	//currentDirection := io.ReadBit(elevatorHW.Motordir) // 1 is going down, 0 is going up
-	
+	currentDirection := io.ReadBit(elevatorHW.Motordir) // 1 is going down, 0 is going up
 
 	for i := 0; i < 3; i++ {
 
-		for j := range localQueue[i] {
+		for j := range localQueue[i] {		
 			if currentFloor == localQueue[i][j] {
-				elevatorHW.SetMotor(elevatorHW.DirectionStop)
-				ArrivedAtFloorSetDoorOpen(currentFloor)
-				elevatorHW.SetDownLight(currentFloor, false)
-				elevatorHW.SetUpLight(currentFloor, false)
-				elevatorHW.SetInsideLight(currentFloor, false)
-				elevatorHW.SetFloorIndicator(currentFloor)
-				DeleteIndexLocalQueue(i, j)
-				return
-			}
+				if !((j==0 || j==1) && currentDirection == 0) || ((j==0 || j==2) && currentDirection == 1) {
+					elevatorHW.SetMotor(elevatorHW.DirectionStop)
+					ArrivedAtFloorSetDoorOpen(currentFloor)
+					elevatorHW.SetDownLight(currentFloor, false)
+					elevatorHW.SetUpLight(currentFloor, false)
+					elevatorHW.SetInsideLight(currentFloor, false)
+					elevatorHW.SetFloorIndicator(currentFloor)
+					DeleteIndexLocalQueue(i, j)
+					return
+				}
+			} 
 		}
 	}
 }
