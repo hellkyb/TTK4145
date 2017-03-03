@@ -46,13 +46,13 @@ func PutOrderInLocalQueue(newOrder Order) {
 		switch buttontype {
 		case elevatorHW.ButtonCallDown:
 			AppendDownOrder(newOrder.Floor)
-			elevatorHW.SetDownLight(downOrder, true)
+			elevatorHW.SetDownLight(newOrder.Floor, true)
 		case elevatorHW.ButtonCallUp:
 			AppendUpOrder(newOrder.Floor)
-			elevatorHW.SetDownLight(downOrder, true)
+			elevatorHW.SetUpLight(newOrder.Floor, true)
 		case elevatorHW.ButtonCommand:
 			AppendInsideOrder(newOrder.Floor)
-			elevatorHW.SetInsideLight(insideOrder, true)
+			elevatorHW.SetInsideLight(newOrder.Floor, true)
 		}
 	}
 }
