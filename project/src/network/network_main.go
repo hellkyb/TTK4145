@@ -69,7 +69,7 @@ func Main() {
 	}()*/
 
 	go func() {
-		orderMsg := OrderMsg{"Hello from " + id, fsm.Order{4, elevatorHW.ButtonCallUp}}
+		orderMsg := OrderMsg{"Hello from " + id, fsm.Order{4, elevatorHW.ButtonCallDown}}
 		for{
 			orderTx <- orderMsg
 			time.Sleep(1000 * time.Millisecond)
@@ -89,13 +89,13 @@ func Main() {
 			fmt.Printf("  Lost:     %q\n", p.Lost)
 
 		case a := <-orderRx:
-			/*if helloMsg.order.FromFloor != -1 {
+			/*if helloMsg.order.Floor != -1 {
 				fsm.PutOrderInLocalQueue(helloRx.NewOrder)
 			}*/
 			fmt.Printf("Received: %#v\n", a) 
 			var ReceivedOrder OrderMsg
 			ReceivedOrder = <- orderRx
-			if ReceivedOrder.NewOrder.FromFloor != -1 {
+			if ReceivedOrder.NewOrder.Floor != -1 {
 				fsm.PutOrderInLocalQueue(ReceivedOrder.NewOrder)
 			}
 		}

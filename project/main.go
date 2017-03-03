@@ -16,7 +16,6 @@ func main() {
 	elevatorHW.Init()
 	//finished init
 	fsm.CreateQueueSlice()
-
 	go fsm.RunElevator()
 	go network.Main()
 	for {

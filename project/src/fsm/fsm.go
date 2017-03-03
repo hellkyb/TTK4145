@@ -14,7 +14,7 @@ var currentTime int64
 var timeStampPtr *int64
 
 type Order struct{
-	FromFloor int
+	Floor int
 	Button elevatorHW.ButtonType
 }
 
@@ -25,7 +25,7 @@ func ArrivedAtFloorSetDoorOpen(floor int) {
 	elevatorHW.SetDoorLight(true)
 }
 
-func PutOrderInLocalQueue(newRemoteOrder Order) {
+func PutOrderInLocalQueue(newOrder Order) {
 	upOrder := elevatorHW.GetUpButton()
 	downOrder := elevatorHW.GetDownButton()
 	insideOrder := elevatorHW.GetInsideElevatorButton()
@@ -41,17 +41,17 @@ func PutOrderInLocalQueue(newRemoteOrder Order) {
 		AppendInsideOrder(insideOrder)
 		elevatorHW.SetInsideLight(insideOrder, true)
 	}
-	if newRemoteOrder.FromFloor != -1 {
-		buttontype := newRemoteOrder.Button
+	if newOrder.Floor != -1 {
+		buttontype := newOrder.Button
 		switch buttontype {
 		case elevatorHW.ButtonCallDown:
-			AppendDownOrder(newRemoteOrder.FromFloor)
+			AppendDownOrder(newOrder.Floor)
 			elevatorHW.SetDownLight(downOrder, true)
 		case elevatorHW.ButtonCallUp:
-			AppendUpOrder(newRemoteOrder.FromFloor)
+			AppendUpOrder(newOrder.Floor)
 			elevatorHW.SetDownLight(downOrder, true)
 		case elevatorHW.ButtonCommand:
-			AppendInsideOrder(insideOrder)
+			AppendInsideOrder(newOrder.Floor)
 			elevatorHW.SetInsideLight(insideOrder, true)
 		}
 	}
@@ -163,6 +163,7 @@ func StopButtonPressed() {
 func RunElevator() {
 	//CreateQueueSlice()
 	t := 0
+	PutOrderInLocalQueue(Order{4,1})
 	for {
 		t++
 		SetElevatorDirection()
@@ -187,7 +188,7 @@ type elevatorState struct {
 }
 type order struct {
 	direction elevatorHW.MotorDirection
-	fromFloor int
+	Floor int
 }
 
 /*func costFunc(elevatorStates []elevatorState, newOrder order) {
@@ -198,8 +199,8 @@ type order struct {
 	costs := [3]float64{math.Inf(1), math.Inf(1), math.Inf(1)}
 
 	for i := 0; i < len(elevatorStates); i++ {
-		distanceCost = math.Abs(elevatorStates[i].previousFloor - newOrder.fromFloor)
-		if (elevatorStates[i].previousFloor == newOrder.fromFLoor) && (elevatorStates[i].direction == DirectionStop){
+		distanceCost = math.Abs(elevatorStates[i].previousFloor - newOrder.Floor)
+		if (elevatorStates[i].previousFloor == newOrder.Floor) && (elevatorStates[i].direction == DirectionStop){
 			distanceCost = 0
 		}
 			//NEED PLENTY MORE LOGIC HERE
