@@ -33,7 +33,7 @@ const port3Subdevice = 3
 const port3ChannelOffset = 8
 
 //const port3Direction		= COMEDI_OUTPUT
-const motordir = (0x300 + 15)
+const Motordir = (0x300 + 15)
 const lightStop = (0x300 + 14)
 const lightCommand1 = (0x300 + 13)
 const lightCommand2 = (0x300 + 12)

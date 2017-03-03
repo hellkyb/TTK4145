@@ -2,6 +2,7 @@ package fsm
 
 import (
 	"../elevatorHW"
+	//"../io"
 	//"../network/peers"
 	"fmt"
 	//"math"
@@ -39,7 +40,7 @@ func PutOrderInLocalQueue() {
 
 func SetElevatorDirection() {
 	currentTime := int64(time.Now().Unix())
-	if currentTime-timeStamp < 4 {
+	if currentTime-timeStamp < 3 {
 		return
 	}
 
@@ -72,6 +73,8 @@ func SetElevatorDirection() {
 
 func StopAtThisFloor() {
 	currentFloor := elevatorHW.GetFloorSensorSignal()
+	//currentDirection := io.ReadBit(elevatorHW.Motordir) // 1 is going down, 0 is going up
+	
 
 	for i := 0; i < 3; i++ {
 
@@ -147,9 +150,6 @@ func RunElevator() {
 	}
 }
 
-func RunElevator() {
-	
-}
 
 // Un-used code below
 type elevatorState struct {

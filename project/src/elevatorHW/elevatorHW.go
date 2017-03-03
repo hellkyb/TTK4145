@@ -134,10 +134,10 @@ func SetMotor(dir int) {
 	if dir == DirectionStop {
 		io.WriteAnalog(motor, 0)
 	} else if dir == DirectionDown {
-		io.SetBit(motordir)
+		io.SetBit(Motordir)
 		io.WriteAnalog(motor, motorSpeed)
 	} else if dir == DirectionUp {
-		io.ClearBit(motordir)
+		io.ClearBit(Motordir)
 		io.WriteAnalog(motor, motorSpeed)
 	}
 }
@@ -282,7 +282,7 @@ func SetInsideLight(floor int, onOff bool) {
 }
 
 func GetElevatorDirection() int {
-	return io.ReadAnalog(motordir)
+	return io.ReadAnalog(Motordir)
 }
 
 func GetDoorLight() int {
