@@ -4,7 +4,7 @@ import (
 	"./bcast"
 	"./localip"
 	"./peers"
-	//"../elevatorHW"
+	"../elevatorHW"
 	"flag"
 	"fmt"
 	"os"
@@ -69,7 +69,7 @@ func Main() {
 	}()*/
 
 	go func() {
-		orderMsg := OrderMsg{"Hello from " + id, fsm.Order{3,0}}
+		orderMsg := OrderMsg{"Hello from " + id, fsm.Order{elevatorHW.GetInsideElevatorButton() , 2}}
 		for{
 			orderTx <- orderMsg
 			time.Sleep(1000 * time.Millisecond)
