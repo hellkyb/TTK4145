@@ -11,6 +11,7 @@ var localQueue [][]int
 var localQueueInside []int
 var localQueueUp []int
 var localQueueDown []int
+var GlobalQueue []int
 
 // localQueue[{insideOrders},{UpOrders},{DownOrders}]
 

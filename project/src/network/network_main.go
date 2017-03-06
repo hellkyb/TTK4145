@@ -18,6 +18,8 @@ import (
 type OrderMsg struct {
 	Message string
 	NewOrder fsm.Order
+	GlobalQueue fsm.GlobalQueue
+	QueueVersion int
 }
 
 func Main() {
@@ -69,10 +71,10 @@ func Main() {
 	}()*/
 
 	go func() {
-		orderMsg := OrderMsg{"Hello from " + id, fsm.Order{1 , 2}}
+		orderMsg := OrderMsg{"Hello from " + id, fsm.Order{-1 , -1}}
 		for{
 			orderTx <- orderMsg
-			time.Sleep(1000 * time.Millisecond)
+			time.Sleep(10 * time.Millisecond)
 		}
 	}()
 
