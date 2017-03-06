@@ -18,6 +18,11 @@ type Order struct{
 	Button elevatorHW.ButtonType
 }
 
+type ElevatorStatus struct{
+	lastFloor int
+	direction elevatorHW.MotorDirection
+}
+
 func ArrivedAtFloorSetDoorOpen(floor int) {
 	timeStampPtr = &timeStamp
 	*timeStampPtr = time.Now().Unix()
@@ -55,6 +60,9 @@ func PutOrderInLocalQueue(newOrder Order) {
 			elevatorHW.SetInsideLight(newOrder.Floor, true)
 		}
 	}
+}
+func PutOrderInGlobalQueue (newOrder Order){
+
 }
 
 func SetElevatorDirection() {
@@ -134,7 +142,7 @@ func PrintElevatorStatus() { //For debbung Purposes
 	fmt.Println("Direction: ", currentDirection)
 	fmt.Println(" ")
 	fmt.Println("Queue: ")
-	PrintLocalQueue()
+	PrintQueues()
 
 }
 
@@ -162,10 +170,8 @@ func StopButtonPressed() {
 
 func RunElevator() {
 	//CreateQueueSlice()
-	t := 0
-	PutOrderInLocalQueue(Order{4,1})
+	//PutOrderInLocalQueue(Order{4,1})
 	for {
-		t++
 		SetElevatorDirection()
 		PutOrderInLocalQueue(Order {})
 		StopAtThisFloor()

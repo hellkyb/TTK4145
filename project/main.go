@@ -16,10 +16,11 @@ func main() {
 	elevatorHW.Init()
 	//finished init
 	fsm.CreateQueueSlice()
+	fsm.CreateGlobalQueueSlice()
 	go fsm.RunElevator()
 	go network.Main()
 	for {
-		fsm.PrintLocalQueue()
+		fsm.PrintQueues()
 		time.Sleep(1*time.Second)
 	}
 }

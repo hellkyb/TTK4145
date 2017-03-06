@@ -84,7 +84,7 @@ InitLoop:
 }
 
 func SecondInit() {
-	io.ClearBit(lightCommand2)
+	//io.ClearBit(lightCommand2)
 
 	for floor := 0; floor < NFloors; floor++ {
 		for button := 0; button < NButtons; button++ {

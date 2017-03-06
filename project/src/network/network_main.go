@@ -18,9 +18,10 @@ import (
 type OrderMsg struct {
 	Message string
 	NewOrder fsm.Order
-	GlobalQueue fsm.GlobalQueue
-	QueueVersion int
+	GlobalQueue [][] int
+
 }
+ var elevatorStates [] fsm.ElevatorStatus
 
 func Main() {
 	// Our id can be anything. Here we pass it on the command line, using
@@ -71,10 +72,10 @@ func Main() {
 	}()*/
 
 	go func() {
-		orderMsg := OrderMsg{"Hello from " + id, fsm.Order{-1 , -1}}
+		orderMsg := OrderMsg{"Hello from " + id, fsm.Order{-1 , -1}, fsm.GlobalQueue}
 		for{
 			orderTx <- orderMsg
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(1000 * time.Millisecond)
 		}
 	}()
 
@@ -96,6 +97,11 @@ func Main() {
 			ReceivedOrder = <- orderRx
 			if ReceivedOrder.NewOrder.Floor != -1 {
 				fsm.PutOrderInLocalQueue(ReceivedOrder.NewOrder)
+			}
+			if !fsm.CompareGlobalAndLocalQueue(ReceivedOrder.GlobalQueue){
+				fmt.Println("Queues are not alike")
+			}else {
+				fmt.Println("Queues are the same")
 			}
 		}
 	}
