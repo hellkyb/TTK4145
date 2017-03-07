@@ -29,7 +29,7 @@ var LatestFloor int
 
 type Order struct{
 	Floor int
-	Button elevatorHW.ButtonType
+	Button elevatorHW.ButtonType //0 is callDown, 1 callUp, 2 callInside
 }
 
 type ElevatorStatus struct{

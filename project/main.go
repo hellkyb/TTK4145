@@ -127,14 +127,24 @@ func main() {
 	//finished init
 	fsm.CreateQueueSlice()
 	//fsm.CreateGlobalQueueSlice()
-	testOrder := fsm.Order{2,0}
-	fsm.PutOrderInLocalQueue(testOrder)
+	//testOrder := fsm.Order{2,0}
+	//fsm.PutOrderInLocalQueue(testOrder)
+	go func (){
+		for{
+			upOrder := elevatorHW.GetUpButton()
+			downOrder := elevatorHW.GetDownButton()
+			insideOrder := elevatorHW.GetInsideElevatorButton()
+			state := elevatorHW.GetElevatorState()
+			
+			fmt.Println(state)
+			time.Sleep(1000*time.Millisecond)
+		}
+	}()
 	go fsm.RunElevator()
 	go olasnetwork.NetworkMain()
 	for {
 		fsm.PrintQueues()
 		decitionmaker()
 		time.Sleep(1*time.Second)
-		
 	}
 }

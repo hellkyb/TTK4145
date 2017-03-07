@@ -77,13 +77,14 @@ func NetworkMain() {
 		order := OrderMsg{fsm.Order{-1,-1},-1}
 		helloMsg := HelloMsg{"Hello from " + id, 0, 0, 0, 5, order}
 		for {
-			
+			 
+
 			helloMsg.Iter++
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
 			// helloMsg.Order
 			helloMsg.LastFloor = fsm.LatestFloor
 			helloTx <- helloMsg
-			
+	
 			time.Sleep(1000 * time.Millisecond)
 		}
 	}()
