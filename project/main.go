@@ -109,7 +109,7 @@ func costFunction(state int, lastFloor int, globalOrder fsm.Order) int{
 // If this is the case, it should append the global order into its localqueue
 func decitionmaker(){
 	numberOfElevatorsInNetwork := olasnetwork.OperatingElevators
-	//fmt.Println(numberOfElevatorsInNetwork)
+	fmt.Println(numberOfElevatorsInNetwork)
 
 	if numberOfElevatorsInNetwork == 1 || numberOfElevatorsInNetwork == 0 {
 		// Alone mode, handle the globalQueue as LocalQueue
@@ -133,6 +133,7 @@ func main() {
 	go olasnetwork.NetworkMain()
 	for {
 		fsm.PrintQueues()
+		decitionmaker()
 		time.Sleep(1*time.Second)
 		
 	}

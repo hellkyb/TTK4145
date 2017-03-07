@@ -70,7 +70,7 @@ func NetworkMain() {
 	//  start multiple transmitters/receivers on the same port.
 	go bcast.Transmitter(16569, helloTx)
 	go bcast.Receiver(16569, helloRx)
-	OperatingElevatorsPrt = &OperatingElevators
+	OperatingElevatorsPtr = &OperatingElevators
 
 	// The example message. We just send one of these every second.
 	go func() {
