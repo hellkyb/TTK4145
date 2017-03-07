@@ -281,7 +281,7 @@ func SetInsideLight(floor int, onOff bool) {
 	}
 }
 
-func GetElevatorDirection() int {
+func GetElevatorDirection()	 int {
 	return io.ReadAnalog(Motordir)
 }
 
@@ -294,6 +294,16 @@ func GetStopButtonPressed() bool {
 		return true
 	} else {
 		return false
+	}
+}
+
+func GetElevatorState() int{
+	if io.ReadAnalog(motor) == 0{
+		return 0
+	}else if io.ReadAnalog(motor) != 0 && GetElevatorDirection() == 0{
+		return 1
+	}else{
+		return -1
 	}
 }
 

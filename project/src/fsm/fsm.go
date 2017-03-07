@@ -3,15 +3,29 @@ package fsm
 import (
 	"../elevatorHW"
 	"../io"
-	//"../network/peers"
+	//"../olasnetwork"
 	"fmt"
 	//"math"
 	"time"
 )
 
+type HelloMsg struct {
+	Message string
+	Iter int
+	MyElevatorNumber int // This number identifies the elevator
+	CurrentState int // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
+	LastFloor int // The last floor the elevator visited
+	GlobalQueue [][]int 
+}
+
+var OperatingElevators int
+var OperatingElevatorsPrt *int
+
 var timeStamp int64
 var currentTime int64
 var timeStampPtr *int64
+var latestFloorPtr *int
+var LatestFloor int
 
 type Order struct{
 	Floor int
@@ -61,9 +75,28 @@ func PutOrderInLocalQueue(newOrder Order) {
 		}
 	}
 }
-func PutOrderInGlobalQueue (newOrder Order){
 
+func PutInsideOrderInLocalQueue(newOrder Order){
+	insideOrder := elevatorHW.GetInsideElevatorButton()
+	if insideOrder != 0 {
+		AppendInsideOrder(insideOrder)
+		elevatorHW.SetInsideLight(insideOrder, true)
+	}
+	AppendInsideOrder(newOrder.Floor)
 }
+
+/*func PutOrderInGlobalQueue() {
+	upOrder := elevatorHW.GetUpButton()
+	downOrder := elevatorHW.GetDownButton()
+	if upOrder != 0 {
+		AppendGlobalUpOrder(upOrder)
+		elevatorHW.SetUpLight(upOrder, true)
+	}
+	if downOrder != 0 {
+		AppendGlobalDownOrder(downOrder)
+		elevatorHW.SetDownLight(downOrder, true)
+	}
+}*/
 
 func SetElevatorDirection() {
 	currentTime := int64(time.Now().Unix())
@@ -168,20 +201,28 @@ func StopButtonPressed() {
 	fmt.Println("Operaing Normally")
 }
 
-func RunElevator() {
-	//CreateQueueSlice()
-	//PutOrderInLocalQueue(Order{4,1})
-	for {
-		SetElevatorDirection()
-		PutOrderInLocalQueue(Order {})
-		StopAtThisFloor()
-		TurnOffDoorLight()
-		StopButtonPressed()
+func SetLatestFloor() {
+	latestFloorPtr = &LatestFloor
+	if elevatorHW.GetFloorSensorSignal() == 1 || elevatorHW.GetFloorSensorSignal() == 2 || elevatorHW.GetFloorSensorSignal() == 3 || elevatorHW.GetFloorSensorSignal() == 4{
+		*latestFloorPtr = elevatorHW.GetFloorSensorSignal()
 	}
 }
 
+func RunElevator() {
+	for {
+			SetLatestFloor()
+			SetElevatorDirection()
+			PutOrderInLocalQueue(Order {}) // This must be replaced by "PutOrderInGlobalQueue"
+			PutInsideOrderInLocalQueue(Order {})
+			/*PutOrderInGlobalQueue()*/
+			StopAtThisFloor()
+			TurnOffDoorLight()
+			StopButtonPressed()
+		}
+}
 
-// Un-used code below
+
+
 type elevatorState struct {
 	previousFloor int
 	direction     elevatorHW.MotorDirection
@@ -190,6 +231,17 @@ type order struct {
 	direction elevatorHW.MotorDirection
 	Floor int
 }
+
+
+
+
+
+
+/*func GetElevatorState() elevatorState {
+	elevatorState.previousFloor
+}
+*/
+
 
 /*func costFunc(elevatorStates []elevatorState, newOrder order) {
 	distanceCost := 0
