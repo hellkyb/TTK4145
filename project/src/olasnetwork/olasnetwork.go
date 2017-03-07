@@ -23,7 +23,6 @@ type HelloMsg struct {
 	CurrentState int // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
 	LastFloor int // The last floor the elevator visited
 	Order OrderMsg
-
 }
 
 type OrderMsg struct{
