@@ -118,6 +118,7 @@ func decitionmaker(){
 	localCost := costFunction(localState, fsm.LastFloor, )*/
 }
 
+
 func main() {
 
 	
@@ -129,6 +130,9 @@ func main() {
 	//fsm.CreateGlobalQueueSlice()
 	//testOrder := fsm.Order{2,0}
 	//fsm.PutOrderInLocalQueue(testOrder)
+
+	//stateRx := make(chan fsm.ElevatorStatus)
+
 	go func (){
 		for{
 			/*upOrder := elevatorHW.GetUpButton()
@@ -137,7 +141,6 @@ func main() {
 			/*state := elevatorHW.GetElevatorState()
 			
 			fmt.Println(state)*/
-			// olasnetwork.OrderCh <- fsm.Order{4, 0}
 			time.Sleep(1000*time.Millisecond)
 		}
 	}()

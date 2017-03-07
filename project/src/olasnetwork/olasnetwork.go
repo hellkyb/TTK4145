@@ -23,6 +23,7 @@ type HelloMsg struct {
 	CurrentState int // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
 	LastFloor int // The last floor the elevator visited
 	Order OrderMsg
+
 }
 
 type OrderMsg struct{
@@ -32,6 +33,14 @@ type OrderMsg struct{
 
 var OperatingElevators int
 var OperatingElevatorsPtr *int
+
+var Elevators [] fsm.ElevatorStatus
+
+func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID int){
+	if receivedOrder.ElevatorToTakeThisOrder == myElevatorID {
+		fsm.PutOrderInLocalQueue(receivedOrder.Order)		
+	}
+}
 
 func NetworkMain() {
 	// Our id can be anything. Here we pass it on the command line, using
@@ -65,7 +74,6 @@ func NetworkMain() {
 	// We make channels for sending and receiving our custom data types
 	helloTx := make(chan HelloMsg)
 	helloRx := make(chan HelloMsg)
-	fmt.Print(localip.LocalIP())
 
 	//orderCh := make(chan OrderMsg)
 
@@ -83,9 +91,9 @@ func NetworkMain() {
 	go func() {
 		//OrderToSend := <- orderCh
 		order := OrderMsg{fsm.Order{-1,-1},-1}
-		helloMsg := HelloMsg{"Hello from " + id, 0, 0, 0, 5, order}
+		helloMsg := HelloMsg{id, 0, 1, 0, 5, order}
 		for {
-			 
+
 			//helloMsg.Order = OrderToSend
 			helloMsg.Iter++
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
@@ -98,6 +106,7 @@ func NetworkMain() {
 	}()
 
 	//fmt.Println("Started")
+
 	for {
 		select {
 		case p := <-peerUpdateCh:
@@ -106,6 +115,7 @@ func NetworkMain() {
 			fmt.Printf("  New:      %q\n", p.New)
 			fmt.Printf("  Lost:     %q\n", p.Lost)
 			*OperatingElevatorsPtr = len(p.Peers)
+			
 
 		case a := <-helloRx:
 			fmt.Printf("Received: %#v\n", a)
