@@ -131,9 +131,9 @@ func main() {
 	//fsm.PutOrderInLocalQueue(testOrder)
 	go func (){
 		for{
-			upOrder := elevatorHW.GetUpButton()
+			/*upOrder := elevatorHW.GetUpButton()
 			downOrder := elevatorHW.GetDownButton()
-			insideOrder := elevatorHW.GetInsideElevatorButton()
+			insideOrder := elevatorHW.GetInsideElevatorButton()*/
 			state := elevatorHW.GetElevatorState()
 			
 			fmt.Println(state)

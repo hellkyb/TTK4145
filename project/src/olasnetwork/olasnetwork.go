@@ -65,6 +65,7 @@ func NetworkMain() {
 	// We make channels for sending and receiving our custom data types
 	helloTx := make(chan HelloMsg)
 	helloRx := make(chan HelloMsg)
+	
 	// ... and start the transmitter/receiver pair on some port
 	// These functions can take any number of channels! It is also possible to
 	//  start multiple transmitters/receivers on the same port.
