@@ -65,7 +65,13 @@ func NetworkMain() {
 	// We make channels for sending and receiving our custom data types
 	helloTx := make(chan HelloMsg)
 	helloRx := make(chan HelloMsg)
-	
+	fmt.Print(localip.LocalIP())
+
+	//orderCh := make(chan OrderMsg)
+
+
+	//orderCh <- OrderMsg{fsm.Order{2,2}, 1}
+
 	// ... and start the transmitter/receiver pair on some port
 	// These functions can take any number of channels! It is also possible to
 	//  start multiple transmitters/receivers on the same port.
@@ -75,11 +81,12 @@ func NetworkMain() {
 
 	// The example message. We just send one of these every second.
 	go func() {
+		//OrderToSend := <- orderCh
 		order := OrderMsg{fsm.Order{-1,-1},-1}
 		helloMsg := HelloMsg{"Hello from " + id, 0, 0, 0, 5, order}
 		for {
 			 
-
+			//helloMsg.Order = OrderToSend
 			helloMsg.Iter++
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
 			// helloMsg.Order
