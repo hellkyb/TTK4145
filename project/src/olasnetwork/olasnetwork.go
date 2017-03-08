@@ -1,13 +1,14 @@
 package olasnetwork
 
 import (
-	"./network/bcast"
-	"./network/localip"
-	"./network/peers"
 	"flag"
 	"fmt"
 	"os"
 	"time"
+
+	"./network/bcast"
+	"./network/localip"
+	"./network/peers"
 
 	"../elevatorHW"
 	"../fsm"
@@ -19,9 +20,9 @@ import (
 type HelloMsg struct {
 	Message      string
 	Iter         int
-	ElevatorID   int // This number identifies the elevator
-	CurrentState int // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
-	LastFloor    int // The last floor the elevator visited
+	ElevatorID   string // This number identifies the elevator
+	CurrentState int    // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
+	LastFloor    int    // The last floor the elevator visited
 	Order        OrderMsg
 }
 
@@ -45,6 +46,7 @@ func NetworkMain() {
 	// Our id can be anything. Here we pass it on the command line, using
 	//  `go run main.go -id=our_id`
 	var id string
+	var elevatorID string
 	flag.StringVar(&id, "id", "", "id of this peer")
 	flag.Parse()
 
@@ -58,7 +60,10 @@ func NetworkMain() {
 			localIP = "DISCONNECTED"
 		}
 		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
+		elevatorID = localIP[12:]
 	}
+	fmt.Println(elevatorID)
+
 	// We make a channel for receiving updates on the id's of the peers that are
 	//  alive on the network
 	peerUpdateCh := make(chan peers.PeerUpdate)
@@ -79,15 +84,15 @@ func NetworkMain() {
 	// ... and start the transmitter/receiver pair on some port
 	// These functions can take any number of channels! It is also possible to
 	//  start multiple transmitters/receivers on the same port.
-	go bcast.Transmitter(16569, helloTx)
-	go bcast.Receiver(16569, helloRx)
+	go bcast.Transmitter(16167, helloTx)
+	go bcast.Receiver(16167, helloRx)
 	OperatingElevatorsPtr = &OperatingElevators
 
 	// The example message. We just send one of these every second.
 	go func() {
 		//OrderToSend := <- orderCh
 		order := OrderMsg{fsm.Order{-1, -1}, -1}
-		helloMsg := HelloMsg{id, 0, 1, 0, 5, order}
+		helloMsg := HelloMsg{id, 0, elevatorID, 0, 5, order}
 		for {
 
 			//helloMsg.Order = OrderToSend
@@ -111,10 +116,33 @@ func NetworkMain() {
 			fmt.Printf("  New:      %q\n", p.New)
 			fmt.Printf("  Lost:     %q\n", p.Lost)
 			*OperatingElevatorsPtr = len(p.Peers)
-			fmt.Println(OperatingElevators)
+			//fmt.Println(OperatingElevators)
 
 		case a := <-helloRx:
-			fmt.Printf("Received: %#v\n", a)
+			//fmt.Printf("Received: %#v\n", a)
+			fmt.Print("\n\n")
+			fmt.Println("Message recieved")
+			fmt.Println("---------------------")
+			fmt.Print("From              : ")
+			fmt.Print(a.ElevatorID)
+			fmt.Println(" ")
+			fmt.Print("Direction         : ")
+			switch a.CurrentState {
+			case 0:
+				fmt.Println("Not moving")
+			case 1:
+				fmt.Println("Going up")
+			case -1:
+				fmt.Println("Going down")
+			}
+			fmt.Print("My last floor     : ")
+			fmt.Println(a.LastFloor)
+			fmt.Print("Message number    : ")
+			fmt.Println(a.Iter)
+			fmt.Print("#Elevators online : ")
+			fmt.Println(OperatingElevators)
+			fmt.Println("---------------------")
+			fmt.Print("\n\n\n")
 		}
 	}
 }

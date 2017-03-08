@@ -11,6 +11,7 @@ var localQueue [][]int
 var localQueueInside []int
 var localQueueUp []int
 var localQueueDown []int
+
 /*var GlobalQueue [][]int // Type GlobalQueue = [ {up orders} , {down orders} ]
 var globalQueueUp []int
 var globalQueueDown []int*/
@@ -22,6 +23,7 @@ func CreateQueueSlice() {
 	localQueue = append(localQueue, localQueueUp)
 	localQueue = append(localQueue, localQueueDown)
 }
+
 /*func CreateGlobalQueueSlice() {
 	GlobalQueue = append(GlobalQueue, globalQueueUp)
 	GlobalQueue = append(GlobalQueue, globalQueueDown)
@@ -74,7 +76,7 @@ func AppendGlobalDownOrder(downOrder int){
 func CompareGlobalAndLocalQueue (global[][] int) bool{  //NOT WORKING PROPERLY, CRASHING PROGRAM///
 	for i := 1; i <= len(localQueue); i++ {
 		if len(localQueue[i+1]) != len(global[i]) {
-		return false	
+		return false
 		}
 		for j := 0; j < len(global[i]); j++ {
 			if !(global[i][j] == localQueue[i+1][j]) {

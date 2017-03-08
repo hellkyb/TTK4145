@@ -1,8 +1,9 @@
 package elevatorHW
 
 import (
-	"../io"
 	"fmt"
+
+	"../io"
 )
 
 const motorSpeed = 2800
@@ -26,12 +27,12 @@ const (
 	ButtonCommand
 )
 
-var buttons [NFloors][NButtons]int = [NFloors][NButtons]int{
-	{buttonDown1, buttonUp1, buttonCommand1},
-	{buttonDown2, buttonUp2, buttonCommand2},
-	{buttonDown3, buttonUp3, buttonCommand3},
-	{buttonDown4, buttonUp4, buttonCommand4}}
-
+// var buttons [NFloors][NButtons]int = [NFloors][NButtons]int{
+// 	{buttonDown1, buttonUp1, buttonCommand1},
+// 	{buttonDown2, buttonUp2, buttonCommand2},
+// 	{buttonDown3, buttonUp3, buttonCommand3},
+// 	{buttonDown4, buttonUp4, buttonCommand4}}
+//
 var lights [NFloors][NLights]int = [NFloors][NLights]int{
 	{lightDown1, lightUp1, lightCommand1},
 	{lightDown2, lightUp2, lightCommand2},
@@ -281,8 +282,8 @@ func SetInsideLight(floor int, onOff bool) {
 	}
 }
 
-func GetElevatorDirection()	 int {
-	return io.ReadAnalog(Motordir)
+func GetElevatorDirection() int {
+	return io.ReadBit(Motordir)
 }
 
 func GetDoorLight() int {
@@ -297,12 +298,12 @@ func GetStopButtonPressed() bool {
 	}
 }
 
-func GetElevatorState() int{
-	if io.ReadAnalog(motor) == 0{
+func GetElevatorState() int {
+	if io.ReadAnalog(motor) == 0 {
 		return 0
-	}else if io.ReadAnalog(motor) != 0 && GetElevatorDirection() == 0{
+	} else if io.ReadAnalog(motor) != 0 && GetElevatorDirection() == 0 {
 		return 1
-	}else{
+	} else {
 		return -1
 	}
 }

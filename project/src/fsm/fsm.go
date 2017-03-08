@@ -2,7 +2,6 @@ package fsm
 
 import (
 	"../elevatorHW"
-	"../io"
 	//"../olasnetwork"
 	"fmt"
 	//"math"
@@ -27,6 +26,14 @@ var timeStampPtr *int64
 var latestFloorPtr *int
 var LatestFloor int
 
+/*
+Order type - description
+{Floor, 0} Calldown from #Floor
+{Floor, 1} Callup from #Floor
+{Floor, 2} InsideOrder to #Floor
+
+*/
+
 type Order struct {
 	Floor  int
 	Button elevatorHW.ButtonType //0 is callDown, 1 callUp, 2 callInside
@@ -42,6 +49,34 @@ func ArrivedAtFloorSetDoorOpen(floor int) {
 	*timeStampPtr = time.Now().Unix()
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
+}
+
+func GetButtonsPressed(buttonCh chan<- Order) {
+	for {
+		upOrder := elevatorHW.GetUpButton()
+		downOrder := elevatorHW.GetDownButton()
+		insideOrder := elevatorHW.GetInsideElevatorButton()
+
+		var order Order
+		if upOrder != 0 {
+			order.Floor = upOrder
+			order.Button = elevatorHW.ButtonCallUp
+			buttonCh <- order
+			time.Sleep(60 * time.Millisecond)
+		}
+		if downOrder != 0 {
+			order.Floor = downOrder
+			order.Button = elevatorHW.ButtonCallDown
+			buttonCh <- order
+			time.Sleep(60 * time.Millisecond)
+		}
+		if insideOrder != 0 {
+			order.Floor = insideOrder
+			order.Button = elevatorHW.ButtonCommand
+			buttonCh <- order
+			time.Sleep(60 * time.Millisecond)
+		}
+	}
 }
 
 func PutOrderInLocalQueue(newOrder Order) {
@@ -133,7 +168,7 @@ func SetElevatorDirection() {
 
 func StopAtThisFloor() {
 	currentFloor := elevatorHW.GetFloorSensorSignal()
-	currentDirection := io.ReadBit(elevatorHW.Motordir) // 1 is going down, 0 is going up
+	currentDirection := elevatorHW.GetElevatorDirection() // 1 is going down, 0 is going up
 
 	for i := 0; i < 3; i++ {
 
@@ -208,7 +243,13 @@ func SetLatestFloor() {
 		elevatorHW.SetFloorIndicator(elevatorHW.GetFloorSensorSignal())
 	}
 }
+func StartUpMessage() {
+	fmt.Println("DO YOU EVEN LIFT BRO?")
+	time.Sleep(2 * time.Second)
+	fmt.Print("\nFuck yeeah bro!\n\n")
+	time.Sleep(1 * time.Second)
 
+}
 func RunElevator() {
 	for {
 		SetLatestFloor()
