@@ -8,36 +8,36 @@ import (
 	"fmt"
 	"os"
 	"time"
-	
-	"../fsm"
+
 	"../elevatorHW"
+	"../fsm"
 )
 
 // We define some custom struct to send over the network.
 // Note that all members we want to transmit must be public. Any private members
 //  will be received as zero-values.
 type HelloMsg struct {
-	Message string
-	Iter int
-	ElevatorID int // This number identifies the elevator
+	Message      string
+	Iter         int
+	ElevatorID   int // This number identifies the elevator
 	CurrentState int // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
-	LastFloor int // The last floor the elevator visited
-	Order OrderMsg
+	LastFloor    int // The last floor the elevator visited
+	Order        OrderMsg
 }
 
-type OrderMsg struct{
-	Order fsm.Order
+type OrderMsg struct {
+	Order                   fsm.Order
 	ElevatorToTakeThisOrder int
 }
 
 var OperatingElevators int
 var OperatingElevatorsPtr *int
 
-var Elevators [] fsm.ElevatorStatus
+var Elevators []fsm.ElevatorStatus
 
-func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID int){
+func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID int) {
 	if receivedOrder.ElevatorToTakeThisOrder == myElevatorID {
-		fsm.PutOrderInLocalQueue(receivedOrder.Order)		
+		fsm.PutOrderInLocalQueue(receivedOrder.Order)
 	}
 }
 
@@ -47,8 +47,6 @@ func NetworkMain() {
 	var id string
 	flag.StringVar(&id, "id", "", "id of this peer")
 	flag.Parse()
-
-	
 
 	// ... or alternatively, we can use the local IP address.
 	// (But since we can run multiple programs on the same PC, we also append the
@@ -76,7 +74,6 @@ func NetworkMain() {
 
 	//orderCh := make(chan OrderMsg)
 
-
 	//orderCh <- OrderMsg{fsm.Order{2,2}, 1}
 
 	// ... and start the transmitter/receiver pair on some port
@@ -89,7 +86,7 @@ func NetworkMain() {
 	// The example message. We just send one of these every second.
 	go func() {
 		//OrderToSend := <- orderCh
-		order := OrderMsg{fsm.Order{-1,-1},-1}
+		order := OrderMsg{fsm.Order{-1, -1}, -1}
 		helloMsg := HelloMsg{id, 0, 1, 0, 5, order}
 		for {
 
@@ -99,7 +96,7 @@ func NetworkMain() {
 			// helloMsg.Order
 			helloMsg.LastFloor = fsm.LatestFloor
 			helloTx <- helloMsg
-	
+
 			time.Sleep(1000 * time.Millisecond)
 		}
 	}()
@@ -114,11 +111,10 @@ func NetworkMain() {
 			fmt.Printf("  New:      %q\n", p.New)
 			fmt.Printf("  Lost:     %q\n", p.Lost)
 			*OperatingElevatorsPtr = len(p.Peers)
-			
+			fmt.Println(OperatingElevators)
 
 		case a := <-helloRx:
 			fmt.Printf("Received: %#v\n", a)
-		}		
+		}
 	}
 }
-

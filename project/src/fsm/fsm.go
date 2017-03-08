@@ -10,12 +10,12 @@ import (
 )
 
 type HelloMsg struct {
-	Message string
-	Iter int
+	Message          string
+	Iter             int
 	MyElevatorNumber int // This number identifies the elevator
-	CurrentState int // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
-	LastFloor int // The last floor the elevator visited
-	//GlobalQueue [][]int 
+	CurrentState     int // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
+	LastFloor        int // The last floor the elevator visited
+	//GlobalQueue [][]int
 }
 
 var OperatingElevators int
@@ -27,12 +27,12 @@ var timeStampPtr *int64
 var latestFloorPtr *int
 var LatestFloor int
 
-type Order struct{
-	Floor int
+type Order struct {
+	Floor  int
 	Button elevatorHW.ButtonType //0 is callDown, 1 callUp, 2 callInside
 }
 
-type ElevatorStatus struct{
+type ElevatorStatus struct {
 	lastFloor int
 	direction elevatorHW.MotorDirection
 }
@@ -76,7 +76,7 @@ func PutOrderInLocalQueue(newOrder Order) {
 	}
 }
 
-func PutInsideOrderInLocalQueue(newOrder Order){
+func PutInsideOrderInLocalQueue(newOrder Order) {
 	insideOrder := elevatorHW.GetInsideElevatorButton()
 	if insideOrder != 0 {
 		AppendInsideOrder(insideOrder)
@@ -137,9 +137,9 @@ func StopAtThisFloor() {
 
 	for i := 0; i < 3; i++ {
 
-		for j := range localQueue[i] {		
+		for j := range localQueue[i] {
 			if currentFloor == localQueue[i][j] {
-				if ((i==0 || i==1) && (currentDirection == 0 || currentFloor == 1)){ 
+				if (i == 0 || i == 1) && (currentDirection == 0 || currentFloor == 1) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
 					ArrivedAtFloorSetDoorOpen(currentFloor)
 					//elevatorHW.SetDownLight(currentFloor, false)
@@ -148,7 +148,7 @@ func StopAtThisFloor() {
 					elevatorHW.SetFloorIndicator(currentFloor)
 					DeleteIndexLocalQueue(i, j)
 					return
-				} else if((i==0 || i==2) && (currentDirection == 1 || currentFloor == 4)){
+				} else if (i == 0 || i == 2) && (currentDirection == 1 || currentFloor == 4) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
 					ArrivedAtFloorSetDoorOpen(currentFloor)
 					elevatorHW.SetDownLight(currentFloor, false)
@@ -158,7 +158,7 @@ func StopAtThisFloor() {
 					DeleteIndexLocalQueue(i, j)
 					return
 				}
-			} 
+			}
 		}
 	}
 }
@@ -203,25 +203,24 @@ func StopButtonPressed() {
 
 func SetLatestFloor() {
 	latestFloorPtr = &LatestFloor
-	if elevatorHW.GetFloorSensorSignal() == 1 || elevatorHW.GetFloorSensorSignal() == 2 || elevatorHW.GetFloorSensorSignal() == 3 || elevatorHW.GetFloorSensorSignal() == 4{
+	if elevatorHW.GetFloorSensorSignal() == 1 || elevatorHW.GetFloorSensorSignal() == 2 || elevatorHW.GetFloorSensorSignal() == 3 || elevatorHW.GetFloorSensorSignal() == 4 {
 		*latestFloorPtr = elevatorHW.GetFloorSensorSignal()
+		elevatorHW.SetFloorIndicator(elevatorHW.GetFloorSensorSignal())
 	}
 }
 
 func RunElevator() {
 	for {
-			SetLatestFloor()
-			SetElevatorDirection()
-			PutOrderInLocalQueue(Order {}) // This must be replaced by "PutOrderInGlobalQueue"
-			PutInsideOrderInLocalQueue(Order {})
-			/*PutOrderInGlobalQueue()*/
-			StopAtThisFloor()
-			TurnOffDoorLight()
-			StopButtonPressed()
-		}
+		SetLatestFloor()
+		SetElevatorDirection()
+		PutOrderInLocalQueue(Order{}) // This must be replaced by "PutOrderInGlobalQueue"
+		PutInsideOrderInLocalQueue(Order{})
+		/*PutOrderInGlobalQueue()*/
+		StopAtThisFloor()
+		TurnOffDoorLight()
+		StopButtonPressed()
+	}
 }
-
-
 
 type elevatorState struct {
 	previousFloor int
@@ -229,19 +228,13 @@ type elevatorState struct {
 }
 type order struct {
 	direction elevatorHW.MotorDirection
-	Floor int
+	Floor     int
 }
-
-
-
-
-
 
 /*func GetElevatorState() elevatorState {
 	elevatorState.previousFloor
 }
 */
-
 
 /*func costFunc(elevatorStates []elevatorState, newOrder order) {
 	distanceCost := 0
