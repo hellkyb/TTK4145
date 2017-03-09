@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"./src/elevatorHW"
 	"./src/fsm"
 	"./src/olasnetwork"
@@ -86,24 +88,15 @@ func decitionmaker(onlineElevatorStates []olasnetwork.HelloMsg) (string, int) {
 }
 
 func checkPeerIsAlive() {
-	if len(operatingElevatorStates) != 0 && len(iterationList) == 0 {
-		iterationList = append(iterationList, operatingElevatorStates[0])
+	iterationList = operatingElevatorStates
+	if len(iterationList) < 1 {
+		return
 	}
+	time.Sleep(2 * time.Second)
 	for i := range iterationList {
-		if iterationList[i].ElevatorID == operatingElevatorStates[i].ElevatorID {
-			iterationList[i] = operatingElevatorStates[i]
-		} else if i == len(operatingElevatorStates)-1 {
-			iterationList = append(iterationList, operatingElevatorStates[i])
-		}
-	}
-	if len(operatingElevatorStates) > len(iterationList) {
-		iterationList = iterationList[0:]
-	}
-	for i := range iterationList {
-		iterationList[i].Iter++
-		if iterationList[i].Iter > 6+operatingElevatorStates[i].Iter {
-			iterationList = append(iterationList[:i], iterationList[i+1:]...)
+		if iterationList[i] != operatingElevatorStates[i] {
 			operatingElevatorStates = append(operatingElevatorStates[:i], operatingElevatorStates[i+1:]...)
+			iterationList = append(iterationList[:i], iterationList[i+1:]...)
 		}
 	}
 }

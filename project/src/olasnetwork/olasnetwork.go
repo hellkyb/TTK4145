@@ -129,7 +129,7 @@ func NetworkMain(messageCh chan<- HelloMsg) {
 			helloMsg.LastFloor = fsm.LatestFloor
 			helloTx <- helloMsg
 
-			time.Sleep(1000 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 		}
 	}()
 
