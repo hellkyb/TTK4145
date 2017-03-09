@@ -254,8 +254,8 @@ func RunElevator() {
 	for {
 		SetLatestFloor()
 		SetElevatorDirection()
-		PutOrderInLocalQueue(Order{}) // This must be replaced by "PutOrderInGlobalQueue"
-		PutInsideOrderInLocalQueue(Order{})
+		//PutOrderInLocalQueue(Order{}) // This must be replaced by "PutOrderInGlobalQueue"
+		//PutInsideOrderInLocalQueue(Order{})
 		/*PutOrderInGlobalQueue()*/
 		StopAtThisFloor()
 		TurnOffDoorLight()

@@ -32,7 +32,7 @@ type OrderMsg struct {
 
 var OperatingElevators int
 var OperatingElevatorsPtr *int
-
+var OperatingElevatorStates []HelloMsg
 var Elevators []fsm.ElevatorStatus
 
 func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID int) {
@@ -41,7 +41,30 @@ func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID int) {
 	}
 }
 
-func NetworkMain() {
+func UpdateElevatorStates(newMsg HelloMsg, OperatingElevators int, operatingElevatorStates []HelloMsg) []HelloMsg {
+
+	if OperatingElevators == 0 || OperatingElevators == 1 {
+		operatingElevatorStates = append(operatingElevatorStates, newMsg)
+		return operatingElevatorStates
+	}
+	for i := 0; i < OperatingElevators; i++ {
+		if newMsg.ElevatorID == operatingElevatorStates[i].ElevatorID {
+			operatingElevatorStates[i] = newMsg
+			return operatingElevatorStates
+		}
+	}
+	if len(operatingElevatorStates) > OperatingElevators {
+		return operatingElevatorStates[0:]
+	}
+	return operatingElevatorStates
+}
+
+func GetLocalID() string {
+	localIP, _ := localip.LocalIP()
+	return localIP[12:]
+}
+
+func NetworkMain(messageCh chan<- HelloMsg) {
 	// Our id can be anything. Here we pass it on the command line, using
 	//  `go run main.go -id=our_id`
 	var id string
@@ -74,7 +97,6 @@ func NetworkMain() {
 	// We make channels for sending and receiving our custom data types
 	helloTx := make(chan HelloMsg)
 	helloRx := make(chan HelloMsg)
-
 	//orderCh := make(chan OrderMsg)
 
 	//orderCh <- OrderMsg{fsm.Order{2,2}, 1}
@@ -141,6 +163,7 @@ func NetworkMain() {
 			fmt.Println(" ")
 			fmt.Println("---------------------")
 			fmt.Print("\n\n\n")
+			messageCh <- a
 		}
 	}
 }

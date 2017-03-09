@@ -7,7 +7,6 @@ import (
 	"./src/fsm"
 	"./src/olasnetwork"
 	//"./src/io"
-	//"./network/peers"
 	"fmt"
 )
 
@@ -67,7 +66,9 @@ func decitionmaker(onlineElevatorStates []olasnetwork.HelloMsg) (string, int) {
 	numberOfElevatorsInNetwork := olasnetwork.OperatingElevators
 	fmt.Print("D-NumElevs")
 	fmt.Println(numberOfElevatorsInNetwork)
-
+	if numberOfElevatorsInNetwork == 0 || numberOfElevatorsInNetwork == 1 {
+		return olasnetwork.GetLocalID(), 0
+	}
 	var costs []int
 
 	lowestCost := 152
@@ -92,14 +93,11 @@ func main() {
 	elevatorHW.Init()
 	//finished init
 	fsm.CreateQueueSlice()
-	//fsm.CreateGlobalQueueSlice()
-	//testOrder := fsm.Order{2,0}
-	//fsm.PutOrderInLocalQueue(testOrder)
 
 	//stateRx := make(chan fsm.ElevatorStatus)
-
+	var operatingElevatorStates []olasnetwork.HelloMsg
 	buttonCh := make(chan fsm.Order)
-	//messageCh := make
+	messageCh := make(chan olasnetwork.HelloMsg)
 
 	// go func() {
 	// 	for {
@@ -115,7 +113,7 @@ func main() {
 	//go RunElevator()
 	go fsm.RunElevator()
 	go fsm.GetButtonsPressed(buttonCh)
-	go olasnetwork.NetworkMain()
+	go olasnetwork.NetworkMain(messageCh)
 	time.Sleep(1000 * time.Millisecond)
 
 	mylist := make([]olasnetwork.HelloMsg, 2)
@@ -126,9 +124,18 @@ func main() {
 
 	for {
 		select {
+		case newMsg := <-messageCh:
+			operatingElevatorStates = olasnetwork.UpdateElevatorStates(newMsg, olasnetwork.OperatingElevators, olasnetwork.OperatingElevatorStates)
+			fmt.Println(operatingElevatorStates)
 		case newOrder := <-buttonCh:
 			fmt.Print("You made an order: ")
 			fmt.Println(newOrder)
+			if newOrder.Button == elevatorHW.ButtonCommand {
+				fsm.PutInsideOrderInLocalQueue(newOrder)
+			} else {
+
+				decitionmaker(olasnetwork.OperatingElevatorStates)
+			}
 			fsm.PrintQueues()
 		}
 		//time.Sleep(200 * time.Millisecond)
