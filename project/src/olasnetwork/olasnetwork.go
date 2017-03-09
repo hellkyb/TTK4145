@@ -146,7 +146,6 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			fmt.Printf("  New:      %q\n", p.New)
 			fmt.Printf("  Lost:     %q\n", p.Lost)
 			*OperatingElevatorsPtr = len(p.Peers)
-			time.Sleep(1 * time.Second)
 
 		case a := <-helloRx:
 			//fmt.Printf("Received: %#v\n", a)
