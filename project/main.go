@@ -66,8 +66,6 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 
 func decitionmaker(onlineElevatorStates []olasnetwork.HelloMsg) (string, int) {
 	numberOfElevatorsInNetwork := olasnetwork.OperatingElevators
-	fmt.Print("D-NumElevs ")
-	fmt.Println(numberOfElevatorsInNetwork)
 	if numberOfElevatorsInNetwork == 0 || numberOfElevatorsInNetwork == 1 {
 		return olasnetwork.GetLocalID(), 0
 	}
@@ -106,6 +104,10 @@ func main() {
 	time.Sleep(1 * time.Millisecond)
 
 	for {
+		//fmt.Print("Elevator states online: ")
+		//fmt.Println(operatingElevatorStates)
+		time.Sleep(1 * time.Second)
+
 		select {
 
 		case newMsg := <-messageCh:
@@ -118,8 +120,8 @@ func main() {
 			if newOrder.Button == elevatorHW.ButtonCommand {
 				fsm.PutInsideOrderInLocalQueue(newOrder)
 			} else {
-				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)
-				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
+				// elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)
+				// networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
 			fsm.PrintQueues()
 
