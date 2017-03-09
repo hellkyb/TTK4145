@@ -43,17 +43,19 @@ func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID int) {
 
 func UpdateElevatorStates(newMsg HelloMsg, OperatingElevators int, operatingElevatorStates []HelloMsg) []HelloMsg {
 
-	if OperatingElevators == 0 || OperatingElevators == 1 {
+	if len(operatingElevatorStates) == 0 {
 		operatingElevatorStates = append(operatingElevatorStates, newMsg)
 		return operatingElevatorStates
 	}
-	for i := 0; i < OperatingElevators; i++ {
+	for i := range operatingElevatorStates {
 		if newMsg.ElevatorID == operatingElevatorStates[i].ElevatorID {
 			operatingElevatorStates[i] = newMsg
 			return operatingElevatorStates
+		} else if i == len(operatingElevatorStates)-1 {
+			operatingElevatorStates = append(operatingElevatorStates, newMsg)
 		}
 	}
-	if len(operatingElevatorStates) > OperatingElevators {
+	if len(operatingElevatorStates)+2 > OperatingElevators {
 		return operatingElevatorStates[0:]
 	}
 	return operatingElevatorStates
