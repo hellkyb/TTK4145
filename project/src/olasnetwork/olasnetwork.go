@@ -18,7 +18,6 @@ import (
 // Note that all members we want to transmit must be public. Any private members
 //  will be received as zero-values.
 type HelloMsg struct {
-	Message      string
 	Iter         int
 	ElevatorID   string // This number identifies the elevator
 	CurrentState int    // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
@@ -62,7 +61,6 @@ func NetworkMain() {
 		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
 		elevatorID = localIP[12:]
 	}
-	fmt.Println(elevatorID)
 
 	// We make a channel for receiving updates on the id's of the peers that are
 	//  alive on the network
@@ -92,13 +90,11 @@ func NetworkMain() {
 	go func() {
 		//OrderToSend := <- orderCh
 		order := OrderMsg{fsm.Order{-1, -1}, -1}
-		helloMsg := HelloMsg{id, 0, elevatorID, 0, 5, order}
+		helloMsg := HelloMsg{0, elevatorID, 0, 5, order}
 		for {
-
-			//helloMsg.Order = OrderToSend
 			helloMsg.Iter++
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
-			// helloMsg.Order
+			helloMsg.Order = order
 			helloMsg.LastFloor = fsm.LatestFloor
 			helloTx <- helloMsg
 
@@ -141,6 +137,8 @@ func NetworkMain() {
 			fmt.Println(a.Iter)
 			fmt.Print("#Elevators online : ")
 			fmt.Println(OperatingElevators)
+			fmt.Print("New Order         :")
+			fmt.Println(" ")
 			fmt.Println("---------------------")
 			fmt.Print("\n\n\n")
 		}

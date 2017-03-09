@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"./src/elevatorHW"
 	"./src/fsm"
 	"./src/olasnetwork"
@@ -10,107 +12,75 @@ import (
 )
 
 // This function returns how suitet the elevator is to handle a global call
-func costFunction(state int, lastFloor int, globalOrder fsm.Order) int {
-	distanceToTarget := 0
-	if lastFloor > globalOrder.Floor {
-		distanceToTarget = lastFloor - globalOrder.Floor
+func costFunction(dir int, lastFloor int, order fsm.Order) int {
+	var distanceToTarget int
+	var dirCost int
+	if lastFloor > order.Floor {
+		distanceToTarget = lastFloor - order.Floor
 	} else {
-		distanceToTarget = globalOrder.Floor - lastFloor
+		distanceToTarget = order.Floor - lastFloor
 	}
 
-	if state == 0 && globalOrder.Floor == lastFloor { // Elevator is Idle at floor being called
-		return 10
-	}
-	if globalOrder.Button == 1 { //UpType Order
-		if state == -1 { // Moving in opposite direction
-			switch distanceToTarget {
-			case 2: // Distance to target is max and moving in oposite direction is worstcase
-				return 0
-			case 1:
-				return 1
-			case 0:
-				return 2
-			}
-		} else if state == 0 { //Elevator is idle
-			switch distanceToTarget {
-			case 0:
-				return 10 //BestCase
-			case 1:
-				return 9
-			case 2:
-				return 8
-			case 3:
-				return 7
-			}
+	distCost := 2 * distanceToTarget
 
-		} else if state == 1 { // Elevator is moving up
-			switch distanceToTarget {
-			case 0:
-				return 3 //Elevator just left
-			case 1:
-				return 9
-			case 2:
-				return 8
-			case 3:
-				return 7
+	if dir == 0 && order.Floor == lastFloor { // Elevator is Idle at floor being called
+		return 0
+	}
+	if order.Button == 1 { //UpType Order
+		if dir == -1 { // Moving in opposite direction
+			if lastFloor < order.Floor {
+				dirCost = 8
+			} else {
+				dirCost = 10
+			}
+		} else if dir == 0 { //Elevator is idle
+			dirCost = 0
+		} else if dir == 1 { // Elevator is moving up
+			if lastFloor > order.Floor {
+				dirCost = 8
+			} else {
+				dirCost = 10
 			}
 		}
 
-	} else if globalOrder.Button == 0 { //DownType order
-		if state == 1 { // Oposite directioin
-			switch distanceToTarget {
-			case 0:
-				return 2
-			case 1:
-				return 8
-			case 2:
-				return 7
-			case 3:
-				return 6
+	} else if order.Button == 0 { //DownType order
+		if dir == 1 { // Oposite directioin
+			if lastFloor > order.Floor {
+				dirCost = 8
+			} else {
+				dirCost = 10
 			}
-
-		} else if state == 0 {
-			switch distanceToTarget {
-			case 0:
-				return 10
-			case 1:
-				return 9
-			case 2:
-				return 8
-			case 3:
-				return 7
+		} else if dir == 0 {
+			dirCost = 0
+		} else if dir == -1 {
+			if lastFloor < order.Floor {
+				dirCost = 8
+			} else {
+				dirCost = 10
 			}
-
-		} else if state == -1 {
-			switch distanceToTarget {
-			case 0:
-				return 2
-			case 1:
-				return 8
-			case 2:
-				return 7
-			case 3:
-				return 6
-			}
-
 		}
-
 	}
-	return 0
+	return dirCost + distCost
 }
 
-//This function looks on the oldest global queue order
-//uses the costFunction on all elevators and determine if it is best suited for the job
-// If this is the case, it should append the global order into its localqueue
-func decitionmaker() {
+func decitionmaker(onlineElevatorStates []olasnetwork.HelloMsg) (string, int) {
 	numberOfElevatorsInNetwork := olasnetwork.OperatingElevators
+	fmt.Print("D-NumElevs")
 	fmt.Println(numberOfElevatorsInNetwork)
 
-	if numberOfElevatorsInNetwork == 1 || numberOfElevatorsInNetwork == 0 {
-		// Alone mode, handle the globalQueue as LocalQueue
+	var costs []int
+
+	lowestCost := 152
+	var minPos int
+	for i := 0; i < numberOfElevatorsInNetwork; i++ {
+		thisCost := costFunction(onlineElevatorStates[i].CurrentState, onlineElevatorStates[i].LastFloor, onlineElevatorStates[i].Order.Order)
+		costs = append(costs, thisCost)
+		if lowestCost > costs[i] {
+			lowestCost = costs[i]
+			minPos = i
+		}
 	}
-	/*localState = elevatorHW.GetElevatorState()
-	localCost := costFunction(localState, fsm.LastFloor, )*/
+	return onlineElevatorStates[minPos].ElevatorID, lowestCost
 }
 
 func main() {
@@ -129,6 +99,7 @@ func main() {
 	//stateRx := make(chan fsm.ElevatorStatus)
 
 	buttonCh := make(chan fsm.Order)
+	//messageCh := make
 
 	// go func() {
 	// 	for {
@@ -145,11 +116,20 @@ func main() {
 	go fsm.RunElevator()
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain()
+	time.Sleep(1000 * time.Millisecond)
+
+	mylist := make([]olasnetwork.HelloMsg, 2)
+	mylist[0] = olasnetwork.HelloMsg{0, "Winner", 0, 4, olasnetwork.OrderMsg{fsm.Order{0, 2}, -1}}
+	mylist[1] = olasnetwork.HelloMsg{0, "Looser", 0, 3, olasnetwork.OrderMsg{fsm.Order{0, 2}, -1}}
+	theChosenOne, cost := decitionmaker(mylist)
+	fmt.Println(theChosenOne+" ", cost)
+
 	for {
 		select {
 		case newOrder := <-buttonCh:
 			fmt.Print("You made an order: ")
 			fmt.Println(newOrder)
+			fsm.PrintQueues()
 		}
 		//time.Sleep(200 * time.Millisecond)
 	}

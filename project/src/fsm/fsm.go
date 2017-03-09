@@ -245,9 +245,9 @@ func SetLatestFloor() {
 }
 func StartUpMessage() {
 	fmt.Println("DO YOU EVEN LIFT BRO?")
-	time.Sleep(2 * time.Second)
+	time.Sleep(140 * time.Millisecond)
 	fmt.Print("\nFuck yeeah bro!\n\n")
-	time.Sleep(1 * time.Second)
+	time.Sleep(100 * time.Millisecond)
 
 }
 func RunElevator() {
@@ -261,15 +261,6 @@ func RunElevator() {
 		TurnOffDoorLight()
 		StopButtonPressed()
 	}
-}
-
-type elevatorState struct {
-	previousFloor int
-	direction     elevatorHW.MotorDirection
-}
-type order struct {
-	direction elevatorHW.MotorDirection
-	Floor     int
 }
 
 /*func GetElevatorState() elevatorState {

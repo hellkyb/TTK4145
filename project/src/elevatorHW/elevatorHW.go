@@ -14,9 +14,9 @@ const NLights = 4
 type MotorDirection int
 
 const (
-	DirectionStop = iota
-	DirectionUp
-	DirectionDown
+	DirectionDown = -1
+	DirectionStop = 0
+	DirectionUp   = 1
 )
 
 type ButtonType int
