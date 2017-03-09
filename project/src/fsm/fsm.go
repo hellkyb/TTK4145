@@ -40,8 +40,8 @@ type Order struct {
 }
 
 type ElevatorStatus struct {
-	lastFloor int
-	direction elevatorHW.MotorDirection
+	alive      bool
+	elevatorID string
 }
 
 func ArrivedAtFloorSetDoorOpen(floor int) {

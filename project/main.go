@@ -11,7 +11,6 @@ import (
 )
 
 var operatingElevatorStates []olasnetwork.HelloMsg
-var iterationList []olasnetwork.HelloMsg
 
 // This function returns how suitet the elevator is to handle a global call
 func costFunction(dir int, lastFloor int, order fsm.Order) int {
@@ -67,7 +66,7 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 
 func decitionmaker(onlineElevatorStates []olasnetwork.HelloMsg) (string, int) {
 	numberOfElevatorsInNetwork := olasnetwork.OperatingElevators
-	fmt.Print("D-NumElevs")
+	fmt.Print("D-NumElevs ")
 	fmt.Println(numberOfElevatorsInNetwork)
 	if numberOfElevatorsInNetwork == 0 || numberOfElevatorsInNetwork == 1 {
 		return olasnetwork.GetLocalID(), 0
@@ -87,22 +86,7 @@ func decitionmaker(onlineElevatorStates []olasnetwork.HelloMsg) (string, int) {
 	return onlineElevatorStates[minPos].ElevatorID, lowestCost
 }
 
-func checkPeerIsAlive() {
-	iterationList = operatingElevatorStates
-	if len(iterationList) < 1 {
-		return
-	}
-	time.Sleep(2 * time.Second)
-	for i := range iterationList {
-		if iterationList[i] != operatingElevatorStates[i] {
-			operatingElevatorStates = append(operatingElevatorStates[:i], operatingElevatorStates[i+1:]...)
-			iterationList = append(iterationList[:i], iterationList[i+1:]...)
-		}
-	}
-}
-
 func main() {
-
 	//start init
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
@@ -111,61 +95,38 @@ func main() {
 	//finished init
 	fsm.CreateQueueSlice()
 
-	//stateRx := make(chan fsm.ElevatorStatus)
-
 	buttonCh := make(chan fsm.Order)
 	messageCh := make(chan olasnetwork.HelloMsg)
+	networkOrderCh := make(chan olasnetwork.HelloMsg)
+	networkSendOrderCh := make(chan olasnetwork.OrderMsg)
 
-	// go func() {
-	// 	for {
-	// 		/*upOrder := elevatorHW.GetUpButton()
-	// 		downOrder := elevatorHW.GetDownButton()
-	// 		insideOrder := elevatorHW.GetInsideElevatorButton()*/
-	// 		/*state := elevatorHW.GetElevatorState()
-	//
-	// 		fmt.Println(state)*/
-	//
-	// 	}
-	// }()
-	//go RunElevator()
 	go fsm.RunElevator()
-	go checkPeerIsAlive()
 	go fsm.GetButtonsPressed(buttonCh)
-	go olasnetwork.NetworkMain(messageCh)
-	//time.Sleep(1000 * time.Millisecond)
-
-	fmt.Print("From main:  ")
-	fmt.Println(operatingElevatorStates)
-	fmt.Print("From mai2:  ")
-	fmt.Println(iterationList)
-
-	mylist := make([]olasnetwork.HelloMsg, 2)
-	mylist[0] = olasnetwork.HelloMsg{0, "Winner", 0, 4, olasnetwork.OrderMsg{fsm.Order{0, 2}, " "}}
-	mylist[1] = olasnetwork.HelloMsg{0, "Looser", 0, 3, olasnetwork.OrderMsg{fsm.Order{0, 2}, " "}}
-	theChosenOne, cost := decitionmaker(mylist)
-	fmt.Println(theChosenOne+" ", cost)
+	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh)
+	time.Sleep(1 * time.Millisecond)
 
 	for {
 		select {
+
 		case newMsg := <-messageCh:
-			checkPeerIsAlive()
-			operatingElevatorStates = olasnetwork.UpdateElevatorStates(newMsg, olasnetwork.OperatingElevators, operatingElevatorStates)
-			// fmt.Println(operatingElevatorStates)
-			fmt.Print("From main:  ")
-			fmt.Println(operatingElevatorStates)
-			fmt.Print("From mai2:  ")
-			fmt.Println(iterationList)
+			operatingElevatorStates = olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
+			//fmt.Println(operatingElevatorStates)
+
 		case newOrder := <-buttonCh:
 			fmt.Print("You made an order: ")
 			fmt.Println(newOrder)
 			if newOrder.Button == elevatorHW.ButtonCommand {
 				fsm.PutInsideOrderInLocalQueue(newOrder)
 			} else {
-
-				decitionmaker(operatingElevatorStates)
+				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)
+				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
 			fsm.PrintQueues()
+
+		case newNetworkOrder := <-networkOrderCh:
+			if newNetworkOrder.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {
+				fsm.PutOrderInLocalQueue(newNetworkOrder.Order.Order)
+			}
 		}
-		//time.Sleep(200 * time.Millisecond)
 	}
 }
