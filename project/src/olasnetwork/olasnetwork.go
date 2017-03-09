@@ -32,8 +32,15 @@ type OrderMsg struct {
 
 var OperatingElevators int
 var OperatingElevatorsPtr *int
-var OperatingElevatorStates []HelloMsg
+
 var Elevators []fsm.ElevatorStatus
+
+type ElevatorStatus struct {
+	ElevatorID string
+	Alive      bool
+}
+
+var ListOfElevators []ElevatorStatus
 
 func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID string) {
 	if receivedOrder.ElevatorToTakeThisOrder == myElevatorID {
@@ -48,9 +55,7 @@ func UpdateElevatorStates(newMsg HelloMsg, OperatingElevators int, operatingElev
 		return operatingElevatorStates
 	}
 	for i := range operatingElevatorStates {
-		if newMsg.Iter == operatingElevatorStates[i].Iter {
-			operatingElevatorStates = append(operatingElevatorStates[:i], operatingElevatorStates[i+1:]...)
-		}
+
 		if newMsg.ElevatorID == operatingElevatorStates[i].ElevatorID {
 			operatingElevatorStates[i] = newMsg
 
@@ -65,12 +70,17 @@ func UpdateElevatorStates(newMsg HelloMsg, OperatingElevators int, operatingElev
 	return operatingElevatorStates
 }
 
+func peerLostRemoveFromList(lost string, operatingElevatorStates []HelloMsg) []HelloMsg {
+	return operatingElevatorStates
+
+}
+
 func GetLocalID() string {
 	localIP, _ := localip.LocalIP()
 	return localIP[12:]
 }
 
-func NetworkMain(messageCh chan<- HelloMsg) {
+func NetworkMain(messageCh chan<- HelloMsg, peerCh chan<- ElevatorStatus) {
 	// Our id can be anything. Here we pass it on the command line, using
 	//  `go run main.go -id=our_id`
 	var id string
@@ -140,7 +150,12 @@ func NetworkMain(messageCh chan<- HelloMsg) {
 			fmt.Printf("  New:      %q\n", p.New)
 			fmt.Printf("  Lost:     %q\n", p.Lost)
 			*OperatingElevatorsPtr = len(p.Peers)
-			//fmt.Println(OperatingElevators)
+			// var newElevStatus ElevatorStatus
+			// if len(p.Lost) > 1 {
+			// 	newElevStatus.Alive = false
+			// 	newElevStatus.ElevatorID = p.Lost[0][17:20]
+			// }
+			// peerCh <- newElevStatus
 
 		case a := <-helloRx:
 			//fmt.Printf("Received: %#v\n", a)

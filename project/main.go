@@ -99,6 +99,7 @@ func main() {
 
 	buttonCh := make(chan fsm.Order)
 	messageCh := make(chan olasnetwork.HelloMsg)
+	peerCh := make(chan olasnetwork.ElevatorStatus)
 
 	// go func() {
 	// 	for {
@@ -114,7 +115,7 @@ func main() {
 	//go RunElevator()
 	go fsm.RunElevator()
 	go fsm.GetButtonsPressed(buttonCh)
-	go olasnetwork.NetworkMain(messageCh)
+	go olasnetwork.NetworkMain(messageCh, peerCh)
 	time.Sleep(1000 * time.Millisecond)
 
 	mylist := make([]olasnetwork.HelloMsg, 2)
@@ -125,6 +126,8 @@ func main() {
 
 	for {
 		select {
+		// case deadOrAlive := <-peerCh:
+		// 	fmt.Println("ok")
 		case newMsg := <-messageCh:
 			operatingElevatorStates = olasnetwork.UpdateElevatorStates(newMsg, olasnetwork.OperatingElevators, operatingElevatorStates)
 			fmt.Println(operatingElevatorStates)
@@ -135,7 +138,7 @@ func main() {
 				fsm.PutInsideOrderInLocalQueue(newOrder)
 			} else {
 
-				decitionmaker(olasnetwork.OperatingElevatorStates)
+				decitionmaker(operatingElevatorStates)
 			}
 			fsm.PrintQueues()
 		}
