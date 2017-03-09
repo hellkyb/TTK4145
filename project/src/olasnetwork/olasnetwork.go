@@ -27,7 +27,7 @@ type HelloMsg struct {
 
 type OrderMsg struct {
 	Order                   fsm.Order
-	ElevatorToTakeThisOrder int
+	ElevatorToTakeThisOrder string
 }
 
 var OperatingElevators int
@@ -35,7 +35,7 @@ var OperatingElevatorsPtr *int
 var OperatingElevatorStates []HelloMsg
 var Elevators []fsm.ElevatorStatus
 
-func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID int) {
+func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID string) {
 	if receivedOrder.ElevatorToTakeThisOrder == myElevatorID {
 		fsm.PutOrderInLocalQueue(receivedOrder.Order)
 	}
@@ -48,14 +48,18 @@ func UpdateElevatorStates(newMsg HelloMsg, OperatingElevators int, operatingElev
 		return operatingElevatorStates
 	}
 	for i := range operatingElevatorStates {
+		if newMsg.Iter == operatingElevatorStates[i].Iter {
+			operatingElevatorStates = append(operatingElevatorStates[:i], operatingElevatorStates[i+1:]...)
+		}
 		if newMsg.ElevatorID == operatingElevatorStates[i].ElevatorID {
 			operatingElevatorStates[i] = newMsg
+
 			return operatingElevatorStates
 		} else if i == len(operatingElevatorStates)-1 {
 			operatingElevatorStates = append(operatingElevatorStates, newMsg)
 		}
 	}
-	if len(operatingElevatorStates)+2 > OperatingElevators {
+	if len(operatingElevatorStates) > OperatingElevators {
 		return operatingElevatorStates[0:]
 	}
 	return operatingElevatorStates
@@ -113,7 +117,7 @@ func NetworkMain(messageCh chan<- HelloMsg) {
 	// The example message. We just send one of these every second.
 	go func() {
 		//OrderToSend := <- orderCh
-		order := OrderMsg{fsm.Order{-1, -1}, -1}
+		order := OrderMsg{fsm.Order{-1, -1}, "Nil"}
 		helloMsg := HelloMsg{0, elevatorID, 0, 5, order}
 		for {
 			helloMsg.Iter++

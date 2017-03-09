@@ -10,8 +10,6 @@ import (
 	"fmt"
 )
 
-var operatingElevatorStates []olasnetwork.HelloMsg
-
 // This function returns how suitet the elevator is to handle a global call
 func costFunction(dir int, lastFloor int, order fsm.Order) int {
 	var distanceToTarget int
@@ -95,6 +93,7 @@ func main() {
 	elevatorHW.Init()
 	//finished init
 	fsm.CreateQueueSlice()
+	var operatingElevatorStates []olasnetwork.HelloMsg
 
 	//stateRx := make(chan fsm.ElevatorStatus)
 
@@ -119,15 +118,15 @@ func main() {
 	time.Sleep(1000 * time.Millisecond)
 
 	mylist := make([]olasnetwork.HelloMsg, 2)
-	mylist[0] = olasnetwork.HelloMsg{0, "Winner", 0, 4, olasnetwork.OrderMsg{fsm.Order{0, 2}, -1}}
-	mylist[1] = olasnetwork.HelloMsg{0, "Looser", 0, 3, olasnetwork.OrderMsg{fsm.Order{0, 2}, -1}}
+	mylist[0] = olasnetwork.HelloMsg{0, "Winner", 0, 4, olasnetwork.OrderMsg{fsm.Order{0, 2}, " "}}
+	mylist[1] = olasnetwork.HelloMsg{0, "Looser", 0, 3, olasnetwork.OrderMsg{fsm.Order{0, 2}, " "}}
 	theChosenOne, cost := decitionmaker(mylist)
 	fmt.Println(theChosenOne+" ", cost)
 
 	for {
 		select {
 		case newMsg := <-messageCh:
-			operatingElevatorStates = olasnetwork.UpdateElevatorStates(newMsg, olasnetwork.OperatingElevators, olasnetwork.OperatingElevatorStates)
+			operatingElevatorStates = olasnetwork.UpdateElevatorStates(newMsg, olasnetwork.OperatingElevators, operatingElevatorStates)
 			fmt.Println(operatingElevatorStates)
 		case newOrder := <-buttonCh:
 			fmt.Print("You made an order: ")
