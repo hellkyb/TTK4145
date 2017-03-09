@@ -10,6 +10,8 @@ import (
 	"fmt"
 )
 
+var operatingElevatorStates []olasnetwork.HelloMsg
+
 // This function returns how suitet the elevator is to handle a global call
 func costFunction(dir int, lastFloor int, order fsm.Order) int {
 	var distanceToTarget int
@@ -95,7 +97,7 @@ func main() {
 	fsm.CreateQueueSlice()
 
 	//stateRx := make(chan fsm.ElevatorStatus)
-	var operatingElevatorStates []olasnetwork.HelloMsg
+
 	buttonCh := make(chan fsm.Order)
 	messageCh := make(chan olasnetwork.HelloMsg)
 
