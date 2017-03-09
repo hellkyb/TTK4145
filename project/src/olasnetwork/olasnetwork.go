@@ -41,6 +41,7 @@ type ElevatorStatus struct {
 	Alive      bool
 }
 
+
 func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID string) {
 	if receivedOrder.ElevatorToTakeThisOrder == myElevatorID {
 		fsm.PutOrderInLocalQueue(receivedOrder.Order)
@@ -106,9 +107,6 @@ func NetworkMain(messageCh chan<- HelloMsg) {
 	// We make channels for sending and receiving our custom data types
 	helloTx := make(chan HelloMsg)
 	helloRx := make(chan HelloMsg)
-	//orderCh := make(chan OrderMsg)
-
-	//orderCh <- OrderMsg{fsm.Order{2,2}, 1}
 
 	// ... and start the transmitter/receiver pair on some port
 	// These functions can take any number of channels! It is also possible to
@@ -119,8 +117,7 @@ func NetworkMain(messageCh chan<- HelloMsg) {
 
 	// The example message. We just send one of these every second.
 	go func() {
-		//OrderToSend := <- orderCh
-		order := OrderMsg{fsm.Order{-1, -1}, "Nil"}
+		order := 
 		helloMsg := HelloMsg{0, elevatorID, 0, 5, order}
 		for {
 			helloMsg.Iter++

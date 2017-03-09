@@ -139,12 +139,6 @@ func main() {
 	fmt.Print("From mai2:  ")
 	fmt.Println(iterationList)
 
-	mylist := make([]olasnetwork.HelloMsg, 2)
-	mylist[0] = olasnetwork.HelloMsg{0, "Winner", 0, 4, olasnetwork.OrderMsg{fsm.Order{0, 2}, " "}}
-	mylist[1] = olasnetwork.HelloMsg{0, "Looser", 0, 3, olasnetwork.OrderMsg{fsm.Order{0, 2}, " "}}
-	theChosenOne, cost := decitionmaker(mylist)
-	fmt.Println(theChosenOne+" ", cost)
-
 	for {
 		select {
 		case newMsg := <-messageCh:
@@ -161,8 +155,9 @@ func main() {
 			if newOrder.Button == elevatorHW.ButtonCommand {
 				fsm.PutInsideOrderInLocalQueue(newOrder)
 			} else {
-
-				decitionmaker(operatingElevatorStates)
+				elevatorToTakeOrder, cost := decitionmaker(operatingElevatorStates)
+				order := olasnetwork.OrderMsg{fsm.Order{newOrder.Floor, newOrder.Button}, elevatorToTakeOrder}
+				olasnetwork.SendOrderToPeer(order)
 			}
 			fsm.PrintQueues()
 		}
