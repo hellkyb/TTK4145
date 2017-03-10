@@ -32,10 +32,8 @@ type OrderMsg struct {
 
 var OperatingElevators int
 var OperatingElevatorsPtr *int
-var newElevStatus ElevatorStatus
-var TimeOutQueue []int64
-var Elevators []fsm.ElevatorStatus
 
+<<<<<<< HEAD
 type ElevatorStatus struct {
 	ElevatorID string
 	Alive      bool
@@ -49,6 +47,9 @@ func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID string) {
 }
 
 func UpdateElevatorStates(newMsg HelloMsg, OperatingElevators int, operatingElevatorStates []HelloMsg) []HelloMsg {
+=======
+func UpdateElevatorStates(newMsg HelloMsg, operatingElevatorStates []HelloMsg) []HelloMsg {
+>>>>>>> 36bf5482997a2c93a80d183e37fc3211ad223085
 
 	if len(operatingElevatorStates) == 0 {
 		operatingElevatorStates = append(operatingElevatorStates, newMsg)
@@ -63,9 +64,7 @@ func UpdateElevatorStates(newMsg HelloMsg, OperatingElevators int, operatingElev
 			operatingElevatorStates = append(operatingElevatorStates, newMsg)
 		}
 	}
-	if len(operatingElevatorStates) > OperatingElevators {
-		return operatingElevatorStates[0:]
-	}
+
 	return operatingElevatorStates
 }
 
@@ -74,7 +73,25 @@ func GetLocalID() string {
 	return localIP[12:]
 }
 
-func NetworkMain(messageCh chan<- HelloMsg) {
+/*func UpdateElevatorStatusMap(elevatorStatusMap map[string]bool) {
+	for {
+		peerUpdateCh := make(chan peers.PeerUpdate)
+		go peers.Receiver(15647, peerUpdateCh)
+		a := <-peerUpdateCh
+
+		identifier := a.Lost[0][17:20]
+		if len(a.Lost) > 0 {
+			elevatorStatusMap[identifier] = false
+		} else if utf8.RuneCountInString(a.New) > 1 {
+			n := 1024
+			newString := string(a.New[:n])
+			newString = newString[17:20]
+			elevatorStatusMap[newString] = true
+		}
+	}
+}*/
+
+func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, networkSendOrderCh <-chan OrderMsg) {
 	// Our id can be anything. Here we pass it on the command line, using
 	//  `go run main.go -id=our_id`
 	var id string
@@ -117,14 +134,21 @@ func NetworkMain(messageCh chan<- HelloMsg) {
 
 	// The example message. We just send one of these every second.
 	go func() {
+<<<<<<< HEAD
 		order := 
 		helloMsg := HelloMsg{0, elevatorID, 0, 5, order}
+=======
+		//OrderToSend := <- orderCh
+		helloMsg := HelloMsg{0, elevatorID, 0, 5, OrderMsg{fsm.Order{-1, 1}, "Nil"}}
+>>>>>>> 36bf5482997a2c93a80d183e37fc3211ad223085
 		for {
+			order := <-networkSendOrderCh
 			helloMsg.Iter++
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
 			helloMsg.Order = order
 			helloMsg.LastFloor = fsm.LatestFloor
 			helloTx <- helloMsg
+			networkOrderCh <- helloMsg
 
 			time.Sleep(100 * time.Millisecond)
 		}
