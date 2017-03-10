@@ -71,7 +71,7 @@ func decitionmaker(onlineElevatorStates []olasnetwork.HelloMsg) (string, int) {
 	}
 	var costs []int
 
-	lowestCost := 152
+	lowestCost := 150
 	var minPos int
 	for i := 0; i < numberOfElevatorsInNetwork; i++ {
 		thisCost := costFunction(onlineElevatorStates[i].CurrentState, onlineElevatorStates[i].LastFloor, onlineElevatorStates[i].Order.Order)
@@ -116,7 +116,7 @@ func main() {
 	for {
 		//fmt.Print("Elevator states online: ")
 		//fmt.Println(operatingElevatorStates)
-		time.Sleep(1 * time.Second)
+		//time.Sleep(1 * time.Second)
 
 		select {
 
