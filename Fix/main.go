@@ -123,10 +123,7 @@ func main() {
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh)
 
-	for {
-		if fsm.DoorOpenedTime + 2 < time.Now().Unix(){
-			elevatorHW.SetDoorLight(false)
-		}
+	for {		
 		select {
 
 		case newMsg := <-messageCh:

@@ -51,6 +51,8 @@ func ArrivedAtFloorSetDoorOpen(floor int) {
 	mu.Lock()
 	elevatorHW.SetDoorLight(true)
 	*doorOpenedTimePtr = time.Now().Unix()
+	time.Sleep(3* time.Second)
+	elevatorHW.SetDoorLight(false)
 	mu.Unlock()
 }
 
