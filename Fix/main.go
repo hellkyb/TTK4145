@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"time"
+	"time"
 
 	"./src/elevatorHW"
 	"./src/fsm"
@@ -133,6 +133,8 @@ func main() {
 			}else{
 				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)
 				fmt.Println(elevatorToHandleThisOrder)
+				fmt.Println(operatingElevatorStates)
+				time.Sleep(5*time.Second)
 				
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
