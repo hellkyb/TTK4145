@@ -91,6 +91,7 @@ func main() {
 	elevatorHW.Init()
 	//finished init
 	fsm.CreateQueueSlice()
+	time.Sleep(1 * time.Millisecond)
 
 	//var operatingElevatorStates []olasnetwork.HelloMsg
 	operatingElevatorStates := make(map[string]olasnetwork.HelloMsg) 
