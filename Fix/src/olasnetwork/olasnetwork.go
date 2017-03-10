@@ -23,6 +23,7 @@ type HelloMsg struct {
 	CurrentState int    // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
 	LastFloor    int    // The last floor the elevator visited
 	Order        OrderMsg
+	TimeStamp    int64
 }
 
 type OrderMsg struct {
@@ -38,17 +39,29 @@ type ElevatorStatus struct {
 	Alive      bool
 }
 
+func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg){	
+	timeNow := time.Now().Unix()
+	//lengthOfMap := len(operatingElevatorStates)
+	for key, value := range operatingElevatorStates{
+		if timeNow > value.TimeStamp + 1{
+			delete(operatingElevatorStates, key)
+		}
+	}
+}
+
 func UpdateElevatorStates(newMsg HelloMsg, operatingElevatorStates map[string]HelloMsg) {
 	lengthOfMap := len(operatingElevatorStates)
+	currentTime := time.Now().Unix()
+	fmt.Println(currentTime)
 
-	if lengthOfMap == 0 {
+	if lengthOfMap == 0 || lengthOfMap == 1 {
 		operatingElevatorStates[newMsg.ElevatorID] = newMsg
+		
 	}
-	for key := range operatingElevatorStates {
-		if newMsg.ElevatorID == key {
-			operatingElevatorStates[key] = newMsg
-
-		}
+	for key,_ := range operatingElevatorStates {
+		if key == newMsg.ElevatorID {
+			operatingElevatorStates[key] = newMsg			
+		}		
 	}
 }
 
@@ -118,7 +131,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 
 	// The example message. We just send one of these every second.
 	go func() {
-		helloMsg := HelloMsg{0, elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil"}}
+		helloMsg := HelloMsg{0, elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil"}, 0}
 
 		for {
 			select {
@@ -134,10 +147,11 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
 			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
 			helloMsg.LastFloor = fsm.LatestFloor
-			//networkOrderCh <- helloMsg
+			helloMsg.TimeStamp = time.Now().Unix()
+			
 			helloTx <- helloMsg
 
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 		}
 	}()
 

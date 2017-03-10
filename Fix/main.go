@@ -108,12 +108,14 @@ func main() {
 	for {
 		fmt.Print("Elevator states online: ")
 		fmt.Println(operatingElevatorStates)
+
 		//time.Sleep(1 * time.Second)
 
 		select {
 
 		case newMsg := <-messageCh:
 			olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
+			olasnetwork.DeleteDeadElevator(operatingElevatorStates)
 			if newMsg.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {
 				fmt.Println("GOT 1")
 				fmt.Println(newMsg.Order.Order)
