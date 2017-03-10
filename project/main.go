@@ -103,7 +103,21 @@ func main() {
 
 	go fsm.RunElevator()
 	go fsm.GetButtonsPressed(buttonCh)
+<<<<<<< HEAD
+	go olasnetwork.NetworkMain(messageCh)
+	//time.Sleep(1000 * time.Millisecond)
+
+	fmt.Print("From main:  ")
+	fmt.Println(operatingElevatorStates)
+	fmt.Print("From mai2:  ")
+	fmt.Println(iterationList)
+=======
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh)
+<<<<<<< HEAD
+=======
+	time.Sleep(1 * time.Millisecond)
+>>>>>>> 36bf5482997a2c93a80d183e37fc3211ad223085
+>>>>>>> refs/remotes/origin/master
 
 	for {
 		//fmt.Print("Elevator states online: ")
@@ -122,8 +136,14 @@ func main() {
 			if newOrder.Button == elevatorHW.ButtonCommand {
 				fsm.PutInsideOrderInLocalQueue(newOrder)
 			} else {
+<<<<<<< HEAD
+				elevatorToTakeOrder, cost := decitionmaker(operatingElevatorStates)
+				order := olasnetwork.OrderMsg{fsm.Order{newOrder.Floor, newOrder.Button}, elevatorToTakeOrder}
+				olasnetwork.SendOrderToPeer(order)
+=======
 				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
+>>>>>>> 36bf5482997a2c93a80d183e37fc3211ad223085
 			}
 			fsm.PrintQueues()
 
