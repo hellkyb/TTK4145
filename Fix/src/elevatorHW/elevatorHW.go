@@ -287,7 +287,7 @@ func GetElevatorDirection() int {
 }
 
 func GetDoorLight() int {
-	return io.ReadAnalog(lightDoorOpen)
+	return io.ReadBit(lightDoorOpen)
 }
 
 func GetStopButtonPressed() bool {
@@ -315,3 +315,4 @@ func SetStopButton(onOff bool) {
 		io.ClearBit(lightStop)
 	}
 }
+

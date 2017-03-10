@@ -119,11 +119,10 @@ func PutInsideOrderInLocalQueue() {
 }*/
 
 func SetElevatorDirection() {
-	currentTime := int64(time.Now().Unix())
-	if currentTime-timeStamp < 4 {
+	//currentTime := int64(time.Now().Unix())
+	if elevatorHW.GetDoorLight() == 1 {		
 		return
 	}
-
 	currentDirection := elevatorHW.GetElevatorDirection()
 	currentFloor := elevatorHW.GetFloorSensorSignal()
 
@@ -256,6 +255,9 @@ func StartUpMessage() {
 }
 func RunElevator() {
 	for {
+		if time.Now().Unix() - 5 > timeStamp{
+			elevatorHW.SetDoorLight(false)
+		}
 		SetLatestFloor()
 		SetElevatorDirection()
 		//PutOrderInLocalQueue(Order{}) // This must be replaced by "PutOrderInGlobalQueue"
