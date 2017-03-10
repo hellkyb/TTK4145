@@ -65,7 +65,7 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 	return dirCost + distCost
 }
 
-func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg) (string, int) {
+func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg, newOrder fsm.Order) (string, int) {
 	numberOfElevatorsInNetwork := olasnetwork.OperatingElevators
 	if numberOfElevatorsInNetwork == 0 || numberOfElevatorsInNetwork == 1 {
 		return olasnetwork.GetLocalID(), 0
@@ -76,7 +76,21 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg) (string
 		return olasnetwork.GetLocalID(), 0
 	}
 	for key, value := range onlineElevatorStates {
-		thisCost := costFunction(value.CurrentState, value.LastFloor, value.Order.Order)
+		thisCost := costFunction(value.CurrentState, value.LastFloor, newOrder)
+		fmt.Print("States of ")
+		fmt.Print(key)
+		fmt.Println(": ")
+		fmt.Print("Current state value: ")
+		fmt.Print(value.CurrentState)
+		fmt.Print("\nIts Last Floor: ")
+		fmt.Println(value.LastFloor)
+		fmt.Print("The Order is : ")
+		fmt.Println(value.Order.Order)
+		fmt.Println(" ")
+		fmt.Print(key)
+		fmt.Print(" has a cost of ")
+		fmt.Println(thisCost)
+		fmt.Print("\n\n")
 		if thisCost < lowestCost{
 			lowestCost = thisCost
 			elevatorWithLowestCost = key
@@ -128,10 +142,12 @@ func main() {
 			}else if len(operatingElevatorStates) == 0 || len(operatingElevatorStates) == 1{
 				fsm.PutOrderInLocalQueue(newOrder)
 			}else{
-				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)
+				elevatorToHandleThisOrder, cost := decitionmaker(operatingElevatorStates, newOrder)
 				fmt.Print("I want ")
 				fmt.Print(elevatorToHandleThisOrder)
-				fmt.Print(" to handle this order\n\n")	
+				fmt.Print(" to handle this order with cost of ")
+				fmt.Print(cost)
+				fmt.Println(" ")	
 								
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
