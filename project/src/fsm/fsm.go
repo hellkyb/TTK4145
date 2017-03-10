@@ -126,6 +126,10 @@ func SetElevatorDirection() {
 
 	currentDirection := elevatorHW.GetElevatorDirection()
 	currentFloor := elevatorHW.GetFloorSensorSignal()
+
+	
+	
+
 	if currentDirection == 1 || currentDirection == 0 {
 		if currentFloor != 0 {
 			if len(localQueue[0]) > 0 {
@@ -159,6 +163,21 @@ func StopAtThisFloor() {
 
 		for j := range localQueue[i] {
 			if currentFloor == localQueue[i][j] {
+				if len(localQueue[0]) == 0{
+					if localQueue[i][j] == currentFloor{
+						if currentDirection == 1 { // Going up
+
+							elevatorHW.SetMotor(elevatorHW.DirectionStop)
+							ArrivedAtFloorSetDoorOpen(currentFloor)
+							elevatorHW.SetUpLight(currentFloor, false)
+						}else{
+							elevatorHW.SetMotor(elevatorHW.DirectionStop)
+							ArrivedAtFloorSetDoorOpen(currentFloor)
+							elevatorHW.SetDownLight(currentFloor, false)
+						}
+
+					}
+				}
 				if (i == 0 || i == 1) && (currentDirection == 0 || currentFloor == 1) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
 					ArrivedAtFloorSetDoorOpen(currentFloor)

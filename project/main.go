@@ -94,6 +94,7 @@ func main() {
 	fsm.CreateQueueSlice()
 
 	var operatingElevatorStates []olasnetwork.HelloMsg
+	//var elevatorMap[string]network_map.HelloMsg 
 	//var operatingTimeStampList []int64  Use this to delete objects??
 
 	buttonCh := make(chan fsm.Order)
