@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 func mapManipulation(someMap map[string]bool) {
@@ -9,7 +10,12 @@ func mapManipulation(someMap map[string]bool) {
 
 }
 
+var m []int64
+
 func main() {
+	m = append(m, time.Now().Unix())
+	m = append(m[:0], m[1]...)
+
 	fmt.Println("ok")
 	myMap := make(map[string]bool)
 

@@ -81,22 +81,7 @@ func GetButtonsPressed(buttonCh chan<- Order) {
 }
 
 func PutOrderInLocalQueue(newOrder Order) {
-	upOrder := elevatorHW.GetUpButton()
-	downOrder := elevatorHW.GetDownButton()
-	insideOrder := elevatorHW.GetInsideElevatorButton()
-	if upOrder != 0 {
-		AppendUpOrder(upOrder)
-		elevatorHW.SetUpLight(upOrder, true)
-	}
-	if downOrder != 0 {
-		AppendDownOrder(downOrder)
-		elevatorHW.SetDownLight(downOrder, true)
-	}
-	if insideOrder != 0 {
-		AppendInsideOrder(insideOrder)
-		elevatorHW.SetInsideLight(insideOrder, true)
-	}
-	if newOrder.Floor != 0 {
+	if newOrder.Floor != -1 {
 		buttontype := newOrder.Button
 		switch buttontype {
 		case elevatorHW.ButtonCallDown:
@@ -112,13 +97,12 @@ func PutOrderInLocalQueue(newOrder Order) {
 	}
 }
 
-func PutInsideOrderInLocalQueue(newOrder Order) {
+func PutInsideOrderInLocalQueue() {
 	insideOrder := elevatorHW.GetInsideElevatorButton()
 	if insideOrder != 0 {
 		AppendInsideOrder(insideOrder)
 		elevatorHW.SetInsideLight(insideOrder, true)
 	}
-	AppendInsideOrder(newOrder.Floor)
 }
 
 /*func PutOrderInGlobalQueue() {

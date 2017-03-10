@@ -95,6 +95,7 @@ func main() {
 	fsm.CreateQueueSlice()
 
 	var operatingElevatorStates []olasnetwork.HelloMsg
+	//var operatingTimeStampList []int64  Use this to delete objects??
 
 	buttonCh := make(chan fsm.Order)
 	messageCh := make(chan olasnetwork.HelloMsg)
@@ -114,13 +115,12 @@ func main() {
 
 		case newMsg := <-messageCh:
 			operatingElevatorStates = olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
-			fmt.Println(operatingElevatorStates)
 
 		case newOrder := <-buttonCh:
 			fmt.Print("You made an order: ")
 			fmt.Println(newOrder)
 			if newOrder.Button == elevatorHW.ButtonCommand {
-				fsm.PutInsideOrderInLocalQueue(newOrder)
+				fsm.PutInsideOrderInLocalQueue()
 			} else {
 				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
@@ -128,8 +128,12 @@ func main() {
 			fsm.PrintQueues()
 
 		case newNetworkOrder := <-networkOrderCh:
+			fmt.Println("GOT HERE")
 			if newNetworkOrder.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {
+				fmt.Println("GOT 1")
+				fmt.Println(newNetworkOrder.Order.Order)
 				fsm.PutOrderInLocalQueue(newNetworkOrder.Order.Order)
+				fmt.Println("GOT 2")
 			}
 		}
 	}

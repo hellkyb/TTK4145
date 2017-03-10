@@ -38,16 +38,11 @@ type ElevatorStatus struct {
 	Alive      bool
 }
 
-func putNetworkOrderInLocalQueue(receivedOrder OrderMsg, myElevatorID string) {
-	if receivedOrder.ElevatorToTakeThisOrder == myElevatorID {
-		fsm.PutOrderInLocalQueue(receivedOrder.Order)
-	}
-}
-
 func UpdateElevatorStates(newMsg HelloMsg, operatingElevatorStates []HelloMsg) []HelloMsg {
 
 	if len(operatingElevatorStates) == 0 {
 		operatingElevatorStates = append(operatingElevatorStates, newMsg)
+
 		return operatingElevatorStates
 	}
 	for i := range operatingElevatorStates {
@@ -55,9 +50,12 @@ func UpdateElevatorStates(newMsg HelloMsg, operatingElevatorStates []HelloMsg) [
 		if newMsg.ElevatorID == operatingElevatorStates[i].ElevatorID {
 			operatingElevatorStates[i] = newMsg
 			return operatingElevatorStates
+
 		} else if i == len(operatingElevatorStates)-1 {
 			operatingElevatorStates = append(operatingElevatorStates, newMsg)
+
 		}
+
 	}
 
 	return operatingElevatorStates
@@ -146,8 +144,8 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
 			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
 			helloMsg.LastFloor = fsm.LatestFloor
+			//networkOrderCh <- helloMsg
 			helloTx <- helloMsg
-			networkOrderCh <- helloMsg
 
 			time.Sleep(500 * time.Millisecond)
 		}
@@ -188,7 +186,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			fmt.Print("#Elevators online : ")
 			fmt.Println(OperatingElevators)
 			fmt.Print("New Order         :")
-			fmt.Println(" ")
+			fmt.Println(a.Order)
 			fmt.Println("---------------------")
 			fmt.Print("\n\n\n")
 			messageCh <- a

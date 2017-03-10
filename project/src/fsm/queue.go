@@ -24,11 +24,6 @@ func CreateQueueSlice() {
 	localQueue = append(localQueue, localQueueDown)
 }
 
-/*func CreateGlobalQueueSlice() {
-	GlobalQueue = append(GlobalQueue, globalQueueUp)
-	GlobalQueue = append(GlobalQueue, globalQueueDown)
-}*/
-
 func AppendUpOrder(upOrder int) {
 	if upOrder == 1 || upOrder == 2 || upOrder == 3 {
 		if !numInSlice(upOrder, localQueue[1]) {
@@ -52,40 +47,6 @@ func AppendInsideOrder(insideOrder int) {
 		}
 	}
 }
-
-/*func AppendGlobalUpOrder(upOrder int){
-	if upOrder == 1 || upOrder == 2 || upOrder == 3 {
-		if !numInSlice(upOrder, GlobalQueue[0]) {
-			GlobalQueue[0] = append(GlobalQueue[0], upOrder)
-		}
-	}
-}*/
-
-/*func GetGlobalQueue() [][]int {
-	return GlobalQueue
-}
-
-func AppendGlobalDownOrder(downOrder int){
-	if downOrder == 2 || downOrder == 3 || downOrder == 4 {
-		if !numInSlice(downOrder, GlobalQueue[1]) {
-			GlobalQueue[1] = append(GlobalQueue[1], downOrder)
-		}
-	}
-}
-
-func CompareGlobalAndLocalQueue (global[][] int) bool{  //NOT WORKING PROPERLY, CRASHING PROGRAM///
-	for i := 1; i <= len(localQueue); i++ {
-		if len(localQueue[i+1]) != len(global[i]) {
-		return false
-		}
-		for j := 0; j < len(global[i]); j++ {
-			if !(global[i][j] == localQueue[i+1][j]) {
-				return false
-			}
-		}
-	}
-	return true
-}*/
 
 func PrintQueues() { //Debugging function
 	fmt.Println(localQueue)
