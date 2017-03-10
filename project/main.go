@@ -73,7 +73,10 @@ func decitionmaker(onlineElevatorStates []olasnetwork.HelloMsg) (string, int) {
 
 	lowestCost := 150
 	var minPos int
-	for i := 0; i < numberOfElevatorsInNetwork; i++ {
+	if len(onlineElevatorStates) < 1 {
+		return olasnetwork.GetLocalID(), 0
+	}
+	for i := 0; i < len(onlineElevatorStates); i++ {
 		thisCost := costFunction(onlineElevatorStates[i].CurrentState, onlineElevatorStates[i].LastFloor, onlineElevatorStates[i].Order.Order)
 		costs = append(costs, thisCost)
 		if lowestCost > costs[i] {
