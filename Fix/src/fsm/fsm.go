@@ -44,7 +44,7 @@ type ElevatorStatus struct {
 func ArrivedAtFloorSetDoorOpen(floor int) {
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
-	time.Sleep(2*time.Second)
+	time.Sleep(2500* time.Millisecond)
 	elevatorHW.SetDoorLight(false)
 }
 
@@ -197,9 +197,7 @@ func PrintElevatorStatus() { //For debbung Purposes
 	fmt.Println(" ")
 	fmt.Println("Queue: ")
 	PrintQueues()
-
 }
-
 func StopButtonPressed() {
 	if !elevatorHW.GetStopButtonPressed() {
 		return
@@ -214,7 +212,6 @@ func StopButtonPressed() {
 	ArrivedAtFloorSetDoorOpen(elevatorHW.GetFloorSensorSignal())
 	fmt.Println("Operaing Normally")
 }
-
 func SetLatestFloor() {
 	latestFloorPtr = &LatestFloor
 	if elevatorHW.GetFloorSensorSignal() == 1 || elevatorHW.GetFloorSensorSignal() == 2 || elevatorHW.GetFloorSensorSignal() == 3 || elevatorHW.GetFloorSensorSignal() == 4 {
@@ -227,17 +224,12 @@ func StartUpMessage() {
 	time.Sleep(140 * time.Millisecond)
 	fmt.Print("\nFuck yeeah bro!\n\n")
 	time.Sleep(100 * time.Millisecond)
-
 }
-
 func RunElevator() {
 	for {
 		SetLatestFloor()
-		SetElevatorDirection()
-		//PutOrderInLocalQueue(Order{}) // This must be replaced by "PutOrderInGlobalQueue"
-		//PutInsideOrderInLocalQueue(Order{})
-		/*PutOrderInGlobalQueue()*/
 		StopAtThisFloor()
+		SetElevatorDirection()
 		StopButtonPressed()
 	}
 }

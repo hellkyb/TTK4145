@@ -40,7 +40,6 @@ type ElevatorStatus struct {
 
 func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg){	
 	timeNow := time.Now().Unix()
-	//lengthOfMap := len(operatingElevatorStates)
 	for key, value := range operatingElevatorStates{
 		if timeNow > value.TimeStamp + 1 {
 			delete(operatingElevatorStates, key)
@@ -50,8 +49,7 @@ func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg){
 
 func UpdateElevatorStates(newMsg HelloMsg, operatingElevatorStates map[string]HelloMsg) {
 	lengthOfMap := len(operatingElevatorStates)
-	currentTime := time.Now().Unix()
-	fmt.Println(currentTime)
+	
 
 	if lengthOfMap == 0 || lengthOfMap == 1 {
 		operatingElevatorStates[newMsg.ElevatorID] = newMsg
@@ -68,24 +66,6 @@ func GetLocalID() string {
 	localIP, _ := localip.LocalIP()
 	return localIP[12:]
 }
-
-/*func UpdateElevatorStatusMap(elevatorStatusMap map[string]bool) {
-	for {
-		peerUpdateCh := make(chan peers.PeerUpdate)
-		go peers.Receiver(15647, peerUpdateCh)
-		a := <-peerUpdateCh
-
-		identifier := a.Lost[0][17:20]
-		if len(a.Lost) > 0 {
-			elevatorStatusMap[identifier] = false
-		} else if utf8.RuneCountInString(a.New) > 1 {
-			n := 1024
-			newString := string(a.New[:n])
-			newString = newString[17:20]
-			elevatorStatusMap[newString] = true
-		}
-	}
-}*/
 
 func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, networkSendOrderCh chan OrderMsg) {
 	// Our id can be anything. Here we pass it on the command line, using
@@ -158,15 +138,14 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 	for {
 		select {
 		case p := <-peerUpdateCh:
-			fmt.Printf("Peer update:\n")
+			/*fmt.Printf("Peer update:\n")
 			fmt.Printf("  Peers:    %q\n", p.Peers)
 			fmt.Printf("  New:      %q\n", p.New)
-			fmt.Printf("  Lost:     %q\n", p.Lost)
+			fmt.Printf("  Lost:     %q\n", p.Lost)*/
 			*OperatingElevatorsPtr = len(p.Peers)
 
 		case a := <-helloRx:
-			//fmt.Printf("Received: %#v\n", a)
-			fmt.Print("\n\n")
+			/*fmt.Print("\n\n")
 			fmt.Println("Message recieved")
 			fmt.Println("---------------------")
 			fmt.Print("From              : ")
@@ -188,7 +167,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			fmt.Print("New Order         :")
 			fmt.Println(a.Order)
 			fmt.Println("---------------------")
-			fmt.Print("\n\n\n")
+			fmt.Print("\n\n\n")*/
 			messageCh <- a
 		}
 	}

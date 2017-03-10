@@ -20,7 +20,7 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 		distanceToTarget = order.Floor - lastFloor
 	}
 
-	distCost := 4 * distanceToTarget
+	distCost := 2 * distanceToTarget
 
 	if dir == 0 && order.Floor == lastFloor { // Elevator is Idle at floor being called
 		return 0
@@ -109,11 +109,6 @@ func main() {
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh)
 
 	for {
-		fmt.Print("Elevator states online: ")
-		fmt.Println(operatingElevatorStates)
-
-		//time.Sleep(1 * time.Second)
-
 		select {
 
 		case newMsg := <-messageCh:
@@ -129,7 +124,10 @@ func main() {
 			}else if len(operatingElevatorStates) == 0 || len(operatingElevatorStates) == 1{
 				fsm.PutOrderInLocalQueue(newOrder)
 			}else{
-				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)				
+				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)
+				fmt.Print("I want ")
+				fmt.Print(elevatorToHandleThisOrder)
+				fmt.Print(" to handle this order\n\n")	
 								
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
