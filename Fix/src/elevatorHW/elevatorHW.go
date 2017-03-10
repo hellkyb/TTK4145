@@ -53,6 +53,7 @@ func Init() {
 			io.ClearBit(lights[floor][button])
 		}
 	}
+	io.ClearBit(lightDoorOpen)
 
 	SetMotor(DirectionDown)
 InitLoop:
