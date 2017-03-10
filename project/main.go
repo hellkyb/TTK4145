@@ -122,7 +122,6 @@ func main() {
 			if newOrder.Button == elevatorHW.ButtonCommand {
 				fsm.PutInsideOrderInLocalQueue(newOrder)
 			} else {
-
 				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}

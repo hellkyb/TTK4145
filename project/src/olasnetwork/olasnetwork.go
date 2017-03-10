@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	//"time"
+	"time"
 
 	"./network/bcast"
 	"./network/localip"
@@ -132,15 +132,24 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 		helloMsg := HelloMsg{0, elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil"}}
 
 		for {
-			order := <-networkSendOrderCh
+			select {
+			case order := <-networkSendOrderCh:
+				helloMsg.Iter++
+				helloMsg.CurrentState = elevatorHW.GetElevatorState()
+				helloMsg.Order = order
+				helloTx <- helloMsg
+				networkOrderCh <- helloMsg
+			default:
+				break
+			}
 			helloMsg.Iter++
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
-			helloMsg.Order = order
+			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
 			helloMsg.LastFloor = fsm.LatestFloor
 			helloTx <- helloMsg
 			networkOrderCh <- helloMsg
 
-			//time.Sleep(1000 * time.Millisecond)
+			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 
