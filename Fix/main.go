@@ -104,11 +104,15 @@ func main() {
 	networkOrderCh := make(chan olasnetwork.HelloMsg)
 	networkSendOrderCh := make(chan olasnetwork.OrderMsg)
 
+
 	go fsm.RunElevator()
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh)
 
 	for {
+		if fsm.DoorOpenedTime + 2 < time.Now().Unix(){
+			elevatorHW.SetDoorLight(false)
+		}
 		select {
 
 		case newMsg := <-messageCh:

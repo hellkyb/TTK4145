@@ -6,6 +6,8 @@ import (
 	"fmt"
 	//"math"
 	"time"
+	"sync"
+	//"runtime"
 )
 
 /*type HelloMsg struct {
@@ -19,7 +21,8 @@ import (
 
 var OperatingElevators int
 var OperatingElevatorsPrt *int
-
+var DoorOpenedTime int64
+var doorOpenedTimePtr *int64
 var latestFloorPtr *int
 var LatestFloor int
 
@@ -30,6 +33,7 @@ Order type - description
 {Floor, 2} InsideOrder to #Floor
 
 */
+var mu sync.Mutex
 
 type Order struct {
 	Floor  int
@@ -42,10 +46,12 @@ type ElevatorStatus struct {
 }
 
 func ArrivedAtFloorSetDoorOpen(floor int) {
+	doorOpenedTimePtr = &DoorOpenedTime
 	elevatorHW.SetFloorIndicator(floor)
+	mu.Lock()
 	elevatorHW.SetDoorLight(true)
-	time.Sleep(2500* time.Millisecond)
-	elevatorHW.SetDoorLight(false)
+	*doorOpenedTimePtr = time.Now().Unix()
+	mu.Unlock()
 }
 
 func GetButtonsPressed(buttonCh chan<- Order) {
@@ -184,20 +190,7 @@ func StopAtThisFloor() {
 	}
 }
 
-func PrintElevatorStatus() { //For debbung Purposes
-	currentFloor := elevatorHW.GetFloorSensorSignal()
-	currentDirection := elevatorHW.GetElevatorDirection()
-	for i := 0; i < 5; i++ {
-		fmt.Println(" ")
-	}
-	fmt.Println("------------------------------------")
-	fmt.Println("Elevator status")
-	fmt.Println("floor: ", currentFloor)
-	fmt.Println("Direction: ", currentDirection)
-	fmt.Println(" ")
-	fmt.Println("Queue: ")
-	PrintQueues()
-}
+
 func StopButtonPressed() {
 	if !elevatorHW.GetStopButtonPressed() {
 		return
