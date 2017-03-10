@@ -26,7 +26,7 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 		return 0
 	}
 	if dir == 0{
-		return distCost
+		return distanceToTarget
 	}
 	if order.Button == 1 { //UpType Order
 		if dir == -1 { // Moving in opposite direction
