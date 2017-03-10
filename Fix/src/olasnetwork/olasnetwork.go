@@ -148,6 +148,9 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
 			helloMsg.LastFloor = fsm.LatestFloor
 			helloMsg.TimeStamp = time.Now().Unix()
+			if HelloMsg.Iter > 1000000{
+				HelloMsg.Iter = 0
+			}
 			
 			helloTx <- helloMsg
 
