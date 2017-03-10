@@ -25,6 +25,9 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 	if dir == 0 && order.Floor == lastFloor { // Elevator is Idle at floor being called
 		return 0
 	}
+	if dir == 0{
+		return distCost
+	}
 	if order.Button == 1 { //UpType Order
 		if dir == -1 { // Moving in opposite direction
 			if lastFloor < order.Floor {
