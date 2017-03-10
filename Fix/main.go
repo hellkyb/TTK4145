@@ -131,11 +131,8 @@ func main() {
 			}else if len(operatingElevatorStates) == 0 || len(operatingElevatorStates) == 1{
 				fsm.PutOrderInLocalQueue(newOrder)
 			}else{
-				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)
-				fmt.Println(elevatorToHandleThisOrder)
-				fmt.Println(operatingElevatorStates)
-				time.Sleep(5*time.Second)
-				
+				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)				
+								
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
 			//fsm.PrintQueues()
