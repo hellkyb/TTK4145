@@ -84,7 +84,7 @@ func GetLocalID() string {
 	}
 }*/
 
-func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, networkSendOrderCh <-chan OrderMsg) {
+func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, networkSendOrderCh chan OrderMsg) {
 	// Our id can be anything. Here we pass it on the command line, using
 	//  `go run main.go -id=our_id`
 	var id string
@@ -136,7 +136,6 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 				helloMsg.CurrentState = elevatorHW.GetElevatorState()
 				helloMsg.Order = order
 				helloTx <- helloMsg
-				networkOrderCh <- helloMsg
 			default:
 				break
 			}

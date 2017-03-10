@@ -89,7 +89,6 @@ func main() {
 	//start init
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
-	fsm.StartUpMessage()
 	elevatorHW.Init()
 	//finished init
 	fsm.CreateQueueSlice()
@@ -107,7 +106,7 @@ func main() {
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh)
 
 	for {
-		//fmt.Print("Elevator states online: ")
+		fmt.Print("Elevator states online: ")
 		fmt.Println(operatingElevatorStates)
 		//time.Sleep(1 * time.Second)
 
@@ -115,26 +114,26 @@ func main() {
 
 		case newMsg := <-messageCh:
 			operatingElevatorStates = olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
+			if newMsg.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {
+				fmt.Println("GOT 1")
+				fmt.Println(newMsg.Order.Order)
+				fsm.PutOrderInLocalQueue(newMsg.Order.Order)
+				fmt.Println("GOT 2")
+			}
 
 		case newOrder := <-buttonCh:
 			fmt.Print("You made an order: ")
 			fmt.Println(newOrder)
 			if newOrder.Button == elevatorHW.ButtonCommand {
 				fsm.PutInsideOrderInLocalQueue()
-			} else {
+			}else if len(operatingElevatorStates) == 0 || len(operatingElevatorStates) == 1{
+				fsm.PutOrderInLocalQueue(newOrder)
+			}else{
 				elevatorToHandleThisOrder, _ := decitionmaker(operatingElevatorStates)
+				
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
-			fsm.PrintQueues()
-
-		case newNetworkOrder := <-networkOrderCh:
-			fmt.Println("GOT HERE")
-			if newNetworkOrder.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {
-				fmt.Println("GOT 1")
-				fmt.Println(newNetworkOrder.Order.Order)
-				fsm.PutOrderInLocalQueue(newNetworkOrder.Order.Order)
-				fmt.Println("GOT 2")
-			}
+			//fsm.PrintQueues()
 		}
 	}
 }
