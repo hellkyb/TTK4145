@@ -102,20 +102,10 @@ func PutInsideOrderInLocalQueue() {
 	}
 }
 
-/*func PutOrderInGlobalQueue() {
-	upOrder := elevatorHW.GetUpButton()
-	downOrder := elevatorHW.GetDownButton()
-	if upOrder != 0 {
-		AppendGlobalUpOrder(upOrder)
-		elevatorHW.SetUpLight(upOrder, true)
-	}
-	if downOrder != 0 {
-		AppendGlobalDownOrder(downOrder)
-		elevatorHW.SetDownLight(downOrder, true)
-	}
-}*/
-
 func SetElevatorDirection() {
+	if elevatorHW.GetDoorLight() != 0{
+		return
+	}
 	
 	currentDirection := elevatorHW.GetElevatorDirection()
 	currentFloor := elevatorHW.GetFloorSensorSignal()	
@@ -239,8 +229,9 @@ func StartUpMessage() {
 	time.Sleep(100 * time.Millisecond)
 
 }
+
 func RunElevator() {
-	for {		
+	for {
 		SetLatestFloor()
 		SetElevatorDirection()
 		//PutOrderInLocalQueue(Order{}) // This must be replaced by "PutOrderInGlobalQueue"
@@ -250,26 +241,3 @@ func RunElevator() {
 		StopButtonPressed()
 	}
 }
-
-/*func GetElevatorState() elevatorState {
-	elevatorState.previousFloor
-}
-*/
-
-/*func costFunc(elevatorStates []elevatorState, newOrder order) {
-	distanceCost := 0
-	directionCost := 0
-	totalCost := 0
-
-	costs := [3]float64{math.Inf(1), math.Inf(1), math.Inf(1)}
-
-	for i := 0; i < len(elevatorStates); i++ {
-		distanceCost = math.Abs(elevatorStates[i].previousFloor - newOrder.Floor)
-		if (elevatorStates[i].previousFloor == newOrder.Floor) && (elevatorStates[i].direction == DirectionStop){
-			distanceCost = 0
-		}
-			//NEED PLENTY MORE LOGIC HERE
-	}
-
-
-}*/

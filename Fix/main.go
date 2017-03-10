@@ -20,7 +20,7 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 		distanceToTarget = order.Floor - lastFloor
 	}
 
-	distCost := 2 * distanceToTarget
+	distCost := 4 * distanceToTarget
 
 	if dir == 0 && order.Floor == lastFloor { // Elevator is Idle at floor being called
 		return 0
@@ -71,7 +71,7 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg) (string
 		return olasnetwork.GetLocalID(), 0
 	}	
 	var elevatorWithLowestCost string
-	lowestCost := 1000
+	lowestCost := 1337
 	if len(onlineElevatorStates) < 2 {
 		return olasnetwork.GetLocalID(), 0
 	}
@@ -119,16 +119,11 @@ func main() {
 		case newMsg := <-messageCh:
 			olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
 			olasnetwork.DeleteDeadElevator(operatingElevatorStates)
-			if newMsg.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {
-				fmt.Println("GOT 1")
-				fmt.Println(newMsg.Order.Order)
-				fsm.PutOrderInLocalQueue(newMsg.Order.Order)
-				fmt.Println("GOT 2")
+			if newMsg.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {				
+				fsm.PutOrderInLocalQueue(newMsg.Order.Order)				
 			}
 
-		case newOrder := <-buttonCh:
-			fmt.Print("You made an order: ")
-			fmt.Println(newOrder)
+		case newOrder := <-buttonCh:			
 			if newOrder.Button == elevatorHW.ButtonCommand {
 				fsm.PutInsideOrderInLocalQueue()
 			}else if len(operatingElevatorStates) == 0 || len(operatingElevatorStates) == 1{
