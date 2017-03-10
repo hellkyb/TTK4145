@@ -71,8 +71,8 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg) (string
 		return olasnetwork.GetLocalID(), 0
 	}	
 	var elevatorWithLowestCost string
-	lowestCost := 150
-	if len(onlineElevatorStates) < 1 {
+	lowestCost := 1000
+	if len(onlineElevatorStates) < 2 {
 		return olasnetwork.GetLocalID(), 0
 	}
 	for key, value := range onlineElevatorStates {
@@ -80,8 +80,7 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg) (string
 		if thisCost < lowestCost{
 			lowestCost = thisCost
 			elevatorWithLowestCost = key
-		}	
-		
+		}		
 	}
 	return elevatorWithLowestCost, lowestCost	
 	
