@@ -20,9 +20,6 @@ import (
 var OperatingElevators int
 var OperatingElevatorsPrt *int
 
-var timeStamp int64
-var currentTime int64
-var timeStampPtr *int64
 var latestFloorPtr *int
 var LatestFloor int
 
@@ -45,10 +42,10 @@ type ElevatorStatus struct {
 }
 
 func ArrivedAtFloorSetDoorOpen(floor int) {
-	timeStampPtr = &timeStamp
-	*timeStampPtr = time.Now().Unix()
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
+	time.Sleep(4*time.Second)
+	elevatorHW.SetDoorLight(false)
 }
 
 func GetButtonsPressed(buttonCh chan<- Order) {
@@ -119,15 +116,9 @@ func PutInsideOrderInLocalQueue() {
 }*/
 
 func SetElevatorDirection() {
-	//currentTime := int64(time.Now().Unix())
-	if elevatorHW.GetDoorLight() == 1 {		
-		return
-	}
+	
 	currentDirection := elevatorHW.GetElevatorDirection()
-	currentFloor := elevatorHW.GetFloorSensorSignal()
-
-	
-	
+	currentFloor := elevatorHW.GetFloorSensorSignal()	
 
 	if currentDirection == 1 || currentDirection == 0 {
 		if currentFloor != 0 {
@@ -155,6 +146,7 @@ func SetElevatorDirection() {
 }
 
 func StopAtThisFloor() {
+
 	currentFloor := elevatorHW.GetFloorSensorSignal()
 	currentDirection := elevatorHW.GetElevatorDirection() // 1 is going down, 0 is going up
 
@@ -185,6 +177,7 @@ func StopAtThisFloor() {
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
 					DeleteIndexLocalQueue(i, j)
+
 					return
 				} else if (i == 0 || i == 2) && (currentDirection == 1 || currentFloor == 4) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
@@ -217,13 +210,6 @@ func PrintElevatorStatus() { //For debbung Purposes
 
 }
 
-func TurnOffDoorLight() {
-	currentTime := int64(time.Now().Unix())
-	if currentTime-timeStamp > 3 {
-		elevatorHW.SetDoorLight(false)
-	}
-}
-
 func StopButtonPressed() {
 	if !elevatorHW.GetStopButtonPressed() {
 		return
@@ -254,17 +240,13 @@ func StartUpMessage() {
 
 }
 func RunElevator() {
-	for {
-		if time.Now().Unix() - 5 > timeStamp{
-			elevatorHW.SetDoorLight(false)
-		}
+	for {		
 		SetLatestFloor()
 		SetElevatorDirection()
 		//PutOrderInLocalQueue(Order{}) // This must be replaced by "PutOrderInGlobalQueue"
 		//PutInsideOrderInLocalQueue(Order{})
 		/*PutOrderInGlobalQueue()*/
 		StopAtThisFloor()
-		TurnOffDoorLight()
 		StopButtonPressed()
 	}
 }
