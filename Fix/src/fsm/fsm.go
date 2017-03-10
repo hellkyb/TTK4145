@@ -44,7 +44,7 @@ type ElevatorStatus struct {
 func ArrivedAtFloorSetDoorOpen(floor int) {
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
-	time.Sleep(4*time.Second)
+	time.Sleep(2*time.Second)
 	elevatorHW.SetDoorLight(false)
 }
 
