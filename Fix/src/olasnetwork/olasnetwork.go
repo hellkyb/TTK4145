@@ -18,7 +18,6 @@ import (
 // Note that all members we want to transmit must be public. Any private members
 //  will be received as zero-values.
 type HelloMsg struct {
-	Iter         int
 	ElevatorID   string // This number identifies the elevator
 	CurrentState int    // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
 	LastFloor    int    // The last floor the elevator visited
@@ -131,26 +130,22 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 
 	// The example message. We just send one of these every second.
 	go func() {
-		helloMsg := HelloMsg{0, elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil"}, 0}
+		helloMsg := HelloMsg{elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil"}, 0}
 
 		for {
 			select {
 			case order := <-networkSendOrderCh:
-				helloMsg.Iter++
 				helloMsg.CurrentState = elevatorHW.GetElevatorState()
 				helloMsg.Order = order
 				helloTx <- helloMsg
 			default:
 				break
 			}
-			helloMsg.Iter++
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
 			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
 			helloMsg.LastFloor = fsm.LatestFloor
 			helloMsg.TimeStamp = time.Now().Unix()
-			if HelloMsg.Iter > 1000000{
-				HelloMsg.Iter = 0
-			}
+			
 			
 			helloTx <- helloMsg
 
@@ -188,8 +183,6 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			}
 			fmt.Print("My last floor     : ")
 			fmt.Println(a.LastFloor)
-			fmt.Print("Message number    : ")
-			fmt.Println(a.Iter)
 			fmt.Print("#Elevators online : ")
 			fmt.Println(OperatingElevators)
 			fmt.Print("New Order         :")
