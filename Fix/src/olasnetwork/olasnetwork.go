@@ -42,7 +42,7 @@ func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg){
 	timeNow := time.Now().Unix()
 	//lengthOfMap := len(operatingElevatorStates)
 	for key, value := range operatingElevatorStates{
-		if timeNow > value.TimeStamp {
+		if timeNow > value.TimeStamp + 1 {
 			delete(operatingElevatorStates, key)
 		}
 	}
