@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"time"
+	//"time"
 
 	"./network/bcast"
 	"./network/localip"
@@ -108,9 +108,6 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 	// We make channels for sending and receiving our custom data types
 	helloTx := make(chan HelloMsg)
 	helloRx := make(chan HelloMsg)
-	//orderCh := make(chan OrderMsg)
-
-	//orderCh <- OrderMsg{fsm.Order{2,2}, 1}
 
 	// ... and start the transmitter/receiver pair on some port
 	// These functions can take any number of channels! It is also possible to
@@ -132,7 +129,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			helloTx <- helloMsg
 			networkOrderCh <- helloMsg
 
-			time.Sleep(100 * time.Millisecond)
+			//time.Sleep(1000 * time.Millisecond)
 		}
 	}()
 

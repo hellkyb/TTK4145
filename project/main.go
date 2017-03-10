@@ -1,7 +1,7 @@
 package main
 
 import (
-	"time"
+	//"time"
 
 	"./src/elevatorHW"
 	"./src/fsm"
@@ -9,8 +9,6 @@ import (
 	//"./src/io"
 	"fmt"
 )
-
-var operatingElevatorStates []olasnetwork.HelloMsg
 
 // This function returns how suitet the elevator is to handle a global call
 func costFunction(dir int, lastFloor int, order fsm.Order) int {
@@ -96,6 +94,8 @@ func main() {
 	//finished init
 	fsm.CreateQueueSlice()
 
+	var operatingElevatorStates []olasnetwork.HelloMsg
+
 	buttonCh := make(chan fsm.Order)
 	messageCh := make(chan olasnetwork.HelloMsg)
 	networkOrderCh := make(chan olasnetwork.HelloMsg)
@@ -104,18 +104,17 @@ func main() {
 	go fsm.RunElevator()
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh)
-	time.Sleep(1 * time.Millisecond)
 
 	for {
 		//fmt.Print("Elevator states online: ")
-		//fmt.Println(operatingElevatorStates)
+		fmt.Println(operatingElevatorStates)
 		//time.Sleep(1 * time.Second)
 
 		select {
 
 		case newMsg := <-messageCh:
 			operatingElevatorStates = olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
-			//fmt.Println(operatingElevatorStates)
+			fmt.Println(operatingElevatorStates)
 
 		case newOrder := <-buttonCh:
 			fmt.Print("You made an order: ")

@@ -75,7 +75,6 @@ func GetButtonsPressed(buttonCh chan<- Order) {
 			order.Button = elevatorHW.ButtonCommand
 			buttonCh <- order
 			time.Sleep(60 * time.Millisecond)
-			fmt.Print("Here: ")
 		}
 	}
 
