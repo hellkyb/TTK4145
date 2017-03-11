@@ -1,8 +1,6 @@
 package fsm
 
-import (
-	//"time"
-	//"../elevatorHW"
+import (	
 	"fmt"
 	"sort"
 )
@@ -11,12 +9,6 @@ var localQueue [][]int
 var localQueueInside []int
 var localQueueUp []int
 var localQueueDown []int
-
-/*var GlobalQueue [][]int // Type GlobalQueue = [ {up orders} , {down orders} ]
-var globalQueueUp []int
-var globalQueueDown []int*/
-
-// localQueue[{insideOrders},{UpOrders},{DownOrders}]
 
 func CreateQueueSlice() {
 	localQueue = append(localQueue, localQueueInside)
@@ -61,7 +53,6 @@ func numInSlice(num int, slice []int) bool {
 		}
 	}
 	return false
-
 }
 
 func SortLocalQueue() {

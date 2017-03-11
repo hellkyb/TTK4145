@@ -1,38 +1,24 @@
 package fsm
 
 import (
-	"../elevatorHW"
-	//"../olasnetwork"
-	"fmt"
-	//"math"
-	"time"
-	
-	//"runtime"
+	"../elevatorHW"	
+	"fmt"	
+	"time"	
 )
 
-/*type HelloMsg struct {
-	Message          string
-	Iter             int
-	MyElevatorNumber int // This number identifies the elevator
-	CurrentState     int // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
-	LastFloor        int // The last floor the elevator visited
-	//GlobalQueue [][]int
-}*/
 
 var OperatingElevators int
 var OperatingElevatorsPrt *int
 var latestFloorPtr *int
 var LatestFloor int
 
+
 /*
 Order type - description
 {Floor, 0} Calldown from #Floor
 {Floor, 1} Callup from #Floor
 {Floor, 2} InsideOrder to #Floor
-
 */
-
-
 type Order struct {
 	Floor  int
 	Button elevatorHW.ButtonType //0 is callDown, 1 callUp, 2 callInside
@@ -47,8 +33,7 @@ func ArrivedAtFloorSetDoorOpen(floor int, timeOut chan<- bool) {
 	elevatorHW.SetFloorIndicator(floor)	
 	elevatorHW.SetDoorLight(true)
 	time.Sleep(3*time.Second)
-	timeOut <- true
-	
+	timeOut <- true	
 }
 
 func GetButtonsPressed(buttonCh chan<- Order) {
@@ -77,7 +62,6 @@ func GetButtonsPressed(buttonCh chan<- Order) {
 			time.Sleep(60 * time.Millisecond)
 		}
 	}
-
 }
 
 func PutOrderInLocalQueue(newOrder Order) {
@@ -210,14 +194,11 @@ func StopAtThisFloor(timeOut chan<- bool) {
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
 					DeleteIndexLocalQueue(1,j)
-
 				}
 			}
 		}
 	}
-
 }
-
 
 func StopButtonPressed(timeOut chan<- bool) {
 	if !elevatorHW.GetStopButtonPressed() {
