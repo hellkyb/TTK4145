@@ -107,19 +107,23 @@ func main() {
 	time.Sleep(1 * time.Millisecond)
 
 	operatingElevatorStates := make(map[string]olasnetwork.HelloMsg)
+	hallButtonsMap := make(map[fsm.Order]int64)
 
 	buttonCh := make(chan fsm.Order)
 	messageCh := make(chan olasnetwork.HelloMsg)
 	networkOrderCh := make(chan olasnetwork.HelloMsg)
 	networkSendOrderCh := make(chan olasnetwork.OrderMsg)
 	timeOutCh := make(chan bool)
+	orderCompletedCh := make(chan fsm.Order)
 
-	go fsm.RunElevator(timeOutCh)
+	go fsm.RunElevator(timeOutCh, orderCompletedCh)
 	go fsm.GetButtonsPressed(buttonCh)
-	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh)
-
+	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh)
 	for {
 		select {
+
+		case orderIsHandled := <-orderCompletedCh:
+			delete(hallButtonsMap, orderIsHandled)
 
 		case doorClose := <-timeOutCh:
 			elevatorHW.SetDoorLight(!doorClose)
@@ -134,6 +138,12 @@ func main() {
 				fmt.Println("I recieved an order! Local Queue:  ")
 				fsm.PrintQueues()
 			}
+			if newMsg.OrderExecuted.Floor != -1 {
+				fmt.Println(hallButtonsMap)
+				delete(hallButtonsMap, newMsg.OrderExecuted)
+				fmt.Println("Some elevator has actually done its job!!!! Hurray")
+				fmt.Println(hallButtonsMap)
+			}
 
 		case newOrder := <-buttonCh:
 			if newOrder.Button == elevatorHW.ButtonCommand {
@@ -142,11 +152,13 @@ func main() {
 				fsm.PutOrderInLocalQueue(newOrder)
 			} else {
 				elevatorToHandleThisOrder, cost := decitionmaker(operatingElevatorStates, newOrder)
+
 				fmt.Print("I want ")
 				fmt.Print(elevatorToHandleThisOrder)
 				fmt.Print(" to handle this order with cost of ")
 				fmt.Print(cost)
 				fmt.Println(" ")
+				hallButtonsMap[newOrder] = time.Now().Unix()
 
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}

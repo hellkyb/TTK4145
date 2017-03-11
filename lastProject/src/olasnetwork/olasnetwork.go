@@ -18,11 +18,12 @@ import (
 // Note that all members we want to transmit must be public. Any private members
 //  will be received as zero-values.
 type HelloMsg struct {
-	ElevatorID   string // This number identifies the elevator
-	CurrentState int    // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
-	LastFloor    int    // The last floor the elevator visited
-	Order        OrderMsg
-	TimeStamp    int64
+	ElevatorID    string // This number identifies the elevator
+	CurrentState  int    // This number, says if the elevator is moving up (1) / down (-1) / idle (0)
+	LastFloor     int    // The last floor the elevator visited
+	Order         OrderMsg
+	TimeStamp     int64
+	OrderExecuted fsm.Order
 }
 
 type OrderMsg struct {
@@ -66,7 +67,7 @@ func GetLocalID() string {
 	return localIP[12:]
 }
 
-func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, networkSendOrderCh chan OrderMsg) {
+func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, networkSendOrderCh chan OrderMsg, orderCompletedCh chan fsm.Order) {
 	// Our id can be anything. Here we pass it on the command line, using
 	//  `go run main.go -id=our_id`
 	var id string
@@ -109,7 +110,8 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 
 	// The example message. We just send one of these every second.
 	go func() {
-		helloMsg := HelloMsg{elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil"}, 0}
+		initialOrderCompleted := fsm.Order{-1, -1}
+		helloMsg := HelloMsg{elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil"}, 0, initialOrderCompleted}
 
 		for {
 			select {
@@ -117,12 +119,19 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 				helloMsg.CurrentState = elevatorHW.GetElevatorState()
 				helloMsg.Order = order
 				helloTx <- helloMsg
+			case completedOrder := <-orderCompletedCh:
+				helloMsg.OrderExecuted = completedOrder
+				helloMsg.CurrentState = elevatorHW.GetElevatorState()
+				helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
+				helloMsg.LastFloor = fsm.LatestFloor
+				helloTx <- helloMsg
 			default:
 				break
 			}
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
 			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
 			helloMsg.LastFloor = fsm.LatestFloor
+			helloMsg.OrderExecuted = fsm.Order{-1, -1}
 
 			helloTx <- helloMsg
 
