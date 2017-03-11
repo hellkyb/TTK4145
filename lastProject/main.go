@@ -122,8 +122,8 @@ func main() {
 	go fsm.RunElevator(timeOutCh, orderCompletedCh)
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
-	go fsm.HandleTimeOutOrder(hallButtonsMap)
 	for {
+		fsm.HandleDeadOrders(hallButtonsMap)
 		select {
 
 		case orderIsHandled := <-orderCompletedCh:

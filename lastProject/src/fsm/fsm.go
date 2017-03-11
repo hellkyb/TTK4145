@@ -4,14 +4,13 @@ import (
 	"../elevatorHW"
 	"fmt"
 	"time"
-	"sync"
 )
 
 var OperatingElevators int
 var OperatingElevatorsPrt *int
 var latestFloorPtr *int
 var LatestFloor int
-var mu sync.Mutex
+
 /*
 Order type - description
 {Floor, 0} Calldown from IFloor
@@ -33,6 +32,16 @@ func ArrivedAtFloorSetDoorOpen(floor int, timeOut chan<- bool) {
 	elevatorHW.SetDoorLight(true)
 	time.Sleep(3 * time.Second)
 	timeOut <- true
+}
+
+HandleDeadOrders(hallButtonsMap map[Order]int64){
+	if len(hallButtonsMap) > 0{
+		for key,value := range hallButtonsMap{
+			if (time.Now().Unix() - value) > + 10 {
+				PutOrderInLocalQueue(key)
+			}
+		}
+	}
 }
 
 func GetButtonsPressed(buttonCh chan<- Order) {
@@ -77,20 +86,6 @@ func PutOrderInLocalQueue(newOrder Order) {
 			AppendInsideOrder(newOrder.Floor)
 			elevatorHW.SetInsideLight(newOrder.Floor, true)
 		}
-	}
-}
-
-func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
-	for{
-		mu.Lock()
-		if len(hallButtonsMap) > 0{
-			for key,value := range hallButtonsMap{
-				if value < time.Now().Unix() + 10 {
-					PutOrderInLocalQueue(key)
-				}
-			}
-		}
-		mu.Unlock()
 	}
 }
 
