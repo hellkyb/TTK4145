@@ -115,7 +115,7 @@ func main() {
 	networkOrderCh := make(chan olasnetwork.HelloMsg)
 	networkSendOrderToPeerCh := make(chan olasnetwork.OrderMsg)
 	timeOutCh := make(chan bool)
-	backupCh := make(chan )
+	//backupCh := make(chan )
 	//callTimeOutCh := make(chan bool)
 
 	go fsm.RunElevator(timeOutCh)
