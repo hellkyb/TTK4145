@@ -28,7 +28,7 @@ type HelloMsg struct {
 type OrderMsg struct {
 	Order                   fsm.Order
 	ElevatorToTakeThisOrder string
-	HallQueue               map[fsm.Order]fsm.HallCall
+	//HallQueue               map[fsm.Order]fsm.HallCall
 }
 
 var OperatingElevators int
@@ -42,7 +42,7 @@ type ElevatorStatus struct {
 func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg) {
 	timeNow := time.Now().Unix()
 	for key, value := range operatingElevatorStates {
-		if timeNow > value.TimeStamp+1 {
+		if timeNow > value.TimeStamp+2 {
 			delete(operatingElevatorStates, key)
 		}
 	}
@@ -110,21 +110,22 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 
 	// The example message. We just send one of these every second.
 	go func() {
-		currentQueueMap := make(map[fsm.Order]fsm.HallCall)
-		helloMsg := HelloMsg{elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil", currentQueueMap}, 0}
+		//currentQueueMap := make(map[fsm.Order]fsm.HallCall)
+		helloMsg := HelloMsg{elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil" /*, currentQueueMap*/}, 0}
 
 		for {
 			select {
 			case order := <-networkSendOrderToPeerCh:
 				helloMsg.CurrentState = elevatorHW.GetElevatorState()
 				helloMsg.Order = order
-				currentQueueMap = order.HallQueue
+				helloMsg.LastFloor = fsm.LatestFloor
+				//currentQueueMap = order.HallQueue
 				helloTx <- helloMsg
 			default:
 				break
 			}
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
-			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil", currentQueueMap}
+			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil" /*, currentQueueMap*/}
 			helloMsg.LastFloor = fsm.LatestFloor
 			helloMsg.TimeStamp = time.Now().Unix()
 
@@ -146,7 +147,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			*OperatingElevatorsPtr = len(p.Peers)
 
 		case a := <-helloRx:
-			/*fmt.Print("\n\n")
+			fmt.Print("\n\n")
 			fmt.Println("Message recieved")
 			fmt.Println("---------------------")
 			fmt.Print("From              : ")
@@ -168,7 +169,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			fmt.Print("New Order         :")
 			fmt.Println(a.Order)
 			fmt.Println("---------------------")
-			fmt.Print("\n\n\n")*/
+			fmt.Print("\n\n\n")
 			messageCh <- a
 		}
 	}
