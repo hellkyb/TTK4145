@@ -142,9 +142,9 @@ func main() {
 				hallButtonsMap[newMsg.Order.Order] = time.Now().Unix()
 			}
 			fsm.DoorLightTimeOut()
-			fmt.Print("This is OrderMap:  ")
-			fmt.Println(hallButtonsMap)
-			fmt.Print("Length of elevatorState Map:  ")
+			//fmt.Print("This is OrderMap:  ")
+			//fmt.Println(hallButtonsMap)
+			//fmt.Print("Length of elevatorState Map:  ")
 			fmt.Println(len(operatingElevatorStates))
 			olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
 			olasnetwork.DeleteDeadElevator(operatingElevatorStates)
