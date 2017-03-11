@@ -130,7 +130,8 @@ func main() {
 			if newMsg.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {				
 				fsm.PutOrderInLocalQueue(newMsg.Order.Order)
 				fmt.Println("I recieved an order! Local Queue:  ")
-				fsm.PrintQueues()			
+				fsm.SetElevatorDirection()
+				fsm.PrintQueues()
 			}
 
 		case newOrder := <-buttonCh:			
