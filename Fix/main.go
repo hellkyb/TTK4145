@@ -107,7 +107,7 @@ func main() {
 	time.Sleep(1 * time.Millisecond)
 
 	operatingElevatorStates := make(map[string]olasnetwork.HelloMsg)
-	globalHallQueue := make(map[fsm.Order]fsm.HallCall)
+	//globalHallQueue := make(map[fsm.Order]fsm.HallCall)
 
 	buttonCh := make(chan fsm.Order)
 	messageCh := make(chan olasnetwork.HelloMsg)
@@ -148,8 +148,8 @@ func main() {
 				fmt.Print(" to handle this order with cost of ")
 				fmt.Print(cost)
 				fmt.Println(" ")
-				globalHallQueue[newOrder] = fsm.HallCall{newOrder, elevatorToHandleThisOrder, time.Now().Unix()}
-				fmt.Println(globalHallQueue)
+				/*globalHallQueue[newOrder] = fsm.HallCall{newOrder, elevatorToHandleThisOrder, time.Now().Unix()}
+				fmt.Println(globalHallQueue)*/
 
 				networkSendOrderToPeerCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder /*, globalHallQueue*/}
 

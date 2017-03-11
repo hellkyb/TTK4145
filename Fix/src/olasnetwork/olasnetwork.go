@@ -135,8 +135,6 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 		}
 	}()
 
-	//fmt.Println("Started")
-
 	for {
 		select {
 		case p := <-peerUpdateCh:
