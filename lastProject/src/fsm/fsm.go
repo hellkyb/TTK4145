@@ -80,12 +80,12 @@ func PutOrderInLocalQueue(newOrder Order) {
 }
 
 func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
-
-	if len(hallButtonsMap) > 1{
-		for key,value := range hallButtonsMap{
-			if value < time.Now().Unix() + 6 {
-				PutOrderInLocalQueue(key)
-				fmt.Println("Emergency Order handling")
+	for{
+		if len(hallButtonsMap) > 0{
+			for key,value := range hallButtonsMap{
+				if value < time.Now().Unix() + 6 {
+					PutOrderInLocalQueue(key)
+				}
 			}
 		}
 	}
@@ -245,9 +245,8 @@ func SetLatestFloor() {
 }
 
 
-func RunElevator(timeOut chan<- bool, orderCompletedCh chan<- Order, hallButtonsMap map[Order]int64) {
+func RunElevator(timeOut chan<- bool, orderCompletedCh chan<- Order) {
 	for {
-		HandleTimeOutOrder(hallButtonsMap)
 		SetLatestFloor()
 		StopAtThisFloor(timeOut, orderCompletedCh)
 		SetElevatorDirection()
