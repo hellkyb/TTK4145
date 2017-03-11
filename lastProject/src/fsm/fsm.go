@@ -79,6 +79,18 @@ func PutOrderInLocalQueue(newOrder Order) {
 	}
 }
 
+func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
+
+	if len(hallButtonsMap) > 1{
+		for key,value := range hallButtonsMap{
+			if value < time.Now().Unix() + 6 {
+				PutOrderInLocalQueue(key)
+				fmt.Println("Emergency Order handling")
+			}
+		}
+	}
+}
+
 func PutInsideOrderInLocalQueue() {
 	insideOrder := elevatorHW.GetInsideElevatorButton()
 	if insideOrder != 0 {
@@ -232,6 +244,18 @@ func SetLatestFloor() {
 	}
 }
 
+
+func RunElevator(timeOut chan<- bool, orderCompletedCh chan<- Order, hallButtonsMap map[Order]int64) {
+	for {
+		HandleTimeOutOrder(hallButtonsMap)
+		SetLatestFloor()
+		StopAtThisFloor(timeOut, orderCompletedCh)
+		SetElevatorDirection()
+		StopButtonPressed(timeOut)
+	}
+}
+
+
 func StartUpMessage() {
 	fmt.Println("\n\nDO YOU EVEN LIFT BRO?")
 	time.Sleep(800 * time.Millisecond)
@@ -306,13 +330,4 @@ func StartUpMessage() {
 ////(////////////////////////////////////////////////((//*,***//(#((((///(((((((((((%&&@&////////////////////////////////////////
 /////((//////////////////////////////////////////////((//*.***///#(((((((/(((((((((#%&@@@////////////////////////////////////////`)
 
-}
-
-func RunElevator(timeOut chan<- bool, orderCompletedCh chan<- Order) {
-	for {
-		SetLatestFloor()
-		StopAtThisFloor(timeOut, orderCompletedCh)
-		SetElevatorDirection()
-		StopButtonPressed(timeOut)
-	}
 }
