@@ -308,6 +308,17 @@ func StartUpMessage() {
 
 }
 
+func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
+	for{
+		currentTime := time.Now().Unix()
+		for key, value := range hallButtonsMap{
+			if (currentTime - value) > 10{
+				PutOrderInLocalQueue(key)
+			}
+		}
+	}
+}
+
 func RunElevator(timeOut chan<- bool, orderCompletedCh chan<- Order) {
 	for {
 		SetLatestFloor()

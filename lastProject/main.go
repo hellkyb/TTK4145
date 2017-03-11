@@ -102,7 +102,7 @@ func main() {
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
 	elevatorHW.Init()
-	fsm.StartUpMessage()
+	//fsm.StartUpMessage()
 	//finished init
 	fsm.CreateQueueSlice()
 	time.Sleep(1 * time.Millisecond)
@@ -119,8 +119,10 @@ func main() {
 	sendDeletedOrderCh := make(chan fsm.Order)
 
 	go fsm.RunElevator(timeOutCh, orderCompletedCh)
+	go fsm.HandleTimeOutOrder(hallButtonsMap)
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
+
 	for {
 		select {
 
@@ -171,7 +173,6 @@ func main() {
 				fmt.Println(" ")
 				hallButtonsMap[newOrder] = time.Now().Unix()
 				fmt.Println(hallButtonsMap)
-
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
 		}
