@@ -102,6 +102,7 @@ func main() {
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
 	elevatorHW.Init()
+	fsm.StartUpMessage()
 	//finished init
 	fsm.CreateQueueSlice()
 	time.Sleep(1 * time.Millisecond)
@@ -115,16 +116,18 @@ func main() {
 	networkSendOrderCh := make(chan olasnetwork.OrderMsg)
 	timeOutCh := make(chan bool)
 	orderCompletedCh := make(chan fsm.Order)
+	sendDeletedOrderCh := make(chan fsm.Order)
 
 	go fsm.RunElevator(timeOutCh, orderCompletedCh)
 	go fsm.GetButtonsPressed(buttonCh)
-	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh)
+	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
 	for {
 		select {
 
 		case orderIsHandled := <-orderCompletedCh:
 			fmt.Println("It has deleted an order!")
 			delete(hallButtonsMap, orderIsHandled)
+			sendDeletedOrderCh <- orderIsHandled
 
 		case doorClose := <-timeOutCh:
 			elevatorHW.SetDoorLight(!doorClose)
