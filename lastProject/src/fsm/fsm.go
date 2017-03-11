@@ -310,7 +310,11 @@ func StartUpMessage() {
 
 func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
 	for{
+		mapLength := len(hallButtonsMap)
 		currentTime := time.Now().Unix()
+		if mapLength < 1{
+			return
+		}
 		for key, value := range hallButtonsMap{
 			if (currentTime - value) > 10{
 				PutOrderInLocalQueue(key)
