@@ -97,6 +97,22 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg, newOrde
 	return elevatorWithLowestCost, lowestCost
 }
 
+func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
+	for{
+		mapLength := len(hallButtonsMap)
+		currentTime := time.Now().Unix()
+		fmt.Println(currentTime)
+		if mapLength < 1{
+			return
+		}
+		for key, value := range hallButtonsMap{
+			if (currentTime - value) > 6{
+				fsm.PutOrderInLocalQueue(key)
+			}
+		}
+	}
+}
+
 func main() {
 	//start init
 	fmt.Println("Starting system")
@@ -119,7 +135,7 @@ func main() {
 	sendDeletedOrderCh := make(chan fsm.Order)
 
 	go fsm.RunElevator(timeOutCh, orderCompletedCh)
-	go fsm.HandleTimeOutOrder(hallButtonsMap)
+	go HandleTimeOutOrder(hallButtonsMap)
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
 
