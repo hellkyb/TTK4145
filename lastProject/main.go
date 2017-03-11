@@ -141,6 +141,7 @@ func main() {
 			if newMsg.Order.Order.Floor != -1 {
 				hallButtonsMap[newMsg.Order.Order] = time.Now().Unix()
 			}
+			fsm.DoorLightTimeOut()
 			fmt.Print("This is OrderMap:  ")
 			fmt.Println(hallButtonsMap)
 			fmt.Print("Length of elevatorState Map:  ")
