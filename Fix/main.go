@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./src/backup"
+	//"./src/backup"
 	"./src/elevatorHW"
 	"./src/fsm"
 	"./src/olasnetwork"
@@ -115,6 +115,7 @@ func main() {
 	networkOrderCh := make(chan olasnetwork.HelloMsg)
 	networkSendOrderToPeerCh := make(chan olasnetwork.OrderMsg)
 	timeOutCh := make(chan bool)
+
 	//saveBackupCh := make(chan []int)
 	//restoreBackupCh := make(chan []int)
 	//callTimeOutCh := make(chan bool)
@@ -122,7 +123,7 @@ func main() {
 	go fsm.RunElevator(timeOutCh)
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderToPeerCh)
-	go backup.Backup()
+	//go backup.Backup()
 
 	for {
 		select {
@@ -131,8 +132,10 @@ func main() {
 			elevatorHW.SetDoorLight(!doorClose)
 
 		case newMsg := <-messageCh:
+			fmt.Println(operatingElevatorStates)
 			olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
 			olasnetwork.DeleteDeadElevator(operatingElevatorStates)
+
 			if newMsg.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {
 				fsm.PutOrderInLocalQueue(newMsg.Order.Order)
 				fmt.Println("I recieved an order! Local Queue:  ")

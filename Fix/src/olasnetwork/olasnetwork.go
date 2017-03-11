@@ -41,7 +41,7 @@ type ElevatorStatus struct {
 func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg) {
 	timeNow := time.Now().Unix()
 	for key, value := range operatingElevatorStates {
-		if timeNow > value.TimeStamp+2 {
+		if value.TimeStamp < timeNow-3 {
 			delete(operatingElevatorStates, key)
 		}
 	}
@@ -94,8 +94,8 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 	// We can disable/enable the transmitter after it has been started.
 	// This could be used to signal that we are somehow "unavailable".
 	peerTxEnable := make(chan bool)
-	go peers.Transmitter(15647, id, peerTxEnable)
-	go peers.Receiver(15647, peerUpdateCh)
+	go peers.Transmitter(15411, id, peerTxEnable)
+	go peers.Receiver(15411, peerUpdateCh)
 
 	// We make channels for sending and receiving our custom data types
 	helloTx := make(chan HelloMsg)
@@ -125,7 +125,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
 			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
 			helloMsg.LastFloor = fsm.LatestFloor
-			helloMsg.TimeStamp = time.Now().Unix()
+			//helloMsg.TimeStamp = time.Now().Unix()
 
 			helloTx <- helloMsg
 
@@ -143,6 +143,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			*OperatingElevatorsPtr = len(p.Peers)
 
 		case a := <-helloRx:
+			a.TimeStamp = time.Now().Unix()
 			/*fmt.Print("\n\n")
 			fmt.Println("Message recieved")
 			fmt.Println("---------------------")
