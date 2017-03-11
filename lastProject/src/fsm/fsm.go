@@ -34,7 +34,7 @@ func ArrivedAtFloorSetDoorOpen(floor int, timeOut chan<- bool) {
 	timeOut <- true
 }
 
-HandleDeadOrders(hallButtonsMap map[Order]int64){
+func HandleDeadOrders(hallButtonsMap map[Order]int64){
 	if len(hallButtonsMap) > 0{
 		for key,value := range hallButtonsMap{
 			if (time.Now().Unix() - value) > + 10 {
