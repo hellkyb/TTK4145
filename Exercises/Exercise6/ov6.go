@@ -30,7 +30,7 @@ func main() {
 
 	fmt.Println("I am backup")
 
-	localIP := "129.241.187.140"
+	localIP := "129.241.187.158"
 	localPort := read_port_from_file()
 	sendToPort := write_next_port_to_file(localPort)
 	localAddr := localIP + ":" + localPort
