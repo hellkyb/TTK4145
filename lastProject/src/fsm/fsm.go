@@ -4,14 +4,14 @@ import (
 	"../elevatorHW"
 	"fmt"
 	"time"
-	"sync"
+	//"sync"
 )
 
 var OperatingElevators int
 var OperatingElevatorsPrt *int
 var latestFloorPtr *int
 var LatestFloor int
-var mu sync.Mutex
+//var mu sync.Mutex
 /*
 Order type - description
 {Floor, 0} Calldown from IFloor
@@ -29,12 +29,9 @@ type ElevatorStatus struct {
 }
 
 func ArrivedAtFloorSetDoorOpen(floor int, timeOut chan<- bool) {
-	mu.Lock()
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
-	time.Sleep(3 * time.Second)
 	timeOut <- true
-	mu.Unlock()
 }
 
 func HandleDeadOrders(hallButtonsMap map[Order]int64){

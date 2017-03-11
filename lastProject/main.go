@@ -125,7 +125,6 @@ func main() {
 	for {
 		fsm.HandleDeadOrders(hallButtonsMap)
 		select {
-
 		case orderIsHandled := <-orderCompletedCh:
 			fmt.Println("It has deleted an order!")
 			delete(hallButtonsMap, orderIsHandled)
@@ -133,6 +132,7 @@ func main() {
 			sendDeletedOrderCh <- orderIsHandled
 
 		case doorClose := <-timeOutCh:
+			time.Sleep(3*time.Second)
 			elevatorHW.SetDoorLight(!doorClose)
 
 		case newMsg := <-messageCh:
