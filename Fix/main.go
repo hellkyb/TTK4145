@@ -85,7 +85,7 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg, newOrde
 		fmt.Print("\nIts Last Floor: ")
 		fmt.Println(value.LastFloor)
 		fmt.Print("The Order is : ")
-		fmt.Println(value.Order.Order)
+		fmt.Println(newOrder)
 		fmt.Println(" ")
 		fmt.Print(key)
 		fmt.Print(" has a cost of ")
@@ -133,7 +133,9 @@ func main() {
 			olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
 			olasnetwork.DeleteDeadElevator(operatingElevatorStates)
 			if newMsg.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {				
-				fsm.PutOrderInLocalQueue(newMsg.Order.Order)				
+				fsm.PutOrderInLocalQueue(newMsg.Order.Order)
+				fmt.Println("I recieved an order! Local Queue:  ")
+				fsm.PrintQueues()			
 			}
 
 		case newOrder := <-buttonCh:			
