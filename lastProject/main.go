@@ -123,12 +123,19 @@ func main() {
 		select {
 
 		case orderIsHandled := <-orderCompletedCh:
+			fmt.Println("It has deleted an order!")
 			delete(hallButtonsMap, orderIsHandled)
 
 		case doorClose := <-timeOutCh:
 			elevatorHW.SetDoorLight(!doorClose)
 
 		case newMsg := <-messageCh:
+			if newMsg.Order.Order.Floor != -1 {
+				hallButtonsMap[newMsg.Order.Order] = time.Now().Unix()
+			}
+
+			fmt.Print("This is OrderMap:  ")
+			fmt.Println(hallButtonsMap)
 			fmt.Print("Length of elevator Map:  ")
 			fmt.Println(len(operatingElevatorStates))
 			olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
@@ -146,6 +153,7 @@ func main() {
 			}
 
 		case newOrder := <-buttonCh:
+
 			if newOrder.Button == elevatorHW.ButtonCommand {
 				fsm.PutInsideOrderInLocalQueue()
 			} else if len(operatingElevatorStates) == 0 || len(operatingElevatorStates) == 1 {
@@ -159,6 +167,7 @@ func main() {
 				fmt.Print(cost)
 				fmt.Println(" ")
 				hallButtonsMap[newOrder] = time.Now().Unix()
+				fmt.Println(hallButtonsMap)
 
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
