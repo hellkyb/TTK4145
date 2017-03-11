@@ -92,11 +92,10 @@ func PutOrderInLocalQueue(newOrder Order) {
 
 func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
 
-	if len(hallButtonsMap) > 1{
+	if len(hallButtonsMap) > 0{
 		for key,value := range hallButtonsMap{
-			if value < time.Now().Unix() + 6 {
+			if value < time.Now().Unix() + 15 {
 				PutOrderInLocalQueue(key)
-				fmt.Println("Emergency Order handling")
 			}
 		}
 	}
