@@ -2,35 +2,35 @@ package main
 
 import (
 	"fmt"
-	"time"
+	//"time"
 )
-type Order struct {
-	Floor  int
-	Button int //0 is callDown, 1 callUp, 2 callInside
-}
 
-func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
-	timeNow := time.Now().Unix()
-	if len(hallButtonsMap) > 0{
-		for _,value := range hallButtonsMap{
-			if timeNow > value+1 {
-				fmt.Println("Emergency Order handling")
-			}
-		}
-	}
+func mapManipulation(someMap map[string]bool) {
+	someMap["IP:666"] = true
+
 }
 
 
 
 func main() {
-	orderMap := make(map[Order]int64)
-	currenTime := time.Now().Unix()
-	anOrder := Order{2,1}
-	orderMap[anOrder] = currenTime
-	fmt.Print(orderMap)
-	time.Sleep(4*time.Second)
-	HandleTimeOutOrder(orderMap)
+	fmt.Println("ok")
+	myMap := make(map[string]bool)
 
+	myMap["IP:123"] = true
+	myMap["IP:666"] = false
+	myMap["IP:Dildo"] = true
 
+	
+	
+	fmt.Print("len function on the map:  ")
+	fmt.Println(len(myMap))
+	lengthOfMap := len(myMap)
+	for i := 0 ; i < lengthOfMap; i++ {
+		fmt.Println(i)
 
+	if "IP:123" == myMap["IP:123"]{
+		fmt.Println("Correct")
+	
+	}
+	}
 }

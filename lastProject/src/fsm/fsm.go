@@ -4,14 +4,13 @@ import (
 	"../elevatorHW"
 	"fmt"
 	"time"
-	//"sync"
 )
 
 var OperatingElevators int
 var OperatingElevatorsPrt *int
 var latestFloorPtr *int
 var LatestFloor int
-//var mu sync.Mutex
+
 /*
 Order type - description
 {Floor, 0} Calldown from IFloor
@@ -31,17 +30,8 @@ type ElevatorStatus struct {
 func ArrivedAtFloorSetDoorOpen(floor int, timeOut chan<- bool) {
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
+	time.Sleep(3 * time.Second)
 	timeOut <- true
-}
-
-func HandleDeadOrders(hallButtonsMap map[Order]int64){
-	if len(hallButtonsMap) > 0{
-		for key,value := range hallButtonsMap{
-			if (time.Now().Unix() - value) > + 10 {
-				PutOrderInLocalQueue(key)
-			}
-		}
-	}
 }
 
 func GetButtonsPressed(buttonCh chan<- Order) {
@@ -85,6 +75,18 @@ func PutOrderInLocalQueue(newOrder Order) {
 		case elevatorHW.ButtonCommand:
 			AppendInsideOrder(newOrder.Floor)
 			elevatorHW.SetInsideLight(newOrder.Floor, true)
+		}
+	}
+}
+
+func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
+
+	if len(hallButtonsMap) > 1{
+		for key,value := range hallButtonsMap{
+			if value < time.Now().Unix() + 6 {
+				PutOrderInLocalQueue(key)
+				fmt.Println("Emergency Order handling")
+			}
 		}
 	}
 }
@@ -243,8 +245,9 @@ func SetLatestFloor() {
 }
 
 
-func RunElevator(timeOut chan<- bool, orderCompletedCh chan<- Order) {
+func RunElevator(timeOut chan<- bool, orderCompletedCh chan<- Order, hallButtonsMap map[Order]int64) {
 	for {
+		HandleTimeOutOrder(hallButtonsMap)
 		SetLatestFloor()
 		StopAtThisFloor(timeOut, orderCompletedCh)
 		SetElevatorDirection()

@@ -6,7 +6,6 @@ import (
 	"./src/olasnetwork"
 	"fmt"
 	"time"
-	"runtime"
 )
 
 // This function returns how suitet the elevator is to handle a global call
@@ -97,17 +96,20 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg, newOrde
 	}
 	return elevatorWithLowestCost, lowestCost
 }
+
+
+
+
 func main() {
 	//start init
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
 	elevatorHW.Init()
-	runtime.GOMAXPROCS(runtime.NumCPU())
 	//fsm.StartUpMessage()
 	//finished init
 	fsm.CreateQueueSlice()
 	time.Sleep(1 * time.Millisecond)
-	//var charlieElevator bool
+
 	operatingElevatorStates := make(map[string]olasnetwork.HelloMsg)
 	hallButtonsMap := make(map[fsm.Order]int64)
 
@@ -119,20 +121,19 @@ func main() {
 	orderCompletedCh := make(chan fsm.Order)
 	sendDeletedOrderCh := make(chan fsm.Order)
 
-	go fsm.RunElevator(timeOutCh, orderCompletedCh)
+	go fsm.RunElevator(timeOutCh, orderCompletedCh, hallButtonsMap)
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
+
 	for {
-		fsm.HandleDeadOrders(hallButtonsMap)
 		select {
+
 		case orderIsHandled := <-orderCompletedCh:
 			fmt.Println("It has deleted an order!")
 			delete(hallButtonsMap, orderIsHandled)
-			//Light Logic???
 			sendDeletedOrderCh <- orderIsHandled
 
 		case doorClose := <-timeOutCh:
-			time.Sleep(3*time.Second)
 			elevatorHW.SetDoorLight(!doorClose)
 
 		case newMsg := <-messageCh:
