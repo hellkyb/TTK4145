@@ -4,13 +4,14 @@ import (
 	"../elevatorHW"
 	"fmt"
 	"time"
+	"sync"
 )
 
 var OperatingElevators int
 var OperatingElevatorsPrt *int
 var latestFloorPtr *int
 var LatestFloor int
-
+var mu sync.Mutex
 /*
 Order type - description
 {Floor, 0} Calldown from IFloor
@@ -81,13 +82,15 @@ func PutOrderInLocalQueue(newOrder Order) {
 
 func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
 	for{
+		mu.Lock()
 		if len(hallButtonsMap) > 0{
 			for key,value := range hallButtonsMap{
-				if value < time.Now().Unix() + 6 {
+				if value < time.Now().Unix() + 10 {
 					PutOrderInLocalQueue(key)
 				}
 			}
 		}
+		mu.Unlock()
 	}
 }
 

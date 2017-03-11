@@ -6,6 +6,7 @@ import (
 	"./src/olasnetwork"
 	"fmt"
 	"time"
+	"runtime"
 )
 
 // This function returns how suitet the elevator is to handle a global call
@@ -101,6 +102,7 @@ func main() {
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
 	elevatorHW.Init()
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	//fsm.StartUpMessage()
 	//finished init
 	fsm.CreateQueueSlice()
