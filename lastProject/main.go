@@ -126,6 +126,7 @@ func main() {
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
 
 	for {
+		fsm.DoorLightTimeOut()
 		select {
 
 		case orderIsHandled := <-orderCompletedCh:

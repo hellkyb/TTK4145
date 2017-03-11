@@ -8,6 +8,8 @@ import (
 
 var OperatingElevators int
 var OperatingElevatorsPrt *int
+var TimeStamp int64
+var TimeStampPtr *int64
 var latestFloorPtr *int
 var LatestFloor int
 
@@ -28,10 +30,19 @@ type ElevatorStatus struct {
 }
 
 func ArrivedAtFloorSetDoorOpen(floor int, timeOut chan<- bool) {
+	TimeStampPtr = &TimeStamp
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
+	*TimeStampPtr = time.Now().Unix()
 	time.Sleep(3 * time.Second)
 	timeOut <- true
+}
+
+func DoorLightTimeOut(){
+	currentTime := time.Now().Unix()
+	if (currentTime - TimeStamp) > 3{
+		elevatorHW.SetDoorLight(false)
+	}
 }
 
 func GetButtonsPressed(buttonCh chan<- Order) {
