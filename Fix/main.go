@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./src/backup"
 	"./src/elevatorHW"
 	"./src/fsm"
 	"./src/olasnetwork"
@@ -107,18 +108,20 @@ func main() {
 	time.Sleep(1 * time.Millisecond)
 
 	operatingElevatorStates := make(map[string]olasnetwork.HelloMsg)
-	//globalHallQueue := make(map[fsm.Order]fsm.HallCall)
+	//globalHallQueue := make(map[fsm.Order])
 
 	buttonCh := make(chan fsm.Order)
 	messageCh := make(chan olasnetwork.HelloMsg)
 	networkOrderCh := make(chan olasnetwork.HelloMsg)
 	networkSendOrderToPeerCh := make(chan olasnetwork.OrderMsg)
 	timeOutCh := make(chan bool)
+	backupCh := make(chan )
 	//callTimeOutCh := make(chan bool)
 
 	go fsm.RunElevator(timeOutCh)
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderToPeerCh)
+	go backup.Backup()
 
 	for {
 		select {
@@ -148,10 +151,10 @@ func main() {
 				fmt.Print(" to handle this order with cost of ")
 				fmt.Print(cost)
 				fmt.Println(" ")
-				/*globalHallQueue[newOrder] = fsm.HallCall{newOrder, elevatorToHandleThisOrder, time.Now().Unix()}
+				/*globalHallQueue[newOrder] = fsm.HallCall{elevatorToHandleThisOrder, time.Now().Unix()}
 				fmt.Println(globalHallQueue)*/
 
-				networkSendOrderToPeerCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder /*, globalHallQueue*/}
+				networkSendOrderToPeerCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 
 			}
 		}

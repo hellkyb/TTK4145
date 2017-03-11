@@ -28,7 +28,6 @@ type HelloMsg struct {
 type OrderMsg struct {
 	Order                   fsm.Order
 	ElevatorToTakeThisOrder string
-	//HallQueue               map[fsm.Order]fsm.HallCall
 }
 
 var OperatingElevators int
@@ -60,6 +59,7 @@ func UpdateElevatorStates(newMsg HelloMsg, operatingElevatorStates map[string]He
 			operatingElevatorStates[key] = newMsg
 		}
 	}
+	operatingElevatorStates[newMsg.ElevatorID] = newMsg
 }
 
 func GetLocalID() string {
@@ -110,8 +110,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 
 	// The example message. We just send one of these every second.
 	go func() {
-		//currentQueueMap := make(map[fsm.Order]fsm.HallCall)
-		helloMsg := HelloMsg{elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil" /*, currentQueueMap*/}, 0}
+		helloMsg := HelloMsg{elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil"}, 0}
 
 		for {
 			select {
@@ -119,13 +118,12 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 				helloMsg.CurrentState = elevatorHW.GetElevatorState()
 				helloMsg.Order = order
 				helloMsg.LastFloor = fsm.LatestFloor
-				//currentQueueMap = order.HallQueue
 				helloTx <- helloMsg
 			default:
 				break
 			}
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
-			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil" /*, currentQueueMap*/}
+			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
 			helloMsg.LastFloor = fsm.LatestFloor
 			helloMsg.TimeStamp = time.Now().Unix()
 

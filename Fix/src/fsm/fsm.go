@@ -26,11 +26,6 @@ type ElevatorStatus struct {
 	alive      bool
 	elevatorID string
 }
-type HallCall struct {
-	Order            Order
-	ElevatorAssigned string
-	TimeStamp        int64
-}
 
 func ArrivedAtFloorSetDoorOpen(floor int, timeOut chan<- bool) {
 	elevatorHW.SetFloorIndicator(floor)
@@ -224,13 +219,13 @@ func SetLatestFloor() {
 	}
 }
 
-func CheckGlobalQueueTimeOut(globalHallQueue map[Order]HallCall) {
+/*func CheckGlobalQueueTimeOut(globalHallQueue map[Order]HallCall) {
 	for key, value := range globalHallQueue {
 		if value.TimeStamp+10 < time.Now().Unix() {
 			PutOrderInLocalQueue(key)
 		}
 	}
-}
+}*/
 
 func StartUpMessage() {
 	fmt.Println("DO YOU EVEN LIFT BRO?")
