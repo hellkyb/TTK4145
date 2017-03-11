@@ -6,12 +6,10 @@ import (
 	"time"	
 )
 
-
 var OperatingElevators int
 var OperatingElevatorsPrt *int
 var latestFloorPtr *int
 var LatestFloor int
-
 
 /*
 Order type - description
@@ -92,8 +90,7 @@ func PutInsideOrderInLocalQueue() {
 func SetElevatorDirection() {
 	if elevatorHW.GetDoorLight() != 0{
 		return
-	}
-	
+	}	
 	currentDirection := elevatorHW.GetElevatorDirection()
 	currentState := elevatorHW.GetElevatorState()
 	currentFloor := elevatorHW.GetFloorSensorSignal()	
@@ -206,7 +203,6 @@ func StopButtonPressed(timeOut chan<- bool) {
 	}
 	fmt.Println("Initiating emergency procedure")
 	elevatorHW.SetStopButton(true)
-
 	elevatorHW.SetMotor(elevatorHW.DirectionStop)
 	DeleteLocalQueue()
 	time.Sleep(2000 * time.Millisecond)
@@ -214,6 +210,7 @@ func StopButtonPressed(timeOut chan<- bool) {
 	ArrivedAtFloorSetDoorOpen(elevatorHW.GetFloorSensorSignal(), timeOut)
 	fmt.Println("Operaing Normally")
 }
+
 func SetLatestFloor() {
 	latestFloorPtr = &LatestFloor
 	if elevatorHW.GetFloorSensorSignal() == 1 || elevatorHW.GetFloorSensorSignal() == 2 || elevatorHW.GetFloorSensorSignal() == 3 || elevatorHW.GetFloorSensorSignal() == 4 {
@@ -221,12 +218,14 @@ func SetLatestFloor() {
 		elevatorHW.SetFloorIndicator(elevatorHW.GetFloorSensorSignal())
 	}
 }
+
 func StartUpMessage() {
 	fmt.Println("DO YOU EVEN LIFT BRO?")
 	time.Sleep(140 * time.Millisecond)
 	fmt.Print("\nFuck yeeah bro!\n\n")
 	time.Sleep(100 * time.Millisecond)
 }
+
 func RunElevator(timeOut chan<- bool) {
 	for {
 		SetLatestFloor()

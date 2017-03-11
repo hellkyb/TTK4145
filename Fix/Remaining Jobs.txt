@@ -1,0 +1,3 @@
+1. Samkjøre lys mellom panel
+2. Fault tollerance
+3. Slik som systemet er nå er det noen ordre som aldri blir betjent (FT)

@@ -2,11 +2,9 @@ package main
 
 import (
 	"time"
-
 	"./src/elevatorHW"
 	"./src/fsm"
 	"./src/olasnetwork"
-	//"./src/io"
 	"fmt"
 )
 
@@ -97,7 +95,6 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg, newOrde
 		}		
 	}
 	return elevatorWithLowestCost, lowestCost	
-	
 }
 
 func main() {
@@ -109,9 +106,7 @@ func main() {
 	fsm.CreateQueueSlice()
 	time.Sleep(1 * time.Millisecond)
 
-	//var operatingElevatorStates []olasnetwork.HelloMsg
 	operatingElevatorStates := make(map[string]olasnetwork.HelloMsg) 
-	//var operatingTimeStampList []int64  Use this to delete objects??
 
 	buttonCh := make(chan fsm.Order)
 	messageCh := make(chan olasnetwork.HelloMsg)
