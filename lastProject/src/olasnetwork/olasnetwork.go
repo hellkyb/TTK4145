@@ -38,10 +38,10 @@ type ElevatorStatus struct {
 	Alive      bool
 }
 
-func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg){	
+func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg) {
 	timeNow := time.Now().Unix()
-	for key, value := range operatingElevatorStates{
-		if timeNow > value.TimeStamp + 1 {
+	for key, value := range operatingElevatorStates {
+		if timeNow > value.TimeStamp+1 {
 			delete(operatingElevatorStates, key)
 		}
 	}
@@ -49,16 +49,15 @@ func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg){
 
 func UpdateElevatorStates(newMsg HelloMsg, operatingElevatorStates map[string]HelloMsg) {
 	lengthOfMap := len(operatingElevatorStates)
-	
 
 	if lengthOfMap == 0 || lengthOfMap == 1 {
 		operatingElevatorStates[newMsg.ElevatorID] = newMsg
-		
+
 	}
-	for key,_ := range operatingElevatorStates {
+	for key := range operatingElevatorStates {
 		if key == newMsg.ElevatorID {
-			operatingElevatorStates[key] = newMsg			
-		}		
+			operatingElevatorStates[key] = newMsg
+		}
 	}
 }
 
@@ -124,9 +123,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
 			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
 			helloMsg.LastFloor = fsm.LatestFloor
-			helloMsg.TimeStamp = time.Now().Unix()
-			
-			
+
 			helloTx <- helloMsg
 
 			time.Sleep(500 * time.Millisecond)
@@ -168,6 +165,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			fmt.Println(a.Order)
 			fmt.Println("---------------------")
 			fmt.Print("\n\n\n")*/
+			a.TimeStamp = time.Now().Unix()
 			messageCh <- a
 		}
 	}
