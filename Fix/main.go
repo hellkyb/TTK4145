@@ -117,14 +117,17 @@ func main() {
 	messageCh := make(chan olasnetwork.HelloMsg)
 	networkOrderCh := make(chan olasnetwork.HelloMsg)
 	networkSendOrderCh := make(chan olasnetwork.OrderMsg)
+	timeOutCh := make(chan bool)
 
-
-	go fsm.RunElevator()
+	go fsm.RunElevator(timeOutCh)
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh)
 
 	for {		
 		select {
+
+		case doorClose := <- timeOutCh:
+			elevatorHW.SetDoorLight(!doorClose)
 
 		case newMsg := <-messageCh:
 			olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)

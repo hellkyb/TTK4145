@@ -6,7 +6,7 @@ import (
 	"fmt"
 	//"math"
 	"time"
-	"sync"
+	
 	//"runtime"
 )
 
@@ -21,8 +21,6 @@ import (
 
 var OperatingElevators int
 var OperatingElevatorsPrt *int
-var DoorOpenedTime int64
-var doorOpenedTimePtr *int64
 var latestFloorPtr *int
 var LatestFloor int
 
@@ -33,7 +31,7 @@ Order type - description
 {Floor, 2} InsideOrder to #Floor
 
 */
-var mu sync.Mutex
+
 
 type Order struct {
 	Floor  int
@@ -45,15 +43,12 @@ type ElevatorStatus struct {
 	elevatorID string
 }
 
-func ArrivedAtFloorSetDoorOpen(floor int) {
-	doorOpenedTimePtr = &DoorOpenedTime
-	elevatorHW.SetFloorIndicator(floor)
-	mu.Lock()
+func ArrivedAtFloorSetDoorOpen(floor int, timeOut chan<- bool) {
+	elevatorHW.SetFloorIndicator(floor)	
 	elevatorHW.SetDoorLight(true)
-	*doorOpenedTimePtr = time.Now().Unix()
-	time.Sleep(1500* time.Millisecond)
-	elevatorHW.SetDoorLight(false)
-	mu.Unlock()
+	time.Sleep(3*time.Second)
+	timeOut <- true
+	
 }
 
 func GetButtonsPressed(buttonCh chan<- Order) {
@@ -143,7 +138,7 @@ func SetElevatorDirection() {
 	}
 }
 
-func StopAtThisFloor() {
+func StopAtThisFloor(timeOut chan<- bool) {
 
 	currentFloor := elevatorHW.GetFloorSensorSignal()
 	currentDirection := elevatorHW.GetElevatorDirection() // 1 is going down, 0 is going up
@@ -157,11 +152,11 @@ func StopAtThisFloor() {
 						if currentDirection == 1 { // Going up
 
 							elevatorHW.SetMotor(elevatorHW.DirectionStop)
-							ArrivedAtFloorSetDoorOpen(currentFloor)
+							ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
 							elevatorHW.SetUpLight(currentFloor, false)
 						}else{
 							elevatorHW.SetMotor(elevatorHW.DirectionStop)
-							ArrivedAtFloorSetDoorOpen(currentFloor)
+							ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
 							elevatorHW.SetDownLight(currentFloor, false)
 						}
 
@@ -169,7 +164,7 @@ func StopAtThisFloor() {
 				}
 				if (i == 0 || i == 1) && (currentDirection == 0 || currentFloor == 1) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
-					ArrivedAtFloorSetDoorOpen(currentFloor)
+					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
 					//elevatorHW.SetDownLight(currentFloor, false)
 					elevatorHW.SetUpLight(currentFloor, false)
 					elevatorHW.SetInsideLight(currentFloor, false)
@@ -179,7 +174,7 @@ func StopAtThisFloor() {
 					return
 				} else if (i == 0 || i == 2) && (currentDirection == 1 || currentFloor == 4) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
-					ArrivedAtFloorSetDoorOpen(currentFloor)
+					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
 					elevatorHW.SetDownLight(currentFloor, false)
 					//elevatorHW.SetUpLight(currentFloor, false)
 					elevatorHW.SetInsideLight(currentFloor, false)
@@ -193,7 +188,7 @@ func StopAtThisFloor() {
 }
 
 
-func StopButtonPressed() {
+func StopButtonPressed(timeOut chan<- bool) {
 	if !elevatorHW.GetStopButtonPressed() {
 		return
 	}
@@ -204,7 +199,7 @@ func StopButtonPressed() {
 	DeleteLocalQueue()
 	time.Sleep(2000 * time.Millisecond)
 	elevatorHW.SecondInit()
-	ArrivedAtFloorSetDoorOpen(elevatorHW.GetFloorSensorSignal())
+	ArrivedAtFloorSetDoorOpen(elevatorHW.GetFloorSensorSignal(), timeOut)
 	fmt.Println("Operaing Normally")
 }
 func SetLatestFloor() {
@@ -220,11 +215,11 @@ func StartUpMessage() {
 	fmt.Print("\nFuck yeeah bro!\n\n")
 	time.Sleep(100 * time.Millisecond)
 }
-func RunElevator() {
+func RunElevator(timeOut chan<- bool) {
 	for {
 		SetLatestFloor()
-		StopAtThisFloor()
+		StopAtThisFloor(timeOut)
 		SetElevatorDirection()
-		StopButtonPressed()
+		StopButtonPressed(timeOut)
 	}
 }
