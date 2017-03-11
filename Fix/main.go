@@ -136,6 +136,7 @@ func main() {
 			}
 
 		case newOrder := <-buttonCh:
+			fmt.Println(len(operatingElevatorStates))
 			if newOrder.Button == elevatorHW.ButtonCommand {
 				fsm.PutInsideOrderInLocalQueue()
 			} else if len(operatingElevatorStates) == 0 || len(operatingElevatorStates) == 1 {

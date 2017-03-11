@@ -139,10 +139,10 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 	for {
 		select {
 		case p := <-peerUpdateCh:
-			/*fmt.Printf("Peer update:\n")
+			fmt.Printf("Peer update:\n")
 			fmt.Printf("  Peers:    %q\n", p.Peers)
 			fmt.Printf("  New:      %q\n", p.New)
-			fmt.Printf("  Lost:     %q\n", p.Lost)*/
+			fmt.Printf("  Lost:     %q\n", p.Lost)
 			*OperatingElevatorsPtr = len(p.Peers)
 
 		case a := <-helloRx:
