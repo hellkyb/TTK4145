@@ -1,11 +1,11 @@
 package main
 
 import (
-	"time"
 	"./src/elevatorHW"
 	"./src/fsm"
 	"./src/olasnetwork"
 	"fmt"
+	"time"
 )
 
 // This function returns how suitet the elevator is to handle a global call
@@ -23,7 +23,7 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 	if dir == 0 && order.Floor == lastFloor { // Elevator is Idle at floor being called
 		return 0
 	}
-	if dir == 0{
+	if dir == 0 {
 		return distanceToTarget
 	}
 	if order.Button == 1 { //UpType Order
@@ -67,7 +67,7 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg, newOrde
 	numberOfElevatorsInNetwork := olasnetwork.OperatingElevators
 	if numberOfElevatorsInNetwork == 0 || numberOfElevatorsInNetwork == 1 {
 		return olasnetwork.GetLocalID(), 0
-	}	
+	}
 	var elevatorWithLowestCost string
 	lowestCost := 1337
 	if len(onlineElevatorStates) < 2 {
@@ -89,12 +89,12 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg, newOrde
 		fmt.Print(" has a cost of ")
 		fmt.Println(thisCost)
 		fmt.Print("\n\n")
-		if thisCost < lowestCost{
+		if thisCost < lowestCost {
 			lowestCost = thisCost
 			elevatorWithLowestCost = key
-		}		
+		}
 	}
-	return elevatorWithLowestCost, lowestCost	
+	return elevatorWithLowestCost, lowestCost
 }
 
 func main() {
@@ -106,47 +106,52 @@ func main() {
 	fsm.CreateQueueSlice()
 	time.Sleep(1 * time.Millisecond)
 
-	operatingElevatorStates := make(map[string]olasnetwork.HelloMsg) 
+	operatingElevatorStates := make(map[string]olasnetwork.HelloMsg)
+	globalHallQueue := make(map[fsm.Order]fsm.HallCall)
 
 	buttonCh := make(chan fsm.Order)
 	messageCh := make(chan olasnetwork.HelloMsg)
 	networkOrderCh := make(chan olasnetwork.HelloMsg)
-	networkSendOrderCh := make(chan olasnetwork.OrderMsg)
+	networkSendOrderToPeerCh := make(chan olasnetwork.OrderMsg)
 	timeOutCh := make(chan bool)
+	//callTimeOutCh := make(chan bool)
 
 	go fsm.RunElevator(timeOutCh)
 	go fsm.GetButtonsPressed(buttonCh)
-	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh)
+	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderToPeerCh)
 
-	for {		
+	for {
 		select {
 
-		case doorClose := <- timeOutCh:
+		case doorClose := <-timeOutCh:
 			elevatorHW.SetDoorLight(!doorClose)
 
 		case newMsg := <-messageCh:
 			olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
 			olasnetwork.DeleteDeadElevator(operatingElevatorStates)
-			if newMsg.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {				
+			if newMsg.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {
 				fsm.PutOrderInLocalQueue(newMsg.Order.Order)
 				fmt.Println("I recieved an order! Local Queue:  ")
 				fsm.PrintQueues()
 			}
 
-		case newOrder := <-buttonCh:			
+		case newOrder := <-buttonCh:
 			if newOrder.Button == elevatorHW.ButtonCommand {
 				fsm.PutInsideOrderInLocalQueue()
-			}else if len(operatingElevatorStates) == 0 || len(operatingElevatorStates) == 1{
+			} else if len(operatingElevatorStates) == 0 || len(operatingElevatorStates) == 1 {
 				fsm.PutOrderInLocalQueue(newOrder)
-			}else{
+			} else {
 				elevatorToHandleThisOrder, cost := decitionmaker(operatingElevatorStates, newOrder)
 				fmt.Print("I want ")
 				fmt.Print(elevatorToHandleThisOrder)
 				fmt.Print(" to handle this order with cost of ")
 				fmt.Print(cost)
-				fmt.Println(" ")	
-								
-				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
+				fmt.Println(" ")
+				globalHallQueue[newOrder] = fsm.HallCall{newOrder, elevatorToHandleThisOrder, time.Now().Unix()}
+				fmt.Println(globalHallQueue)
+
+				networkSendOrderToPeerCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder, globalHallQueue}
+
 			}
 		}
 	}

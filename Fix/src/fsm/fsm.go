@@ -1,9 +1,9 @@
 package fsm
 
 import (
-	"../elevatorHW"	
-	"fmt"	
-	"time"	
+	"../elevatorHW"
+	"fmt"
+	"time"
 )
 
 var OperatingElevators int
@@ -26,12 +26,17 @@ type ElevatorStatus struct {
 	alive      bool
 	elevatorID string
 }
+type HallCall struct {
+	Order            Order
+	ElevatorAssigned string
+	TimeStamp        int64
+}
 
 func ArrivedAtFloorSetDoorOpen(floor int, timeOut chan<- bool) {
-	elevatorHW.SetFloorIndicator(floor)	
+	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
-	time.Sleep(3*time.Second)
-	timeOut <- true	
+	time.Sleep(3 * time.Second)
+	timeOut <- true
 }
 
 func GetButtonsPressed(buttonCh chan<- Order) {
@@ -88,16 +93,16 @@ func PutInsideOrderInLocalQueue() {
 }
 
 func SetElevatorDirection() {
-	if elevatorHW.GetDoorLight() != 0{
+	if elevatorHW.GetDoorLight() != 0 {
 		return
-	}	
+	}
 	currentDirection := elevatorHW.GetElevatorDirection()
 	currentState := elevatorHW.GetElevatorState()
-	currentFloor := elevatorHW.GetFloorSensorSignal()	
+	currentFloor := elevatorHW.GetFloorSensorSignal()
 
 	if currentDirection == 1 || currentDirection == 0 {
 		if currentFloor != 0 {
-			if len(localQueue[0]) > 0 && currentState == 0{
+			if len(localQueue[0]) > 0 && currentState == 0 {
 				if localQueue[0][0] < currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionDown)
 				} else if localQueue[0][0] > currentFloor {
@@ -130,21 +135,21 @@ func StopAtThisFloor(timeOut chan<- bool) {
 	for i := 0; i < 3; i++ {
 		for j := range localQueue[i] {
 			if currentFloor == localQueue[i][j] {
-				if len(localQueue[0]) == 0{
-					if localQueue[i][j] == currentFloor{
+				if len(localQueue[0]) == 0 {
+					if localQueue[i][j] == currentFloor {
 						if currentDirection == 1 { // Going up
 
 							elevatorHW.SetMotor(elevatorHW.DirectionStop)
 							ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
 							elevatorHW.SetUpLight(currentFloor, false)
-							
-						}else{
+
+						} else {
 							elevatorHW.SetMotor(elevatorHW.DirectionStop)
 							ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
-							elevatorHW.SetDownLight(currentFloor, false)							
+							elevatorHW.SetDownLight(currentFloor, false)
 						}
 					}
-				}						
+				}
 				if (i == 0 || i == 1) && (currentDirection == 0 || currentFloor == 1) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
 					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
@@ -162,35 +167,35 @@ func StopAtThisFloor(timeOut chan<- bool) {
 					elevatorHW.SetFloorIndicator(currentFloor)
 					DeleteIndexLocalQueue(i, j)
 					return
-				}				
+				}
 			}
 		}
 	}
-	if (downOrders > 0) && (localOrders > 0) && currentState == 1{
-		for i := range localQueue[0]{
-			for j := range localQueue[2]{
-				if (localQueue[0][i] < localQueue[2][j]) && (localQueue[2][j] == currentFloor){
+	if (downOrders > 0) && (localOrders > 0) && currentState == 1 {
+		for i := range localQueue[0] {
+			for j := range localQueue[2] {
+				if (localQueue[0][i] < localQueue[2][j]) && (localQueue[2][j] == currentFloor) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
 					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
 					elevatorHW.SetDownLight(currentFloor, false)
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
-					DeleteIndexLocalQueue(2,j)
+					DeleteIndexLocalQueue(2, j)
 
 				}
 			}
 		}
 	}
-	if (upOrders > 0) && (localOrders > 0) && currentState == -1{
-		for i := range localQueue[0]{
-			for j := range localQueue[1]{
-				if (localQueue[0][i] > localQueue[1][j]) && (localQueue[1][j] == currentFloor){
+	if (upOrders > 0) && (localOrders > 0) && currentState == -1 {
+		for i := range localQueue[0] {
+			for j := range localQueue[1] {
+				if (localQueue[0][i] > localQueue[1][j]) && (localQueue[1][j] == currentFloor) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
 					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
 					elevatorHW.SetUpLight(currentFloor, false)
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
-					DeleteIndexLocalQueue(1,j)
+					DeleteIndexLocalQueue(1, j)
 				}
 			}
 		}
@@ -216,6 +221,14 @@ func SetLatestFloor() {
 	if elevatorHW.GetFloorSensorSignal() == 1 || elevatorHW.GetFloorSensorSignal() == 2 || elevatorHW.GetFloorSensorSignal() == 3 || elevatorHW.GetFloorSensorSignal() == 4 {
 		*latestFloorPtr = elevatorHW.GetFloorSensorSignal()
 		elevatorHW.SetFloorIndicator(elevatorHW.GetFloorSensorSignal())
+	}
+}
+
+func CheckGlobalQueueTimeOut(globalHallQueue map[Order]HallCall) {
+	for key, value := range globalHallQueue {
+		if value.TimeStamp+10 < time.Now().Unix() {
+			PutOrderInLocalQueue(key)
+		}
 	}
 }
 

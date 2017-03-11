@@ -1,6 +1,6 @@
 package fsm
 
-import (	
+import (
 	"fmt"
 	"sort"
 )

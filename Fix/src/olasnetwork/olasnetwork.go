@@ -28,6 +28,7 @@ type HelloMsg struct {
 type OrderMsg struct {
 	Order                   fsm.Order
 	ElevatorToTakeThisOrder string
+	HallQueue               map[fsm.Order]fsm.HallCall
 }
 
 var OperatingElevators int
@@ -38,10 +39,10 @@ type ElevatorStatus struct {
 	Alive      bool
 }
 
-func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg){	
+func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg) {
 	timeNow := time.Now().Unix()
-	for key, value := range operatingElevatorStates{
-		if timeNow > value.TimeStamp + 1 {
+	for key, value := range operatingElevatorStates {
+		if timeNow > value.TimeStamp+1 {
 			delete(operatingElevatorStates, key)
 		}
 	}
@@ -49,16 +50,15 @@ func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg){
 
 func UpdateElevatorStates(newMsg HelloMsg, operatingElevatorStates map[string]HelloMsg) {
 	lengthOfMap := len(operatingElevatorStates)
-	
 
 	if lengthOfMap == 0 || lengthOfMap == 1 {
 		operatingElevatorStates[newMsg.ElevatorID] = newMsg
-		
+
 	}
-	for key,_ := range operatingElevatorStates {
+	for key := range operatingElevatorStates {
 		if key == newMsg.ElevatorID {
-			operatingElevatorStates[key] = newMsg			
-		}		
+			operatingElevatorStates[key] = newMsg
+		}
 	}
 }
 
@@ -67,7 +67,7 @@ func GetLocalID() string {
 	return localIP[12:]
 }
 
-func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, networkSendOrderCh chan OrderMsg) {
+func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, networkSendOrderToPeerCh chan OrderMsg) {
 	// Our id can be anything. Here we pass it on the command line, using
 	//  `go run main.go -id=our_id`
 	var id string
@@ -110,23 +110,24 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 
 	// The example message. We just send one of these every second.
 	go func() {
-		helloMsg := HelloMsg{elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil"}, 0}
+		currentQueueMap := make(map[fsm.Order]fsm.HallCall)
+		helloMsg := HelloMsg{elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil", currentQueueMap}, 0}
 
 		for {
 			select {
-			case order := <-networkSendOrderCh:
+			case order := <-networkSendOrderToPeerCh:
 				helloMsg.CurrentState = elevatorHW.GetElevatorState()
 				helloMsg.Order = order
+				currentQueueMap = order.HallQueue
 				helloTx <- helloMsg
 			default:
 				break
 			}
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
-			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
+			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil", currentQueueMap}
 			helloMsg.LastFloor = fsm.LatestFloor
 			helloMsg.TimeStamp = time.Now().Unix()
-			
-			
+
 			helloTx <- helloMsg
 
 			time.Sleep(500 * time.Millisecond)
