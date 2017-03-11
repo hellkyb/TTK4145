@@ -77,7 +77,7 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg, newOrde
 	}
 	for key, value := range onlineElevatorStates {
 		thisCost := costFunction(value.CurrentState, value.LastFloor, newOrder)
-		fmt.Print("States of ")
+		fmt.Print("\n\nStates of ")
 		fmt.Print(key)
 		fmt.Println(": ")
 		fmt.Print("Current state value: ")
