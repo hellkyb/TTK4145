@@ -131,7 +131,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 
 			helloTx <- helloMsg
 
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 		}
 	}()
 
@@ -147,7 +147,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			*OperatingElevatorsPtr = len(p.Peers)
 
 		case a := <-helloRx:
-			fmt.Print("\n\n")
+			/*fmt.Print("\n\n")
 			fmt.Println("Message recieved")
 			fmt.Println("---------------------")
 			fmt.Print("From              : ")
@@ -169,7 +169,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			fmt.Print("New Order         :")
 			fmt.Println(a.Order)
 			fmt.Println("---------------------")
-			fmt.Print("\n\n\n")
+			fmt.Print("\n\n\n")*/
 			messageCh <- a
 		}
 	}
