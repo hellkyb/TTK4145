@@ -129,6 +129,7 @@ func main() {
 		case orderIsHandled := <-orderCompletedCh:
 			fmt.Println("It has deleted an order!")
 			delete(hallButtonsMap, orderIsHandled)
+			//Light Logic???
 			sendDeletedOrderCh <- orderIsHandled
 
 		case doorClose := <-timeOutCh:
