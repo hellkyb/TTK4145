@@ -81,7 +81,6 @@ func counter_and_write_to_file(counterChan chan int) {
 		dataEncoder := gob.NewEncoder(dataFile)
 		dataEncoder.Encode(counter)
 		dataFile.Close()
-		fmt.Println(counter)
 		time.Sleep(time.Millisecond * 200)
 	}
 }
@@ -121,7 +120,7 @@ func read_from_file(counterChan chan int) {
 //This in command-window:  gnome-terminal -x sh -c 'go run phoenix.go;sh'
 
 func spawn_backup() {
-	command := exec.Command("gnome-terminal", "-x", "sh", "-c", "go run main.go")
+	command := exec.Command("gnome-terminal &", "-x", "sh", "-c", "go run main.go")
 	err := command.Run()
 	if err != nil {
 		fmt.Println("You messed up in spawn_backup")
