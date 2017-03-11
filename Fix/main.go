@@ -153,7 +153,6 @@ func main() {
 								
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
-			//fsm.PrintQueues()
 		}
 	}
 }

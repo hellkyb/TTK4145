@@ -111,11 +111,12 @@ func SetElevatorDirection() {
 	}
 	
 	currentDirection := elevatorHW.GetElevatorDirection()
+	currentState := elevatorHW.GetElevatorState()
 	currentFloor := elevatorHW.GetFloorSensorSignal()	
 
 	if currentDirection == 1 || currentDirection == 0 {
 		if currentFloor != 0 {
-			if len(localQueue[0]) > 0 {
+			if len(localQueue[0]) > 0 && currentState == 0{
 				if localQueue[0][0] < currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionDown)
 				} else if localQueue[0][0] > currentFloor {
@@ -139,12 +140,13 @@ func SetElevatorDirection() {
 }
 
 func StopAtThisFloor(timeOut chan<- bool) {
-
+	currentState := elevatorHW.GetElevatorState()
 	currentFloor := elevatorHW.GetFloorSensorSignal()
 	currentDirection := elevatorHW.GetElevatorDirection() // 1 is going down, 0 is going up
-
+	downOrders := len(localQueue[2])
+	upOrders := len(localQueue[1])
+	localOrders := len(localQueue[0])
 	for i := 0; i < 3; i++ {
-
 		for j := range localQueue[i] {
 			if currentFloor == localQueue[i][j] {
 				if len(localQueue[0]) == 0{
@@ -154,18 +156,17 @@ func StopAtThisFloor(timeOut chan<- bool) {
 							elevatorHW.SetMotor(elevatorHW.DirectionStop)
 							ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
 							elevatorHW.SetUpLight(currentFloor, false)
+							
 						}else{
 							elevatorHW.SetMotor(elevatorHW.DirectionStop)
 							ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
-							elevatorHW.SetDownLight(currentFloor, false)
+							elevatorHW.SetDownLight(currentFloor, false)							
 						}
-
 					}
-				}
+				}						
 				if (i == 0 || i == 1) && (currentDirection == 0 || currentFloor == 1) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
 					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
-					//elevatorHW.SetDownLight(currentFloor, false)
 					elevatorHW.SetUpLight(currentFloor, false)
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
@@ -176,15 +177,45 @@ func StopAtThisFloor(timeOut chan<- bool) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
 					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
 					elevatorHW.SetDownLight(currentFloor, false)
-					//elevatorHW.SetUpLight(currentFloor, false)
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
 					DeleteIndexLocalQueue(i, j)
 					return
+				}				
+			}
+		}
+	}
+	if (downOrders > 0) && (localOrders > 0) && currentState == 1{
+		for i := range localQueue[0]{
+			for j := range localQueue[2]{
+				if (localQueue[0][i] < localQueue[2][j]) && (localQueue[2][j] == currentFloor){
+					elevatorHW.SetMotor(elevatorHW.DirectionStop)
+					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
+					elevatorHW.SetDownLight(currentFloor, false)
+					elevatorHW.SetInsideLight(currentFloor, false)
+					elevatorHW.SetFloorIndicator(currentFloor)
+					DeleteIndexLocalQueue(2,j)
+
 				}
 			}
 		}
 	}
+	if (upOrders > 0) && (localOrders > 0) && currentState == -1{
+		for i := range localQueue[0]{
+			for j := range localQueue[1]{
+				if (localQueue[0][i] > localQueue[1][j]) && (localQueue[1][j] == currentFloor){
+					elevatorHW.SetMotor(elevatorHW.DirectionStop)
+					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
+					elevatorHW.SetUpLight(currentFloor, false)
+					elevatorHW.SetInsideLight(currentFloor, false)
+					elevatorHW.SetFloorIndicator(currentFloor)
+					DeleteIndexLocalQueue(1,j)
+
+				}
+			}
+		}
+	}
+
 }
 
 
