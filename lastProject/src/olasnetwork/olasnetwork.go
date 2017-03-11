@@ -38,10 +38,10 @@ type ElevatorStatus struct {
 	Alive      bool
 }
 
-func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg) {
+func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg){	
 	timeNow := time.Now().Unix()
-	for key, value := range operatingElevatorStates {
-		if value.TimeStamp < timeNow-1 {
+	for key, value := range operatingElevatorStates{
+		if timeNow > value.TimeStamp + 1 {
 			delete(operatingElevatorStates, key)
 		}
 	}
@@ -49,17 +49,17 @@ func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg) {
 
 func UpdateElevatorStates(newMsg HelloMsg, operatingElevatorStates map[string]HelloMsg) {
 	lengthOfMap := len(operatingElevatorStates)
+	
 
 	if lengthOfMap == 0 || lengthOfMap == 1 {
 		operatingElevatorStates[newMsg.ElevatorID] = newMsg
-
+		
 	}
-	for key := range operatingElevatorStates {
+	for key,_ := range operatingElevatorStates {
 		if key == newMsg.ElevatorID {
-			operatingElevatorStates[key] = newMsg
-		}
+			operatingElevatorStates[key] = newMsg			
+		}		
 	}
-	operatingElevatorStates[newMsg.ElevatorID] = newMsg
 }
 
 func GetLocalID() string {
@@ -67,7 +67,7 @@ func GetLocalID() string {
 	return localIP[12:]
 }
 
-func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, networkSendOrderToPeerCh chan OrderMsg) {
+func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, networkSendOrderCh chan OrderMsg) {
 	// Our id can be anything. Here we pass it on the command line, using
 	//  `go run main.go -id=our_id`
 	var id string
@@ -94,8 +94,8 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 	// We can disable/enable the transmitter after it has been started.
 	// This could be used to signal that we are somehow "unavailable".
 	peerTxEnable := make(chan bool)
-	go peers.Transmitter(15411, id, peerTxEnable)
-	go peers.Receiver(15411, peerUpdateCh)
+	go peers.Transmitter(15647, id, peerTxEnable)
+	go peers.Receiver(15647, peerUpdateCh)
 
 	// We make channels for sending and receiving our custom data types
 	helloTx := make(chan HelloMsg)
@@ -114,10 +114,9 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 
 		for {
 			select {
-			case order := <-networkSendOrderToPeerCh:
+			case order := <-networkSendOrderCh:
 				helloMsg.CurrentState = elevatorHW.GetElevatorState()
 				helloMsg.Order = order
-				helloMsg.LastFloor = fsm.LatestFloor
 				helloTx <- helloMsg
 			default:
 				break
@@ -125,25 +124,27 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 			helloMsg.CurrentState = elevatorHW.GetElevatorState()
 			helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
 			helloMsg.LastFloor = fsm.LatestFloor
-			//helloMsg.TimeStamp = time.Now().Unix()
-
+			helloMsg.TimeStamp = time.Now().Unix()
+			
+			
 			helloTx <- helloMsg
 
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(500 * time.Millisecond)
 		}
 	}()
+
+	//fmt.Println("Started")
 
 	for {
 		select {
 		case p := <-peerUpdateCh:
-			fmt.Printf("Peer update:\n")
+			/*fmt.Printf("Peer update:\n")
 			fmt.Printf("  Peers:    %q\n", p.Peers)
 			fmt.Printf("  New:      %q\n", p.New)
-			fmt.Printf("  Lost:     %q\n", p.Lost)
+			fmt.Printf("  Lost:     %q\n", p.Lost)*/
 			*OperatingElevatorsPtr = len(p.Peers)
 
 		case a := <-helloRx:
-			a.TimeStamp = time.Now().Unix()
 			/*fmt.Print("\n\n")
 			fmt.Println("Message recieved")
 			fmt.Println("---------------------")
