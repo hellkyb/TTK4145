@@ -97,7 +97,7 @@ func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg, newOrde
 	return elevatorWithLowestCost, lowestCost
 }
 
-func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
+func HandleTimeOutOrder(hallButtonsMap map[fsm.Order]int64){
 	for{
 		mapLength := len(hallButtonsMap)
 		currentTime := time.Now().Unix()
