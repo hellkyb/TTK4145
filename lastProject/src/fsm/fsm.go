@@ -30,15 +30,14 @@ type ElevatorStatus struct {
 	elevatorID string
 }
 
-/*func floorInQueue(queue []int, floor int)bool{
+func floorInQueue(queue []int, floor int)bool{
 	for queueElement := range queue {
 		if queueElement == floor{
 			return true
 		}
 	}
 	return false
-}*/
-	//	mu.Unlock()
+}
 
 
 func GetButtonsPressed(buttonCh chan<- Order) {
@@ -164,22 +163,6 @@ func SetElevatorDirection() {
 		}
 	}
 }
-/*func NewStopAtThisFloor(orderCompletedCh chan<- Order){
-	currentState := elevatorHW.GetElevatorState()
-	currentFloor := elevatorHW.GetFloorSensorSignal()
-	currentDirection := elevatorHW.GetElevatorDirection() // 1 is going down, 0 is going up
-	numberOfDownOrders:= len(localQueue[2])
-	numberOfUpOrders := len(localQueue[1])
-	numberOfLocalOrders := len(localQueue[0])
-
-	for i := 0; i < 3; i++ {
-		if i==0{
-			switch currentDirection{
-				case
-			}
-		}
-	}
-}*/
 
 func StopAtThisFloor(orderCompletedCh chan<- Order) {
 	currentState := elevatorHW.GetElevatorState()
@@ -188,6 +171,13 @@ func StopAtThisFloor(orderCompletedCh chan<- Order) {
 	downOrders := len(localQueue[2])
 	upOrders := len(localQueue[1])
 	localOrders := len(localQueue[0])
+	defer func() {
+        if err := recover(); err != nil {
+					fmt.Println("Deferring panic")
+           return
+        }
+    }()
+
 
 	for i := 0; i < 3; i++ {
 		for j := range localQueue[i] {

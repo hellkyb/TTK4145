@@ -129,6 +129,7 @@ func main() {
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
 	go fsm.HandleTimeOutOrder(hallButtonsMap, mutex)
+
 	for {
 		select {
 		case orderIsHandled := <-orderCompletedCh:
