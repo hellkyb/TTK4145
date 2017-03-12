@@ -1,3 +1,11 @@
-1. Samkjøre lys mellom panel
-2. Fault tollerance
-3. Slik som systemet er nå er det noen ordre som aldri blir betjent (FT)
+
+ Update SøndagsMorgen Fra Ola:
+ 
+ 1. Hvor godt takler heisen at knapper blir holdt inne (Spammet)??
+ 2. NOEN ganger så er det en race condition på HallOrder mapet som kræsjer programmet
+ 3. Bør kanskje legge in Auto-Reboot av main() når den kræsjer
+ 4. Rydde koden
+ 	Endre navn på funksjoner og variabler
+ 	Omplasserer funsksjoner slik at de passer i modulen
+ 5. Har Fått index out of range i StopAtThisFloor(), når alle knapper spammes
+ 6. Slik som systemet er nå, funker det bra, videre er FT FT FT.....
