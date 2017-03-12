@@ -18,13 +18,13 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 		distanceToTarget = order.Floor - lastFloor
 	}
 
-	distCost := 2 * distanceToTarget
+	distCost := distanceToTarget
 
 	if dir == 0 && order.Floor == lastFloor { // Elevator is Idle at floor being called
 		return 0
 	}
 	if dir == 0 {
-		return distanceToTarget
+		return distanceToTarget * 3
 	}
 	if order.Button == 1 { //UpType Order
 		if dir == -1 { // Moving in opposite direction
