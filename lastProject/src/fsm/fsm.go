@@ -144,15 +144,36 @@ func StopAtThisFloor(orderCompletedCh chan<- Order) {
 			if currentFloor == localQueue[i][j] {
 				if len(localQueue[0]) == 0 {
 					if localQueue[i][j] == currentFloor {
-						if currentDirection == 1 { // Going up
+						if currentState == 1 { // Going up
 							elevatorHW.SetMotor(elevatorHW.DirectionStop)
+							elevatorHW.SetInsideLight(currentFloor, false)
 							ArrivedAtFloorSetDoorOpen(currentFloor)
-							elevatorHW.SetUpLight(currentFloor, false)
-
+							if i == 1{
+								elevatorHW.SetUpLight(currentFloor, false)
+								DeleteIndexLocalQueue(i,j)
+								orderCompletedCh <- Order{currentFloor, elevatorHW.ButtonCallUp}
+								return
+							}else if i == 2{
+								elevatorHW.SetDownLight(currentFloor, false)
+								DeleteIndexLocalQueue(i,j)
+								orderCompletedCh <- Order{currentFloor, elevatorHW.ButtonCallDown}
+								return
+							}
 						} else {
 							elevatorHW.SetMotor(elevatorHW.DirectionStop)
 							ArrivedAtFloorSetDoorOpen(currentFloor)
-							elevatorHW.SetDownLight(currentFloor, false)
+
+							if i == 1{
+								DeleteIndexLocalQueue(i,j)
+								orderCompletedCh <- Order{currentFloor, elevatorHW.ButtonCallUp}
+								elevatorHW.SetUpLight(currentFloor, false)
+								return
+							}else if i == 2{
+								DeleteIndexLocalQueue(i,j)
+								elevatorHW.SetDownLight(currentFloor, false)
+								orderCompletedCh <- Order{currentFloor, elevatorHW.ButtonCallDown}
+								return
+							}
 						}
 					}
 				}
