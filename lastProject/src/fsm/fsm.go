@@ -87,14 +87,17 @@ func PutOrderInLocalQueue(newOrder Order) {
 }
 
 func HandleTimeOutOrder(hallButtonsMap map[Order]int64, mutex sync.Mutex){
-	if len(hallButtonsMap) > 0{
-		for key,value := range hallButtonsMap{
-			if (time.Now().Unix() - value) >  15 {
-				mutex.Lock()
-				PutOrderInLocalQueue(key)
-				mutex.Unlock()
+	for{
+		if len(hallButtonsMap) > 0{
+			for key,value := range hallButtonsMap{
+				if (time.Now().Unix() - value) >  15 {
+					mutex.Lock()
+					PutOrderInLocalQueue(key)
+					mutex.Unlock()
+				}
 			}
 		}
+		time.Sleep(500*time.Millisecond)
 	}
 }
 
@@ -325,10 +328,10 @@ func SetLatestFloor() {
 	}
 }
 
-func RunElevator(orderCompletedCh chan<- Order, hallButtonsMap map[Order]int64, mutex sync.Mutex) {
+func RunElevator(orderCompletedCh chan<- Order) {
 	for {
 		DoorLightTimeOut()
-		HandleTimeOutOrder(hallButtonsMap, mutex)
+		//HandleTimeOutOrder(hallButtonsMap, mutex)
 		SetLatestFloor()
 		StopAtThisFloor(orderCompletedCh)
 		DoorLightTimeOut()

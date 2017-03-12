@@ -125,9 +125,10 @@ func main() {
 
 	var mutex sync.Mutex
 
-	go fsm.RunElevator(orderCompletedCh, hallButtonsMap, mutex)
+	go fsm.RunElevator(orderCompletedCh)
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
+	go fsm.HandleTimeOutOrder(hallButtonsMap, mutex)
 	for {
 		select {
 		case orderIsHandled := <-orderCompletedCh:
