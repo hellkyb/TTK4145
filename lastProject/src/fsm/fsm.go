@@ -30,21 +30,9 @@ type ElevatorStatus struct {
 	elevatorID string
 }
 
-func ArrivedAtFloorSetDoorOpen(floor int) {
-	TimeStampPtr = &TimeStamp
-	elevatorHW.SetFloorIndicator(floor)
-	elevatorHW.SetDoorLight(true)
-	*TimeStampPtr = time.Now().Unix()
-}
 
-func DoorLightTimeOut(){
-//	mu.Lock()
-	currentTime := time.Now().Unix()
-	if (currentTime - TimeStamp) > 3{
-		elevatorHW.SetDoorLight(false)
-	}
-//	mu.Unlock()
-}
+	//	mu.Unlock()
+
 
 func GetButtonsPressed(buttonCh chan<- Order) {
 	for {
@@ -233,6 +221,20 @@ func StopAtThisFloor(orderCompletedCh chan<- Order) {
 	}
 }
 
+func ArrivedAtFloorSetDoorOpen(floor int) {
+	TimeStampPtr = &TimeStamp
+	elevatorHW.SetFloorIndicator(floor)
+	elevatorHW.SetDoorLight(true)
+	*TimeStampPtr = time.Now().Unix()
+}
+
+func DoorLightTimeOut(){
+	currentTime := time.Now().Unix()
+	if (currentTime - TimeStamp) > 5{
+		elevatorHW.SetDoorLight(false)
+	}
+}
+
 func StopButtonPressed() {
 	if !elevatorHW.GetStopButtonPressed() {
 		return
@@ -258,6 +260,7 @@ func SetLatestFloor() {
 
 func RunElevator(orderCompletedCh chan<- Order, hallButtonsMap map[Order]int64) {
 	for {
+		DoorLightTimeOut()
 		HandleTimeOutOrder(hallButtonsMap)
 		SetLatestFloor()
 		StopAtThisFloor(orderCompletedCh)

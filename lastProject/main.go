@@ -123,10 +123,8 @@ func main() {
 	go fsm.RunElevator(orderCompletedCh, hallButtonsMap)
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
-
 	for {
 		select {
-
 		case orderIsHandled := <-orderCompletedCh:
 			fmt.Println("It has deleted an order!")
 			delete(hallButtonsMap, orderIsHandled)
@@ -174,7 +172,6 @@ func main() {
 			}
 		default:
 			fsm.HandleTimeOutOrder(hallButtonsMap)
-			//fsm.DoorLightTimeOut()
 		}
 	}
 }
