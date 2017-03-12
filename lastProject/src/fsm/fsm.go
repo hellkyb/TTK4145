@@ -30,13 +30,11 @@ type ElevatorStatus struct {
 	elevatorID string
 }
 
-func ArrivedAtFloorSetDoorOpen(floor int, timeOut chan<- bool) {
+func ArrivedAtFloorSetDoorOpen(floor int) {
 	TimeStampPtr = &TimeStamp
 	elevatorHW.SetFloorIndicator(floor)
 	elevatorHW.SetDoorLight(true)
 	*TimeStampPtr = time.Now().Unix()
-	time.Sleep(3 * time.Second)
-	timeOut <- true
 }
 
 func DoorLightTimeOut(){
@@ -145,7 +143,7 @@ func SetElevatorDirection() {
 	}
 }
 
-func StopAtThisFloor(timeOut chan<- bool, orderCompletedCh chan<- Order) {
+func StopAtThisFloor(orderCompletedCh chan<- Order) {
 	currentState := elevatorHW.GetElevatorState()
 	currentFloor := elevatorHW.GetFloorSensorSignal()
 	currentDirection := elevatorHW.GetElevatorDirection() // 1 is going down, 0 is going up
@@ -160,19 +158,19 @@ func StopAtThisFloor(timeOut chan<- bool, orderCompletedCh chan<- Order) {
 					if localQueue[i][j] == currentFloor {
 						if currentDirection == 1 { // Going up
 							elevatorHW.SetMotor(elevatorHW.DirectionStop)
-							ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
+							ArrivedAtFloorSetDoorOpen(currentFloor)
 							elevatorHW.SetUpLight(currentFloor, false)
 
 						} else {
 							elevatorHW.SetMotor(elevatorHW.DirectionStop)
-							ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
+							ArrivedAtFloorSetDoorOpen(currentFloor)
 							elevatorHW.SetDownLight(currentFloor, false)
 						}
 					}
 				}
 				if (i == 0 || i == 1) && (currentDirection == 0 || currentFloor == 1) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
-					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
+					ArrivedAtFloorSetDoorOpen(currentFloor)
 					elevatorHW.SetUpLight(currentFloor, false)
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
@@ -187,7 +185,7 @@ func StopAtThisFloor(timeOut chan<- bool, orderCompletedCh chan<- Order) {
 
 				} else if (i == 0 || i == 2) && (currentDirection == 1 || currentFloor == 4) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
-					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
+					ArrivedAtFloorSetDoorOpen(currentFloor)
 					elevatorHW.SetDownLight(currentFloor, false)
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
@@ -208,7 +206,7 @@ func StopAtThisFloor(timeOut chan<- bool, orderCompletedCh chan<- Order) {
 			for j := range localQueue[2] {
 				if (localQueue[0][i] < localQueue[2][j]) && (localQueue[2][j] == currentFloor) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
-					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
+					ArrivedAtFloorSetDoorOpen(currentFloor)
 					elevatorHW.SetDownLight(currentFloor, false)
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
@@ -223,7 +221,7 @@ func StopAtThisFloor(timeOut chan<- bool, orderCompletedCh chan<- Order) {
 			for j := range localQueue[1] {
 				if (localQueue[0][i] > localQueue[1][j]) && (localQueue[1][j] == currentFloor) {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
-					ArrivedAtFloorSetDoorOpen(currentFloor, timeOut)
+					ArrivedAtFloorSetDoorOpen(currentFloor)
 					elevatorHW.SetUpLight(currentFloor, false)
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
@@ -235,7 +233,7 @@ func StopAtThisFloor(timeOut chan<- bool, orderCompletedCh chan<- Order) {
 	}
 }
 
-func StopButtonPressed(timeOut chan<- bool) {
+func StopButtonPressed() {
 	if !elevatorHW.GetStopButtonPressed() {
 		return
 	}
@@ -245,7 +243,7 @@ func StopButtonPressed(timeOut chan<- bool) {
 	DeleteLocalQueue()
 	time.Sleep(2000 * time.Millisecond)
 	elevatorHW.SecondInit()
-	ArrivedAtFloorSetDoorOpen(elevatorHW.GetFloorSensorSignal(), timeOut)
+	ArrivedAtFloorSetDoorOpen(elevatorHW.GetFloorSensorSignal())
 	fmt.Println("Operaing Normally")
 }
 
@@ -258,13 +256,14 @@ func SetLatestFloor() {
 }
 
 
-func RunElevator(timeOut chan<- bool, orderCompletedCh chan<- Order, hallButtonsMap map[Order]int64) {
+func RunElevator(orderCompletedCh chan<- Order, hallButtonsMap map[Order]int64) {
 	for {
 		HandleTimeOutOrder(hallButtonsMap)
 		SetLatestFloor()
-		StopAtThisFloor(timeOut, orderCompletedCh)
+		StopAtThisFloor(orderCompletedCh)
 		SetElevatorDirection()
-		StopButtonPressed(timeOut)
+		StopButtonPressed()
+		DoorLightTimeOut()
 	}
 }
 

@@ -117,11 +117,10 @@ func main() {
 	messageCh := make(chan olasnetwork.HelloMsg)
 	networkOrderCh := make(chan olasnetwork.HelloMsg)
 	networkSendOrderCh := make(chan olasnetwork.OrderMsg)
-	timeOutCh := make(chan bool)
 	orderCompletedCh := make(chan fsm.Order)
 	sendDeletedOrderCh := make(chan fsm.Order)
 
-	go fsm.RunElevator(timeOutCh, orderCompletedCh, hallButtonsMap)
+	go fsm.RunElevator(orderCompletedCh, hallButtonsMap)
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
 
@@ -132,9 +131,6 @@ func main() {
 			fmt.Println("It has deleted an order!")
 			delete(hallButtonsMap, orderIsHandled)
 			sendDeletedOrderCh <- orderIsHandled
-
-		case doorClose := <-timeOutCh:
-			elevatorHW.SetDoorLight(!doorClose)
 
 		case newMsg := <-messageCh:
 			if newMsg.Order.Order.Floor != -1 {
@@ -155,7 +151,7 @@ func main() {
 				fmt.Println(hallButtonsMap)
 				delete(hallButtonsMap, newMsg.OrderExecuted)
 				fmt.Println("Some elevator has actually done its job!!!! Hurray")
-				fmt.Println(hallButtonsMap)				
+				fmt.Println(hallButtonsMap)
 			}
 
 		case newOrder := <-buttonCh:
