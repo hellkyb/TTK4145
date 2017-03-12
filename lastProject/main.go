@@ -24,7 +24,7 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 		return 0
 	}
 	if dir == 0 {
-		return distanceToTarget * 3
+		return distanceToTarget * 2
 	}
 	if order.Button == 1 { //UpType Order
 		if dir == -1 { // Moving in opposite direction
@@ -145,7 +145,7 @@ func main() {
 					elevatorHW.SetUpLight(orderIsHandled.Floor, false)
 				}
 			case 4:
-				elevatorHW.SetUpLight(orderIsHandled.Floor, false)
+				elevatorHW.SetDownLight(orderIsHandled.Floor, false)
 			}
 			sendDeletedOrderCh <- orderIsHandled
 
@@ -185,7 +185,7 @@ func main() {
 						elevatorHW.SetUpLight(newMsg.OrderExecuted.Floor, false)
 					}
 				case 4:
-					elevatorHW.SetUpLight(newMsg.OrderExecuted.Floor, false)
+					elevatorHW.SetDownLight(newMsg.OrderExecuted.Floor, false)
 				}
 			}
 
