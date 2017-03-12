@@ -251,7 +251,7 @@ func ArrivedAtFloorSetDoorOpen(floor int) {
 
 func DoorLightTimeOut(){
 	currentTime := time.Now().Unix()
-	if (currentTime - TimeStamp) > 5{
+	if (currentTime - TimeStamp) > 2{
 		elevatorHW.SetDoorLight(false)
 	}
 }
@@ -277,7 +277,6 @@ func SetLatestFloor() {
 		elevatorHW.SetFloorIndicator(elevatorHW.GetFloorSensorSignal())
 	}
 }
-
 
 func RunElevator(orderCompletedCh chan<- Order, hallButtonsMap map[Order]int64) {
 	for {

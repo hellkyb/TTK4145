@@ -60,7 +60,7 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 			}
 		}
 	}
-	return dirCost + distCost
+	return (2 * dirCost) + distCost
 }
 
 func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg, newOrder fsm.Order) (string, int) {
@@ -126,8 +126,9 @@ func main() {
 	for {
 		select {
 		case orderIsHandled := <-orderCompletedCh:
-			fmt.Println("It has deleted an order!")
+			fmt.Println("I have deleted an order!")
 			delete(hallButtonsMap, orderIsHandled)
+
 			sendDeletedOrderCh <- orderIsHandled
 
 		case newMsg := <-messageCh:
@@ -137,7 +138,7 @@ func main() {
 			//fmt.Print("This is OrderMap:  ")
 			//fmt.Println(hallButtonsMap)
 			//fmt.Print("Length of elevatorState Map:  ")
-			fmt.Println(len(operatingElevatorStates))
+			//fmt.Println(len(operatingElevatorStates))
 			olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
 			olasnetwork.DeleteDeadElevator(operatingElevatorStates)
 			if newMsg.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {
@@ -150,6 +151,24 @@ func main() {
 				delete(hallButtonsMap, newMsg.OrderExecuted)
 				fmt.Println("Some elevator has actually done its job!!!! Hurray")
 				fmt.Println(hallButtonsMap)
+				switch newMsg.OrderExecuted.Floor{
+				case 1:
+					elevatorHW.SetUpLight(newMsg.OrderExecuted.Floor, false)
+				case 2:
+					if newMsg.OrderExecuted.Button == elevatorHW.ButtonCallDown{
+						elevatorHW.SetDownLight(newMsg.OrderExecuted.Floor, false)
+					}else if newMsg.OrderExecuted.Button == elevatorHW.ButtonCallUp{
+						elevatorHW.SetUpLight(newMsg.OrderExecuted.Floor, false)
+					}
+				case 3:
+					if newMsg.OrderExecuted.Button == elevatorHW.ButtonCallDown{
+						elevatorHW.SetDownLight(newMsg.OrderExecuted.Floor, false)
+					}else if newMsg.OrderExecuted.Button == elevatorHW.ButtonCallUp{
+						elevatorHW.SetUpLight(newMsg.OrderExecuted.Floor, false)
+					}
+				case 4:
+					elevatorHW.SetUpLight(newMsg.OrderExecuted.Floor, false)
+				}
 			}
 
 		case newOrder := <-buttonCh:
@@ -160,7 +179,6 @@ func main() {
 				fsm.PutOrderInLocalQueue(newOrder)
 			} else {
 				elevatorToHandleThisOrder, cost := decitionmaker(operatingElevatorStates, newOrder)
-
 				fmt.Print("I want ")
 				fmt.Print(elevatorToHandleThisOrder)
 				fmt.Print(" to handle this order with cost of ")
@@ -168,6 +186,24 @@ func main() {
 				fmt.Println(" ")
 				hallButtonsMap[newOrder] = time.Now().Unix()
 				fmt.Println(hallButtonsMap)
+				switch newOrder.Floor{
+				case 1:
+					elevatorHW.SetUpLight(newOrder.Floor, true)
+				case 2:
+					if newOrder.Button == elevatorHW.ButtonCallDown{
+						elevatorHW.SetDownLight(newOrder.Floor, true)
+					}else if newOrder.Button == elevatorHW.ButtonCallUp{
+						elevatorHW.SetUpLight(newOrder.Floor, true)
+					}
+				case 3:
+					if newOrder.Button == elevatorHW.ButtonCallDown{
+						elevatorHW.SetDownLight(newOrder.Floor, true)
+					}else if newOrder.Button == elevatorHW.ButtonCallUp{
+						elevatorHW.SetUpLight(newOrder.Floor, true)
+					}
+				case 4:
+					elevatorHW.SetDownLight(newOrder.Floor, true)
+				}
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
 		//default:
