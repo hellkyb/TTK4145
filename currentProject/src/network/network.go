@@ -142,7 +142,7 @@ func NetworkMain(messageCh chan<- HelloMsg, receivedNetworkOrderCh chan<- HelloM
 
 			helloTx <- helloMsg
 
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 		}
 	}()
 

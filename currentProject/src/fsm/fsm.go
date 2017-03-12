@@ -164,7 +164,7 @@ func SetElevatorDirection() {
 	}
 }
 
-func StopAtThisFloor(orderCompletedCh chan<- Order) {
+func StopAtThisFloor(orderCompletedCh chan<- Order,backupRemoveOrderCh chan<-int) {
 	currentState := elevatorHW.GetElevatorState()
 	currentFloor := elevatorHW.GetFloorSensorSignal()
 	currentDirection := elevatorHW.GetElevatorDirection() // 1 is going down, 0 is going up
@@ -173,7 +173,6 @@ func StopAtThisFloor(orderCompletedCh chan<- Order) {
 	localOrders := len(localQueue[0])
 	defer func() {
         if err := recover(); err != nil {
-					fmt.Println("Deferring panic")
            return
         }
     }()
@@ -224,8 +223,8 @@ func StopAtThisFloor(orderCompletedCh chan<- Order) {
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
 					DeleteIndexLocalQueue(i, j)
+					backupRemoveOrderCh <- currentFloor
 					if i != 0 && i == 1 {
-
 						orderCompletedCh <- Order{currentFloor, elevatorHW.ButtonCallUp}
 					} else if i != 0 {
 						orderCompletedCh <- Order{currentFloor, elevatorHW.ButtonCallDown}
@@ -239,8 +238,9 @@ func StopAtThisFloor(orderCompletedCh chan<- Order) {
 					elevatorHW.SetInsideLight(currentFloor, false)
 					elevatorHW.SetFloorIndicator(currentFloor)
 					DeleteIndexLocalQueue(i, j)
+					backupRemoveOrderCh <- currentFloor
 					if i != 0 && i == 1 {
-
+						fmt.Println("We are here")
 						orderCompletedCh <- Order{currentFloor, elevatorHW.ButtonCallUp}
 					} else if i != 0 {
 						orderCompletedCh <- Order{currentFloor, elevatorHW.ButtonCallDown}
@@ -318,12 +318,12 @@ func SetLatestFloor() {
 	}
 }
 
-func RunElevator(orderCompletedCh chan<- Order) {
+func RunElevator(orderCompletedCh chan<- Order, backupRemoveOrderCh chan<- int) {
 	for {
 		DoorLightTimeOut()
 		//HandleTimeOutOrder(hallButtonsMap, mutex)
 		SetLatestFloor()
-		StopAtThisFloor(orderCompletedCh)
+		StopAtThisFloor(orderCompletedCh,backupRemoveOrderCh)
 		DoorLightTimeOut()
 		SetElevatorDirection()
 		StopButtonPressed()

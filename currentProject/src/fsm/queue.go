@@ -10,7 +10,12 @@ var localQueueInside []int
 var localQueueUp []int
 var localQueueDown []int
 
-func CreateQueueSlice() {
+
+func CreateQueueSlice(queueFromBackup []int) {
+	if len(queueFromBackup) > 0{
+		fmt.Println("Found backuped cab queue")
+	}
+	localQueueInside = queueFromBackup
 	localQueue = append(localQueue, localQueueInside)
 	localQueue = append(localQueue, localQueueUp)
 	localQueue = append(localQueue, localQueueDown)

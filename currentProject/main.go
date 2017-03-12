@@ -4,6 +4,7 @@ import (
 	"./src/elevatorHW"
 	"./src/fsm"
 	"./src/network"
+	"./src/backup"
 	"fmt"
 	"time"
 	"sync"
@@ -108,10 +109,16 @@ func main() {
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
 	elevatorHW.Init()
-	fsm.StartUpMessage()
+	//fsm.StartUpMessage()
 	//finished init
-	fsm.CreateQueueSlice()
-	time.Sleep(1 * time.Millisecond)
+	queueFromBackup := backup.ReadBackupFromFile()
+	for i := range(queueFromBackup){
+		if queueFromBackup[i] != -1{
+			elevatorHW.SetInsideLight(i+1,true)
+		}
+	}
+	fsm.CreateQueueSlice(queueFromBackup)
+	time.Sleep(10 * time.Millisecond)
 
 	operatingElevatorStates := make(map[string]network.HelloMsg)
 	hallButtonsMap := make(map[fsm.Order]int64)
@@ -122,13 +129,16 @@ func main() {
 	sendOrderToPeerCh := make(chan network.OrderMsg)
 	orderCompletedCh := make(chan fsm.Order)
 	sendDeletedOrderCh := make(chan fsm.Order)
+	backupCh := make(chan int)
+	backupRemoveOrderCh := make(chan int)
 
 	var mutex sync.Mutex
 
-	go fsm.RunElevator(orderCompletedCh)
+	go fsm.RunElevator(orderCompletedCh, backupRemoveOrderCh)
 	go fsm.GetButtonsPressed(buttonCh)
 	go network.NetworkMain(messageCh, receivedNetworkOrderCh, sendOrderToPeerCh, orderCompletedCh, sendDeletedOrderCh)
 	go fsm.HandleTimeOutOrder(hallButtonsMap, mutex)
+	go backup.FileBackup(backupCh,backupRemoveOrderCh)
 
 	for {
 		select {
@@ -137,7 +147,9 @@ func main() {
 			mutex.Lock()
 			delete(hallButtonsMap, orderIsHandled)
 			mutex.Unlock()
-
+			if orderIsHandled.Button == elevatorHW.ButtonCommand{
+				backupRemoveOrderCh <- orderIsHandled.Floor
+			}
 			switch orderIsHandled.Floor{
 			case 1:
 				elevatorHW.SetUpLight(orderIsHandled.Floor, false)
@@ -163,6 +175,28 @@ func main() {
 				mutex.Lock()
 				hallButtonsMap[newMsg.Order.Order] = time.Now().Unix()
 				mutex.Unlock()
+				switch newMsg.Order.Order.Floor{
+				case 1:
+					if newMsg.Order.Order.Button == elevatorHW.ButtonCallUp{
+							elevatorHW.SetUpLight(1, true)
+					}
+				case 2:
+					if newMsg.Order.Order.Button == elevatorHW.ButtonCallUp{
+							elevatorHW.SetUpLight(2, true)
+					}else if newMsg.Order.Order.Button == elevatorHW.ButtonCallDown{
+						elevatorHW.SetDownLight(2, true)
+					}
+				case 3:
+					if newMsg.Order.Order.Button == elevatorHW.ButtonCallUp{
+							elevatorHW.SetUpLight(3, true)
+					}else if newMsg.Order.Order.Button == elevatorHW.ButtonCallDown{
+						elevatorHW.SetDownLight(3, true)
+					}
+				case 4:
+					if newMsg.Order.Order.Button == elevatorHW.ButtonCallDown{
+							elevatorHW.SetDownLight(1, true)
+					}
+				}
 			}
 			//fmt.Print("This is OrderMap:  ")
 			//fmt.Println(hallButtonsMap)
@@ -206,6 +240,7 @@ func main() {
 
 			if newOrder.Button == elevatorHW.ButtonCommand {
 				fsm.PutInsideOrderInLocalQueue()
+				backupCh <- newOrder.Floor
 			} else if len(operatingElevatorStates) == 0 || len(operatingElevatorStates) == 1 {
 				fsm.PutOrderInLocalQueue(newOrder)
 			} else {

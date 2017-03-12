@@ -42,11 +42,10 @@ var lights [NFloors][NLights]int = [NFloors][NLights]int{
 func Init() {
 	status := io.Init()
 	if status {
-		fmt.Println("Initialization executed successfully")
+		fmt.Println("Hardware initialization executed successfully")
 	} else {
 		fmt.Println("Initialization error")
 	}
-	io.ClearBit(lightCommand2)
 
 	for floor := 0; floor < NFloors; floor++ {
 		for button := 0; button < NButtons; button++ {
@@ -316,4 +315,3 @@ func SetStopButton(onOff bool) {
 		io.ClearBit(lightStop)
 	}
 }
-
