@@ -61,6 +61,12 @@ func SortLocalQueue() {
 	sort.Ints(localQueue[2])
 }
 
+func SortLocalBiggestFirst() {
+	sort.Sort(sort.Reverse(sort.IntSlice(localQueue[0])))
+	sort.Sort(sort.Reverse(sort.IntSlice(localQueue[1])))
+	sort.Sort(sort.Reverse(sort.IntSlice(localQueue[2])))
+}
+
 func DeleteOldestOrderDown() {
 	length := len(localQueue[2])
 	if length < 1 {

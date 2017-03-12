@@ -105,26 +105,41 @@ func SetElevatorDirection() {
 	currentDirection := elevatorHW.GetElevatorDirection()
 	currentState := elevatorHW.GetElevatorState()
 	currentFloor := elevatorHW.GetFloorSensorSignal()
-
+	lengthInsideQueue := len(localQueue[0])
+	// // lengthUpQueue := len(localQueue[1])
+	// // lengthDownQueue := len(localQueue[2])
 	if currentDirection == 1 || currentDirection == 0 {
 		if currentFloor != 0 {
 			if len(localQueue[0]) > 0 && currentState == 0 {
-				if localQueue[0][0] < currentFloor {
+				if (localQueue[0][0] < currentFloor) {
 					elevatorHW.SetMotor(elevatorHW.DirectionDown)
+					return
 				} else if localQueue[0][0] > currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionUp)
+					return
 				}
 			} else if len(localQueue[1]) > 0 {
-				if localQueue[1][0] < currentFloor {
+				if (localQueue[1][0] < currentFloor){
+					if lengthInsideQueue > 0{
+						SortLocalBiggestFirst()
+						if localQueue[0][0] > currentFloor {
+							elevatorHW.SetMotor(elevatorHW.DirectionUp)
+							return
+						}
+					}
 					elevatorHW.SetMotor(elevatorHW.DirectionDown)
+					return
 				} else if localQueue[1][0] > currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionUp)
+					return
 				}
 			} else if len(localQueue[2]) > 0 {
 				if localQueue[2][0] < currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionDown)
+					return
 				} else if localQueue[2][0] > currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionUp)
+					return
 				}
 			}
 		}
@@ -177,7 +192,7 @@ func StopAtThisFloor(orderCompletedCh chan<- Order) {
 						}
 					}
 				}
-				if (i == 0 || i == 1) && (currentDirection == 0 || currentFloor == 1) {
+				if (i == 0 || i == 1) && currentState == 1 {
 					elevatorHW.SetMotor(elevatorHW.DirectionStop)
 					ArrivedAtFloorSetDoorOpen(currentFloor)
 					elevatorHW.SetUpLight(currentFloor, false)
