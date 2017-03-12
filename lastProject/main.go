@@ -129,6 +129,24 @@ func main() {
 			fmt.Println("I have deleted an order!")
 			delete(hallButtonsMap, orderIsHandled)
 
+			switch orderIsHandled.Floor{
+			case 1:
+				elevatorHW.SetUpLight(orderIsHandled.Floor, false)
+			case 2:
+				if orderIsHandled.Button == elevatorHW.ButtonCallDown{
+					elevatorHW.SetDownLight(orderIsHandled.Floor, false)
+				}else if orderIsHandled.Button == elevatorHW.ButtonCallUp{
+					elevatorHW.SetUpLight(orderIsHandled.Floor, false)
+				}
+			case 3:
+				if orderIsHandled.Button == elevatorHW.ButtonCallDown{
+					elevatorHW.SetDownLight(orderIsHandled.Floor, false)
+				}else if orderIsHandled.Button == elevatorHW.ButtonCallUp{
+					elevatorHW.SetUpLight(orderIsHandled.Floor, false)
+				}
+			case 4:
+				elevatorHW.SetUpLight(orderIsHandled.Floor, false)
+			}
 			sendDeletedOrderCh <- orderIsHandled
 
 		case newMsg := <-messageCh:
