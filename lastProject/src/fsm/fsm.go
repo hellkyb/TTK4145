@@ -122,7 +122,7 @@ func SetElevatorDirection() {
 				if (localQueue[1][0] < currentFloor){
 					if lengthInsideQueue > 0{
 						SortLocalBiggestFirst()
-						if localQueue[0][0] > currentFloor {
+						if localQueue[0][0] > currentFloor && currentDirection == 0{
 							elevatorHW.SetMotor(elevatorHW.DirectionUp)
 							return
 						}
@@ -131,6 +131,7 @@ func SetElevatorDirection() {
 					return
 				} else if localQueue[1][0] > currentFloor {
 					elevatorHW.SetMotor(elevatorHW.DirectionUp)
+
 					return
 				}
 			} else if len(localQueue[2]) > 0 {
@@ -138,6 +139,13 @@ func SetElevatorDirection() {
 					elevatorHW.SetMotor(elevatorHW.DirectionDown)
 					return
 				} else if localQueue[2][0] > currentFloor {
+					if lengthInsideQueue > 0{
+						SortLocalQueue()
+						if localQueue[0][0] < currentFloor && currentDirection == 1{
+							elevatorHW.SetMotor(elevatorHW.DirectionDown)
+							return
+						}
+					}
 					elevatorHW.SetMotor(elevatorHW.DirectionUp)
 					return
 				}
