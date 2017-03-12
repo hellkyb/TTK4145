@@ -264,9 +264,10 @@ func RunElevator(orderCompletedCh chan<- Order, hallButtonsMap map[Order]int64) 
 		HandleTimeOutOrder(hallButtonsMap)
 		SetLatestFloor()
 		StopAtThisFloor(orderCompletedCh)
+		DoorLightTimeOut()
 		SetElevatorDirection()
 		StopButtonPressed()
-		DoorLightTimeOut()
+
 	}
 }
 
