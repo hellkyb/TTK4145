@@ -3,7 +3,7 @@ package main
 import (
 	"./src/elevatorHW"
 	"./src/fsm"
-	"./src/olasnetwork"
+	"./src/network"
 	"fmt"
 	"time"
 	"sync"
@@ -66,15 +66,15 @@ func costFunction(dir int, lastFloor int, order fsm.Order) int {
 	return (2 * dirCost) + distCost
 }
 
-func decitionmaker(onlineElevatorStates map[string]olasnetwork.HelloMsg, newOrder fsm.Order) (string, int) {
-	numberOfElevatorsInNetwork := olasnetwork.OperatingElevators
+func decitionmaker(onlineElevatorStates map[string]network.HelloMsg, newOrder fsm.Order) (string, int) {
+	numberOfElevatorsInNetwork := network.OperatingElevators
 	if numberOfElevatorsInNetwork == 0 || numberOfElevatorsInNetwork == 1 {
-		return olasnetwork.GetLocalID(), 0
+		return network.GetLocalID(), 0
 	}
 	var elevatorWithLowestCost string
 	lowestCost := 1337
 	if len(onlineElevatorStates) < 2 {
-		return olasnetwork.GetLocalID(), 0
+		return network.GetLocalID(), 0
 	}
 	for key, value := range onlineElevatorStates {
 		thisCost := costFunction(value.CurrentState, value.LastFloor, newOrder)
@@ -113,13 +113,13 @@ func main() {
 	fsm.CreateQueueSlice()
 	time.Sleep(1 * time.Millisecond)
 
-	operatingElevatorStates := make(map[string]olasnetwork.HelloMsg)
+	operatingElevatorStates := make(map[string]network.HelloMsg)
 	hallButtonsMap := make(map[fsm.Order]int64)
 
 	buttonCh := make(chan fsm.Order)
-	messageCh := make(chan olasnetwork.HelloMsg)
-	networkOrderCh := make(chan olasnetwork.HelloMsg)
-	networkSendOrderCh := make(chan olasnetwork.OrderMsg)
+	messageCh := make(chan network.HelloMsg)
+	networkOrderCh := make(chan network.HelloMsg)
+	networkSendOrderCh := make(chan network.OrderMsg)
 	orderCompletedCh := make(chan fsm.Order)
 	sendDeletedOrderCh := make(chan fsm.Order)
 
@@ -127,7 +127,7 @@ func main() {
 
 	go fsm.RunElevator(orderCompletedCh)
 	go fsm.GetButtonsPressed(buttonCh)
-	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
+	go network.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
 	go fsm.HandleTimeOutOrder(hallButtonsMap, mutex)
 
 	for {
@@ -168,9 +168,9 @@ func main() {
 			//fmt.Println(hallButtonsMap)
 			//fmt.Print("Length of elevatorState Map:  ")
 			//fmt.Println(len(operatingElevatorStates))
-			olasnetwork.UpdateElevatorStates(newMsg, operatingElevatorStates)
-			olasnetwork.DeleteDeadElevator(operatingElevatorStates)
-			if newMsg.Order.ElevatorToTakeThisOrder == olasnetwork.GetLocalID() {
+			network.UpdateElevatorStates(newMsg, operatingElevatorStates)
+			network.DeleteDeadElevator(operatingElevatorStates)
+			if newMsg.Order.ElevatorToTakeThisOrder == network.GetLocalID() {
 				fsm.PutOrderInLocalQueue(newMsg.Order.Order)
 				fmt.Println("I recieved an order! Local Queue:  ")
 				fsm.PrintQueues()
@@ -237,7 +237,7 @@ func main() {
 				case 4:
 					elevatorHW.SetDownLight(newOrder.Floor, true)
 				}
-				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
+				networkSendOrderCh <- network.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
 		//default:
 			//fsm.HandleTimeOutOrder(hallButtonsMap)

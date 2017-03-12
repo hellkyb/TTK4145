@@ -1,4 +1,4 @@
-package olasnetwork
+package network
 
 import (
 	"flag"
