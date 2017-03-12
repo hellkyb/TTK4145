@@ -16,7 +16,7 @@ func main() {
 	if !backup {
 		fmt.Println("Main started")
     str := "go run backUpTest.go"
-    cmd1:= exec.Command("ssh user@129.241.187.159", str)
+    cmd1:= exec.Command("ssh student@129.241.187.159", str)
 		cmd := exec.Command("bash", "-c", "gnome-terminal -x go run backUpTest.go backup")
 		out, err := cmd.Output()
 		fmt.Println(string(out))
