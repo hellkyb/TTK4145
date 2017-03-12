@@ -170,8 +170,8 @@ func main() {
 				fmt.Println(hallButtonsMap)
 				networkSendOrderCh <- olasnetwork.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
-		default:
-			fsm.HandleTimeOutOrder(hallButtonsMap)
+		//default:
+			//fsm.HandleTimeOutOrder(hallButtonsMap)
 		}
 	}
 }
