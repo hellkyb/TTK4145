@@ -67,7 +67,7 @@ func GetLocalID() string {
 	return localIP[12:]
 }
 
-func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, networkSendOrderCh chan OrderMsg, orderCompletedCh chan fsm.Order, sendDeletedOrderCh chan fsm.Order) {
+func NetworkMain(messageCh chan<- HelloMsg, receivedNetworkOrderCh chan<- HelloMsg, sendOrderToPeerCh chan OrderMsg, orderCompletedCh chan fsm.Order, sendDeletedOrderCh chan fsm.Order) {
 	// Our id can be anything. Here we pass it on the command line, using
 	//  `go run main.go -id=our_id`
 	var id string
@@ -121,7 +121,7 @@ func NetworkMain(messageCh chan<- HelloMsg, networkOrderCh chan<- HelloMsg, netw
 				helloMsg.Order = OrderMsg{fsm.Order{-1, -1}, "Nil"}
 				helloMsg.OrderExecuted = deletedOrder
 				helloTx <- helloMsg
-			case order := <-networkSendOrderCh:
+			case order := <-sendOrderToPeerCh:
 				helloMsg.CurrentState = elevatorHW.GetElevatorState()
 				helloMsg.LastFloor = fsm.LatestFloor
 				helloMsg.Order = order

@@ -108,7 +108,7 @@ func main() {
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
 	elevatorHW.Init()
-	//fsm.StartUpMessage()
+	fsm.StartUpMessage()
 	//finished init
 	fsm.CreateQueueSlice()
 	time.Sleep(1 * time.Millisecond)
@@ -118,8 +118,8 @@ func main() {
 
 	buttonCh := make(chan fsm.Order)
 	messageCh := make(chan network.HelloMsg)
-	networkOrderCh := make(chan network.HelloMsg)
-	networkSendOrderCh := make(chan network.OrderMsg)
+	receivedNetworkOrderCh := make(chan network.HelloMsg)
+	sendOrderToPeerCh := make(chan network.OrderMsg)
 	orderCompletedCh := make(chan fsm.Order)
 	sendDeletedOrderCh := make(chan fsm.Order)
 
@@ -127,7 +127,7 @@ func main() {
 
 	go fsm.RunElevator(orderCompletedCh)
 	go fsm.GetButtonsPressed(buttonCh)
-	go network.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
+	go network.NetworkMain(messageCh, receivedNetworkOrderCh, sendOrderToPeerCh, orderCompletedCh, sendDeletedOrderCh)
 	go fsm.HandleTimeOutOrder(hallButtonsMap, mutex)
 
 	for {
@@ -237,7 +237,7 @@ func main() {
 				case 4:
 					elevatorHW.SetDownLight(newOrder.Floor, true)
 				}
-				networkSendOrderCh <- network.OrderMsg{newOrder, elevatorToHandleThisOrder}
+				sendOrderToPeerCh <- network.OrderMsg{newOrder, elevatorToHandleThisOrder}
 			}
 		//default:
 			//fsm.HandleTimeOutOrder(hallButtonsMap)
