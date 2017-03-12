@@ -4,6 +4,7 @@ import (
 	"../elevatorHW"
 	"fmt"
 	"time"
+	//"sync"
 )
 
 var OperatingElevators int
@@ -12,7 +13,7 @@ var TimeStamp int64
 var TimeStampPtr *int64
 var latestFloorPtr *int
 var LatestFloor int
-
+//var mu sync.Mutex
 /*
 Order type - description
 {Floor, 0} Calldown from IFloor
@@ -39,10 +40,12 @@ func ArrivedAtFloorSetDoorOpen(floor int, timeOut chan<- bool) {
 }
 
 func DoorLightTimeOut(){
+//	mu.Lock()
 	currentTime := time.Now().Unix()
 	if (currentTime - TimeStamp) > 3{
 		elevatorHW.SetDoorLight(false)
 	}
+//	mu.Unlock()
 }
 
 func GetButtonsPressed(buttonCh chan<- Order) {

@@ -126,7 +126,6 @@ func main() {
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
 
 	for {
-		fsm.DoorLightTimeOut()
 		select {
 
 		case orderIsHandled := <-orderCompletedCh:
@@ -141,7 +140,6 @@ func main() {
 			if newMsg.Order.Order.Floor != -1 {
 				hallButtonsMap[newMsg.Order.Order] = time.Now().Unix()
 			}
-			fsm.DoorLightTimeOut()
 			//fmt.Print("This is OrderMap:  ")
 			//fmt.Println(hallButtonsMap)
 			//fmt.Print("Length of elevatorState Map:  ")
@@ -157,7 +155,7 @@ func main() {
 				fmt.Println(hallButtonsMap)
 				delete(hallButtonsMap, newMsg.OrderExecuted)
 				fmt.Println("Some elevator has actually done its job!!!! Hurray")
-				fmt.Println(hallButtonsMap)
+				fmt.Println(hallButtonsMap)				
 			}
 
 		case newOrder := <-buttonCh:
@@ -180,6 +178,7 @@ func main() {
 			}
 		default:
 			fsm.HandleTimeOutOrder(hallButtonsMap)
+			//fsm.DoorLightTimeOut()
 		}
 	}
 }
