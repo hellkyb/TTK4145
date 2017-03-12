@@ -4,7 +4,7 @@ import (
 	"../elevatorHW"
 	"fmt"
 	"time"
-	//"sync"
+	"sync"
 )
 
 var OperatingElevators int
@@ -30,7 +30,14 @@ type ElevatorStatus struct {
 	elevatorID string
 }
 
-
+/*func floorInQueue(queue []int, floor int)bool{
+	for queueElement := range queue {
+		if queueElement == floor{
+			return true
+		}
+	}
+	return false
+}*/
 	//	mu.Unlock()
 
 
@@ -79,11 +86,13 @@ func PutOrderInLocalQueue(newOrder Order) {
 	}
 }
 
-func HandleTimeOutOrder(hallButtonsMap map[Order]int64){
+func HandleTimeOutOrder(hallButtonsMap map[Order]int64, mutex sync.Mutex){
 	if len(hallButtonsMap) > 0{
 		for key,value := range hallButtonsMap{
 			if (time.Now().Unix() - value) >  15 {
+				mutex.Lock()
 				PutOrderInLocalQueue(key)
+				mutex.Unlock()
 			}
 		}
 	}
@@ -152,6 +161,22 @@ func SetElevatorDirection() {
 		}
 	}
 }
+/*func NewStopAtThisFloor(orderCompletedCh chan<- Order){
+	currentState := elevatorHW.GetElevatorState()
+	currentFloor := elevatorHW.GetFloorSensorSignal()
+	currentDirection := elevatorHW.GetElevatorDirection() // 1 is going down, 0 is going up
+	numberOfDownOrders:= len(localQueue[2])
+	numberOfUpOrders := len(localQueue[1])
+	numberOfLocalOrders := len(localQueue[0])
+
+	for i := 0; i < 3; i++ {
+		if i==0{
+			switch currentDirection{
+				case
+			}
+		}
+	}
+}*/
 
 func StopAtThisFloor(orderCompletedCh chan<- Order) {
 	currentState := elevatorHW.GetElevatorState()
@@ -300,16 +325,15 @@ func SetLatestFloor() {
 	}
 }
 
-func RunElevator(orderCompletedCh chan<- Order, hallButtonsMap map[Order]int64) {
+func RunElevator(orderCompletedCh chan<- Order, hallButtonsMap map[Order]int64, mutex sync.Mutex) {
 	for {
 		DoorLightTimeOut()
-		HandleTimeOutOrder(hallButtonsMap)
+		HandleTimeOutOrder(hallButtonsMap, mutex)
 		SetLatestFloor()
 		StopAtThisFloor(orderCompletedCh)
 		DoorLightTimeOut()
 		SetElevatorDirection()
 		StopButtonPressed()
-
 	}
 }
 

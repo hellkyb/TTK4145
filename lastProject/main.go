@@ -6,6 +6,7 @@ import (
 	"./src/olasnetwork"
 	"fmt"
 	"time"
+	"sync"
 )
 
 // This function returns how suitet the elevator is to handle a global call
@@ -122,14 +123,18 @@ func main() {
 	orderCompletedCh := make(chan fsm.Order)
 	sendDeletedOrderCh := make(chan fsm.Order)
 
-	go fsm.RunElevator(orderCompletedCh, hallButtonsMap)
+	var mutex sync.Mutex
+
+	go fsm.RunElevator(orderCompletedCh, hallButtonsMap, mutex)
 	go fsm.GetButtonsPressed(buttonCh)
 	go olasnetwork.NetworkMain(messageCh, networkOrderCh, networkSendOrderCh, orderCompletedCh, sendDeletedOrderCh)
 	for {
 		select {
 		case orderIsHandled := <-orderCompletedCh:
 			fmt.Println("I have deleted an order!")
+			mutex.Lock()
 			delete(hallButtonsMap, orderIsHandled)
+			mutex.Unlock()
 
 			switch orderIsHandled.Floor{
 			case 1:
@@ -153,7 +158,9 @@ func main() {
 
 		case newMsg := <-messageCh:
 			if newMsg.Order.Order.Floor != -1 {
+				mutex.Lock()
 				hallButtonsMap[newMsg.Order.Order] = time.Now().Unix()
+				mutex.Unlock()
 			}
 			//fmt.Print("This is OrderMap:  ")
 			//fmt.Println(hallButtonsMap)
@@ -168,7 +175,9 @@ func main() {
 			}
 			if newMsg.OrderExecuted.Floor != -1 {
 				fmt.Println(hallButtonsMap)
+				mutex.Lock()
 				delete(hallButtonsMap, newMsg.OrderExecuted)
+				mutex.Unlock()
 				fmt.Println("Some elevator has actually done its job!!!! Hurray")
 				fmt.Println(hallButtonsMap)
 				switch newMsg.OrderExecuted.Floor{
@@ -204,7 +213,9 @@ func main() {
 				fmt.Print(" to handle this order with cost of ")
 				fmt.Print(cost)
 				fmt.Println(" ")
+				mutex.Lock()
 				hallButtonsMap[newOrder] = time.Now().Unix()
+				mutex.Unlock()
 				fmt.Println(hallButtonsMap)
 				switch newOrder.Floor{
 				case 1:
