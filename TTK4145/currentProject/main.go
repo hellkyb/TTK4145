@@ -8,6 +8,10 @@ import (
 	"fmt"
 	"time"
 	"sync"
+	"os"
+	"os/signal"
+	"os/exec"
+
 )
 
 // This function returns how suitet the elevator is to handle a global call
@@ -115,7 +119,7 @@ func PrintLocalData(operatingElevatorStates map[string]network.HelloMsg){
 		roof := ColY + "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯" + ColN
 		wall := ColY + "|" + ColN
 		localElev := wall + ColY +" I am elevator " + string(myID) + "           "+wall+"\n"+ ColN
-		
+
 		fmt.Print(flatLine + "\n")
 		fmt.Print(localElev)
 		fmt.Print(roof + "\n")
@@ -173,10 +177,24 @@ func PrintLocalData(operatingElevatorStates map[string]network.HelloMsg){
 
 
 func main() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func(){
+    for sig := range c {
+        cmd := exec.Command("bash", "-c", "gnome-terminal -x go run main.go")
+				out, _ := cmd.Output()
+				fmt.Println(string(out))
+				fmt.Println(sig)
+				os.Exit(1)
+
+    }
+	}()
 	//start init
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
 	elevatorHW.Init()
+	//fsm.StartUpMessage()
+	//time.Sleep(2500 * time.Millisecond)
 	//fsm.StartUpMessage()
 	//finished init
 	queueFromBackup := backup.ReadBackupFromFile()
