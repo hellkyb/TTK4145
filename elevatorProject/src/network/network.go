@@ -49,14 +49,8 @@ func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg) {
 }
 
 func UpdateElevatorStates(newMsg HelloMsg, operatingElevatorStates map[string]HelloMsg) {
-	
-	operatingElevatorStates[newMsg.ElevatorID] = newMsg
 
-	for key,_ := range operatingElevatorStates {
-		if key == newMsg.ElevatorID {
-			operatingElevatorStates[key] = newMsg
-		}
-	}
+	operatingElevatorStates[newMsg.ElevatorID] = newMsg
 }
 
 func GetLocalID() string {
@@ -139,7 +133,7 @@ func NetworkMain(messageCh chan<- HelloMsg, receivedNetworkOrderCh chan<- HelloM
 
 			helloTx <- helloMsg
 
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(250 * time.Millisecond)
 		}
 	}()
 
