@@ -107,10 +107,12 @@ func decitionmaker(onlineElevatorStates map[string]network.HelloMsg, newOrder fs
 
 func PrintLocalData(operatingElevatorStates map[string]network.HelloMsg){
 	for{
+
 		up := ColG + "↑" + ColN
 		down := ColG + "↓" + ColN
 		idle := ColR + "↺" + ColN
 		localCurrentState := elevatorHW.GetElevatorState()
+		currentFloor := elevatorHW.GetFloorSensorSignal()
 		lastFloor := fsm.LatestFloor
 		otherElevatorsOnline := len(operatingElevatorStates)
 		ordersBeingHandled := fsm.GetNumberOfOrders()
@@ -133,6 +135,10 @@ func PrintLocalData(operatingElevatorStates map[string]network.HelloMsg){
 			fmt.Print(idle+ "       " + wall)
 
 		}
+		fmt.Print("\n")
+		fmt.Print(wall + ColM + "Current floor:       ")
+		fmt.Print(currentFloor)
+		fmt.Print("       " + wall)
 		fmt.Print("\n")
 		fmt.Print(wall + ColM + "Last floor:          ")
 		fmt.Print(lastFloor)
@@ -164,6 +170,7 @@ func PrintLocalData(operatingElevatorStates map[string]network.HelloMsg){
 				fmt.Print(wall + ColM + "LastFloor:           ")
 				fmt.Print(value.LastFloor)
 				fmt.Print("       " + wall + "\n")
+
 				fmt.Print(roof + "\n")
 			}
 		}
@@ -175,8 +182,8 @@ func PrintLocalData(operatingElevatorStates map[string]network.HelloMsg){
 	}
 }
 
-
 func main() {
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go func(){
@@ -185,10 +192,11 @@ func main() {
 				out, _ := cmd.Output()
 				fmt.Println(string(out))
 				fmt.Println(sig)
-				os.Exit(1)
+				os.Exit(2)
 
     }
 	}()
+
 	//start init
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
@@ -225,6 +233,7 @@ func main() {
 	go fsm.HandleTimeOutOrder(hallButtonsMap, mutex)
 	go backup.FileBackup(backupCh,backupRemoveOrderCh)
 	go PrintLocalData(operatingElevatorStates)
+	
 
 
 	for {
