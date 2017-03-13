@@ -1,0 +1,15 @@
+package main
+
+import (
+	"driver"
+	"fmt"
+)
+
+func main(){
+	status := elev.ioInit()
+	if(staus){
+		fmt.Println("Ja")
+	} else {
+		fmt.Println("Nei")
+	}
+}

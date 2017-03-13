@@ -1,0 +1,20 @@
+diff a/project/main.go b/project/main.go	(rejected hunks)
+@@ -124,9 +124,18 @@
+ 
+ 	for {
+ 		select {
++		case newMsg := <-messageCh:
++			operatingElevatorStates = olasnetwork.UpdateElevatorStates(newMsg, olasnetwork.OperatingElevators, olasnetwork.OperatingElevatorStates)
++			fmt.Println(operatingElevatorStates)
+ 		case newOrder := <-buttonCh:
+ 			fmt.Print("You made an order: ")
+ 			fmt.Println(newOrder)
++			if newOrder.Button == elevatorHW.ButtonCommand {
++				fsm.PutInsideOrderInLocalQueue(newOrder)
++			} else {
++
++				decitionmaker(olasnetwork.OperatingElevatorStates)
++			}
+ 			fsm.PrintQueues()
+ 		}
+ 		//time.Sleep(200 * time.Millisecond)
