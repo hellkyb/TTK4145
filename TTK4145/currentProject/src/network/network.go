@@ -49,7 +49,7 @@ func DeleteDeadElevator(operatingElevatorStates map[string]HelloMsg) {
 }
 
 func UpdateElevatorStates(newMsg HelloMsg, operatingElevatorStates map[string]HelloMsg) {
-	lengthOfMap := len(operatingElevatorStates)
+	
 	operatingElevatorStates[newMsg.ElevatorID] = newMsg
 
 	for key,_ := range operatingElevatorStates {

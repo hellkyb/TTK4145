@@ -115,8 +115,7 @@ func PrintLocalData(operatingElevatorStates map[string]network.HelloMsg){
 		roof := ColY + "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯" + ColN
 		wall := ColY + "|" + ColN
 		localElev := wall + ColY +" I am elevator " + string(myID) + "           "+wall+"\n"+ ColN
-		fmt.Println(operatingElevatorStates)
-		fmt.Println(network.OperatingElevators)
+		
 		fmt.Print(flatLine + "\n")
 		fmt.Print(localElev)
 		fmt.Print(roof + "\n")
