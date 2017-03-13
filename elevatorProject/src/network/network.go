@@ -99,7 +99,7 @@ func NetworkMain(messageCh chan<- HelloMsg, receivedNetworkOrderCh chan<- HelloM
 	go bcast.Receiver(16167, helloRx)
 	OperatingElevatorsPtr = &OperatingElevators
 
-	// The example message. We just send one of these every second.
+	
 	go func() {
 		initialOrderCompleted := fsm.Order{-1, -1}
 		helloMsg := HelloMsg{elevatorID, 0, 5, OrderMsg{fsm.Order{-1, -1}, "Nil"}, 0, initialOrderCompleted}
