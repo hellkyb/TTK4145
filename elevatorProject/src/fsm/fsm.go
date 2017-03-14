@@ -102,27 +102,6 @@ func PutInsideOrderInLocalQueue() {
 	}
 }
 
-func CheckFrozenState(){
-	for{
-		switch elevatorHW.GetElevatorState() {
-		case 1:
-			time.Sleep(200*time.Millisecond)
-			if elevatorHW.GetElevatorState() == 1{
-				time.Sleep(200*time.Millisecond)
-				if elevatorHW.GetElevatorState() == 1{
-					time.Sleep(200*time.Millisecond)
-					if elevatorHW.GetElevatorState() == 1{
-						time.Sleep(200*time.Millisecond)
-						if elevatorHW.GetElevatorState() == 1{
-							elevatorHW.SetMotor(elevatorHW.DirectionDown)
-						}
-					}
-				}
-			}
-		case -1:
-		}
-	}
-}
 
 func SetElevatorDirection() {
 	if elevatorHW.GetDoorLight() != 0 {
