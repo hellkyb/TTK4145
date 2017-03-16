@@ -172,6 +172,7 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		for sig := range c {
+			elevatorHW.SetMotor(elevatorHW.DirectionStop)
 			cmd := exec.Command("bash", "-c", "gnome-terminal -x go run main.go")
 			out, _ := cmd.Output()
 			fmt.Println(string(out))
@@ -183,6 +184,7 @@ func main() {
 
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
+	fsm.StartUpMessage()
 	elevatorHW.Init()
 	queueFromBackup := backup.ReadBackupFromFile()
 	for i := range queueFromBackup {
