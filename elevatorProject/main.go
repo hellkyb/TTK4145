@@ -184,14 +184,14 @@ func main() {
 
 	fmt.Println("Starting system")
 	fmt.Print("\n\n")
-	fsm.StartUpMessage()
+	//fsm.StartUpMessage()
 	elevatorHW.Init()
 	queueFromBackup := backup.ReadBackupFromFile()
-	for i := range queueFromBackup {
+	/*for i := range queueFromBackup {
 		if queueFromBackup[i] != -1 {
 			elevatorHW.SetInsideLight(i+1, true)
 		}
-	}
+	}*/
 	fsm.CreateQueueSlice(queueFromBackup)
 
 	operatingElevatorStates := make(map[string]network.HelloMsg)

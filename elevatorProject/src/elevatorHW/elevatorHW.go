@@ -27,7 +27,6 @@ const (
 	ButtonCommand
 )
 
-
 var lights [NFloors][NLights]int = [NFloors][NLights]int{
 	{lightDown1, lightUp1, lightCommand1},
 	{lightDown2, lightUp2, lightCommand2},
